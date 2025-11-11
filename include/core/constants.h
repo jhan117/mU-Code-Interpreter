@@ -1,0 +1,13 @@
+#pragma once
+
+#define ERR_INVALID_ADDR 0x1
+#define ERR_INVALID_PC 0x2
+#define ERR_INVALID_BP 0x4
+#define ERR_STACK_OVERFLOW 0x8
+#define ERR_STACK_UNDERFLOW 0x10
+
+#define OPCODE_MAX 47
+
+#define TOTAL_OPCODE_GROUPS 5
+
+#define INIT_LIST_CAPACITY 16
