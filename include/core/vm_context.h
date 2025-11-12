@@ -11,4 +11,5 @@ typedef struct {
 } VMContext;
 
 VMContext *getVMContext(void);
+void initVMContext(void);
 void freeVMContext(void);
