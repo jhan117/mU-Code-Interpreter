@@ -9,3 +9,6 @@ typedef struct {
   Statistics stat;
 
 } VMContext;
+
+VMContext *getVMContext(void);
+void freeVMContext(void);

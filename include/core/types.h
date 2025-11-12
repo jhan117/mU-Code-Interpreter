@@ -2,12 +2,12 @@
 
 #include "constants.h"
 
-typedef struct {
+typedef struct Change {
   int hdware_num;
   int addr;
   int old_value;
   int new_value;
-  Change *next;
+  struct Change *next;
 } Change;
 
 typedef struct {
