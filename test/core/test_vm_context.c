@@ -29,7 +29,7 @@ void testInitVMContext(void) {
     assert(ctx->inst_group[i].group_id == i);
   }
 
-  printf("test_initVMContext() pass\n");
+  printf("test : initVMContext() pass\n");
 }
 
 // VMContext 해제
@@ -45,5 +45,5 @@ void testFreeVMContext(void) {
   for (size_t i = 0; i < sizeof(VMContext); i++) {
     assert(((unsigned char *)ctx)[i] == 0);
   }
-  printf("test_freeVMContext() pass\n");
+  printf("test : freeVMContext() pass\n");
 }
