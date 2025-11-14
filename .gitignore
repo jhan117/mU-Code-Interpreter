@@ -1,5 +1,3 @@
 .vscode
-.clang-format
-*.o
 build/
-*.exe
+build-test/

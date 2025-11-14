@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 // VMContext 초기화/해제
-void test_initVMContext(void) {
+void testInitVMContext(void) {
 
   initVMContext();
   VMContext *ctx = getVMContext();
@@ -33,7 +33,7 @@ void test_initVMContext(void) {
 }
 
 // VMContext 해제
-void test_freeVMContext(void) {
+void testFreeVMContext(void) {
 
   initVMContext();
   VMContext *ctx = getVMContext();

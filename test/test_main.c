@@ -2,8 +2,8 @@
 #include <stdio.h>
 
 int main(void) {
-  test_initVMContext();
-  test_freeVMContext();
+  testInitVMContext();
+  testFreeVMContext();
   printf("\nAll vm_context tests passed successfully!\n");
   return 0;
 }

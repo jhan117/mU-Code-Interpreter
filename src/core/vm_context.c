@@ -1,5 +1,4 @@
 #include "core/vm_context.h"
-
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,6 +37,5 @@ void freeVMContext(void) {
     free(ctx.changes.change_list);
     ctx.changes.change_list = NULL;
   }
-
   memset(&ctx, 0, sizeof(VMContext));
 }
