@@ -16,6 +16,7 @@ int pushCPUStack(int item) {
   VMContext *ctx = getVMContext();
   if (isFull()) {
     VMContext *ctx = getVMContext();
+    // CPU 스택 오버플로우
     ctx->flags |= ERR_CPU_STACK_OVERFLOW;
     return 0;
   }
@@ -29,6 +30,7 @@ int popCPUStack() {
   VMContext *ctx = getVMContext();
   if (isEmpty()) {
     VMContext *ctx = getVMContext();
+    // CPU 스택 언더플로우
     ctx->flags |= ERR_CPU_STACK_UNDERFLOW;
     return 0;
   }
