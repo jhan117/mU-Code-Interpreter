@@ -25,3 +25,9 @@ typedef struct {
   int inst_run_count[OPCODE_MAX];
   int memory_access_count;
 } Statistics;
+
+typedef struct {
+  int capacity;
+  int top;
+  int *items;
+} Stack;
