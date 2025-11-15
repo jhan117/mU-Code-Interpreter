@@ -3,7 +3,7 @@
 #include "constants.h"
 
 typedef struct {
-  char name[MAX_LABEL_LEN];
+  char name[MAX_LABEL_NAME_LEN];
   int addr;
 } Label;
 
@@ -15,7 +15,7 @@ typedef struct {
 
 typedef struct {
   int core_idx;
-  char label_name[MAX_LABEL_LEN];
+  char label_name[MAX_LABEL_NAME_LEN];
 } Patch;
 
 typedef struct {

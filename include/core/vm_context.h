@@ -13,6 +13,8 @@ typedef struct {
   LabelList labels;
   PatchList patches;
   SymbolList symbols;
+
+  int memory[INIT_MEMORY_SIZE];
 } VMContext;
 
 VMContext *getVMContext(void);
