@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-const char *assemble_error_str(int code) {
+const char *assembleError(int code) {
   switch (code) {
   case ASSEMBLE_OK:
     return "OK";
@@ -29,7 +29,7 @@ const char *assemble_error_str(int code) {
   }
 }
 
-int test_assemble_success() {
+int testAssembleSuccess() {
   char *lines[] = {
       "           bgn 1",      "           sym  1 0 1", "           ldc  10",
       "           str  1 0",   "           ldp",        "           call main",
@@ -62,8 +62,7 @@ int test_assemble_success() {
   int res = assemble(lines, line_count);
 
   if (res != ASSEMBLE_OK) {
-    printf("[FAIL] assemble() returned %d (%s)\n", res,
-           assemble_error_str(res));
+    printf("[FAIL] assemble() returned %d (%s)\n", res, assembleError(res));
     return 1;
   }
 
@@ -119,8 +118,8 @@ static int checkAssemble(char **lines, int line_count, int expected,
   initVMContext();
   int res = assemble(lines, line_count);
   if (res != expected) {
-    printf("[FAIL] %s: expected %s, got %s\n\n", desc,
-           assemble_error_str(expected), assemble_error_str(res));
+    printf("[FAIL] %s: expected %s, got %s\n\n", desc, assembleError(expected),
+           assembleError(res));
     freeVMContext();
     return 1;
   } else {
@@ -130,7 +129,7 @@ static int checkAssemble(char **lines, int line_count, int expected,
   }
 }
 
-int test_assemble_failures() {
+int testAssembleFailures() {
   int failures = 0;
   char *lines1[] = {"           badcmd 10"};
   failures +=

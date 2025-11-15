@@ -1,6 +1,13 @@
 #pragma once
 
+#include "core/stack_operations.h"
 #include "core/vm_context.h"
 
-int test_assemble_success();
-int test_assemble_failures();
+int testAssembleSuccess();
+int testAssembleFailures();
+
+void testPushCPUStack(void);
+void testPopCPUStack(void);
+
+void testInitVMContext(void);
+void testFreeVMContext(void);
