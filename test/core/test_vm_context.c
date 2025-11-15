@@ -11,6 +11,11 @@ void testInitVMContext(void) {
   // 에러 플래그 초기화 테스트
   assert(ctx->flags == 0);
 
+  // 메모리 초기화 테스트
+  for (int i = 0; i < INIT_MEMORY_SIZE; i++) {
+    assert(ctx->memory[i] == 0);
+  }
+
   // 상태 변화 리스트 초기화 테스트
   assert(ctx->changes.change_list != NULL);
   assert(ctx->changes.list_count == 0);
@@ -29,6 +34,10 @@ void testInitVMContext(void) {
     assert(ctx->inst_group[i].group_id == i);
   }
 
+  assert(ctx->cpu_stack.capacity == INIT_CPU_STACK_CAPACITY);
+  assert(ctx->cpu_stack.top == 0);
+  assert(ctx->cpu_stack.items != NULL);
+
   printf("test : initVMContext() pass\n");
 }
 
@@ -41,6 +50,7 @@ void testFreeVMContext(void) {
   freeVMContext();
 
   assert(ctx->changes.change_list == NULL);
+  assert(ctx->cpu_stack.items == NULL);
 
   for (size_t i = 0; i < sizeof(VMContext); i++) {
     assert(((unsigned char *)ctx)[i] == 0);

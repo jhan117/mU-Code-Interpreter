@@ -13,6 +13,9 @@ void initVMContext(void) {
   // 에러 플래그 초기화
   ctx.flags = 0;
 
+  // 메모리 초기화
+  memset(ctx.memory, 0, sizeof(int) * INIT_MEMORY_SIZE);
+
   // 상태 변화 리스트 초기화
   ctx.changes.change_list = malloc(sizeof(Change *) * INIT_LIST_CAPACITY);
   ctx.changes.list_count = 0;
@@ -29,6 +32,10 @@ void initVMContext(void) {
     ctx.inst_group[i].execInst = NULL; // 명령어 처리 함수 구현 후 변경
     ctx.inst_group[i].group_id = i;
   }
+
+  ctx.cpu_stack.capacity = INIT_CPU_STACK_CAPACITY;
+  ctx.cpu_stack.top = 0;
+  ctx.cpu_stack.items = malloc(sizeof(int) * INIT_CPU_STACK_CAPACITY);
 }
 
 // VMContext 해제
@@ -36,6 +43,10 @@ void freeVMContext(void) {
   if (ctx.changes.change_list) {
     free(ctx.changes.change_list);
     ctx.changes.change_list = NULL;
+  }
+  if (ctx.cpu_stack.items) {
+    free(ctx.cpu_stack.items);
+    ctx.cpu_stack.items = NULL;
   }
   memset(&ctx, 0, sizeof(VMContext));
 }

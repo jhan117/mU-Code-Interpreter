@@ -30,4 +30,4 @@ typedef struct {
   int capacity;
   int top;
   int *items;
-} CPUStack;
+} Stack;

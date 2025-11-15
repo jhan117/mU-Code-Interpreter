@@ -1,4 +1,7 @@
 test:
 	$(MAKE) -C test test
-	
-.PHONY: test
+
+clean:
+	$(MAKE) -C test clean
+
+.PHONY: test clean
