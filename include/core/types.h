@@ -36,6 +36,7 @@ typedef struct {
   int count;
   int capacity;
 } SymbolList;
+
 typedef struct Change {
   int hdware_num;
   int addr;

@@ -83,16 +83,7 @@ int testAssembleSuccess() {
     if (opcode == 0 && operand == 0)
       break;
 
-    // 2주소 명령어 출력 ==> 뭔가 좀 이상하긴 한데 ㅋ
-    int block = (operand >> 13) & 0x1FFF;
-    int offset = operand & 0x1FFF;
-
-    if (offset != 0 || block != 0) {
-      printf("%04d: opcode=%02d operand=%d (block=%d, offset=%d)\n", i, opcode,
-             operand, block, offset);
-    } else {
-      printf("%04d: opcode=%02d operand=%d\n", i, opcode, operand);
-    }
+   printf("%04d: opcode=%02d operand=%d\n", i, opcode, operand);
   }
 
   printf("\n========= Label list =========\n");
@@ -104,8 +95,8 @@ int testAssembleSuccess() {
   printf("\n========= Symbol list =========\n");
   for (int i = 0; i < ctx->symbols.count; i++) {
     Symbol *sym = &ctx->symbols.symbols[i];
-    printf("Symbol: block=%d, offset=%d, size=%d\n", sym->block, sym->offset,
-           sym->size);
+    printf("Symbol[%d]: block=%d, offset=%d, size=%d\n", sym->index, sym->block,
+           sym->offset, sym->size);
   }
 
   freeVMContext();
