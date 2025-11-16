@@ -1,3 +1,4 @@
+#include "core/inst.h"
 #include "test.h"
 
 #include <assert.h>
@@ -8,6 +9,10 @@ void testInitVMContext(void) {
 
   initVMContext();
   VMContext *ctx = getVMContext();
+
+  // 실행 모드 초기화 테스트
+  assert(ctx->run_mode == CLI);
+
   // 에러 플래그 초기화 테스트
   assert(ctx->flags == 0);
 
@@ -28,9 +33,12 @@ void testInitVMContext(void) {
   assert(ctx->stat.memory_access_count == 0);
 
   // 명령어 그룹 테이블 초기화 테스트
+  assert(ctx->inst_group[0].execInst == execInstGroup0);
+  assert(ctx->inst_group[1].execInst == execInstGroup1);
+  assert(ctx->inst_group[2].execInst == execInstGroup2);
+  assert(ctx->inst_group[3].execInst == execInstGroup3);
+  assert(ctx->inst_group[4].execInst == execInstGroup4);
   for (int i = 0; i < TOTAL_OPCODE_GROUPS; i++) {
-    assert(ctx->inst_group[i].execInst ==
-           NULL); // 명령어 처리 함수 구현 후 변경 테스트
     assert(ctx->inst_group[i].group_id == i);
   }
 

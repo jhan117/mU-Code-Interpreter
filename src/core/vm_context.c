@@ -1,4 +1,5 @@
 #include "core/vm_context.h"
+#include "core/inst.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -41,6 +42,9 @@ void initVMContext(void) {
 
   // 레지스터 초기화
   ctx.cs = ctx.pc = ctx.ds = ctx.ss = ctx.sp = ctx.bp = 0;
+
+  // 실행 모드 초기화
+  ctx.run_mode = CLI;
   // 에러 플래그 초기화
   ctx.flags = 0;
 
@@ -59,8 +63,8 @@ void initVMContext(void) {
   ctx.stat.memory_access_count = 0;
 
   // 명령어 그룹 테이블 초기화
+  initInstGroup();
   for (int i = 0; i < TOTAL_OPCODE_GROUPS; i++) {
-    ctx.inst_group[i].execInst = NULL; // 명령어 처리 함수 구현 후 변경
     ctx.inst_group[i].group_id = i;
   }
 

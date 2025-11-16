@@ -23,3 +23,6 @@
 #define INIT_CPU_STACK_CAPACITY 100
 
 #define INIT_MEMORY_SIZE 65536
+
+#define CLI 0
+#define GUI 1
