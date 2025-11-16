@@ -131,7 +131,13 @@ int assemble(char **lines, int line_count) {
                            i + 1, "invalid operand type");
       int block = atoi(operands[0]);
       int offset = atoi(operands[1]);
-      operand_val = ((block & 0x1FFF) << 13) | (offset & 0x1FFF);
+
+      int idx = findSymbol(block, offset);
+      if (idx < 0) {
+        return returnError(ASSEMBLE_ERR_VAR_UNDEF, operands, operand_count,
+                           i + 1, "symbol not found");
+      }
+      operand_val = idx;
       break;
     }
     }
