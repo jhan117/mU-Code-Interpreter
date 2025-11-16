@@ -6,8 +6,8 @@ TEST_DIR := .
 BUILD_TEST := ../build-test
 TARGET := $(BUILD_TEST)/run_tests
 
-# 메인 소스 자동 수집
-SRC := $(shell find $(SRC_DIR) -name "*.c")
+# 메인 소스 자동 수집 (gui 폴더 제외)
+SRC := $(shell find $(SRC_DIR) -name "*.c" ! -path "*/gui/*")
 # 테스트 소스 자동 수집 (test 폴더만)
 TEST_SRC := $(shell find $(TEST_DIR) -name "*.c")
 
@@ -32,7 +32,7 @@ $(BUILD_TEST)/test/%.o: %.c
 test: $(TARGET)
 	@$(TARGET)
 
-clean:
+test-clean:
 	rm -rf $(BUILD_TEST)
 
-.PHONY: test clean
+.PHONY: test test-clean
