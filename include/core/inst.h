@@ -13,6 +13,9 @@ int decodeArg(int inst);
 // 명령어 오류 검사
 int checkError(VMContext *ctx, int addr, int pc, int bp, int sp);
 
+// 출력 버퍼 초기화
+void initOutBuffer();
+
 // 명령어 그룹
 void execInstGroup0(int inst);
 void execInstGroup1(int inst);
@@ -24,7 +27,7 @@ void execInstGroup4(int inst);
 void add(int arg);
 void sub(int arg);
 void mult(int arg);
-void div(int arg);
+void divI(int arg);
 void mod(int arg);
 void gt(int arg);
 void lt(int arg);
@@ -52,3 +55,7 @@ void ldc(int arg);
 void str(int arg);
 void ldi(int arg);
 void sti(int arg);
+
+void Write();
+void Read();
+void lf();

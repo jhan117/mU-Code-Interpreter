@@ -14,6 +14,7 @@ typedef struct {
   PatchList patches;
   SymbolList symbols;
 
+  int run_mode;
   unsigned int flags;
   int memory[INIT_MEMORY_SIZE];
   InstructionGroup inst_group[TOTAL_OPCODE_GROUPS];

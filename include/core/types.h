@@ -46,6 +46,7 @@ typedef struct Change {
 typedef struct {
   Change **change_list;
   int list_count;
+  int list_size;
 } ChangeList;
 
 typedef struct {

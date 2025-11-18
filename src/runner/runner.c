@@ -11,13 +11,29 @@ static const int mem_access[OPCODE_MAX] = {
     [OP_RET] = 2, [OP_PUSH] = 1, [OP_CALL] = 2, [OP_LOD] = 1,
     [OP_LDA] = 1, [OP_STR] = 1,  [OP_LDI] = 1,  [OP_STI] = 1};
 
-int step() {
+void step() {
   VMContext *ctx = getVMContext();
   int inst = ctx->memory[ctx->pc++];
   int group_code = decodeGroup(inst);
   int opcode = opcode_base[group_code] + decodeOpcode(inst);
   ctx->stat.memory_access_count += mem_access[opcode];
   ctx->inst_group[group_code].execInst(inst);
+  return;
 }
 
-int runner() { VMContext *ctx = getVMContext(); }
+void printError() {}
+
+int runner() {
+  VMContext *ctx = getVMContext();
+  initOutBuffer();
+  initSnapshot();
+
+  while (1) {
+    if (ctx->flags != 0 || ctx->bp == -1) {
+      printError();
+      return -1;
+    }
+    step();
+    saveChanges();
+  }
+}

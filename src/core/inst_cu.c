@@ -42,20 +42,22 @@ void push(int arg) {
 
 void call(int arg) {
   VMContext *ctx = getVMContext();
-  if (checkError(ctx, NULL, arg, NULL, NULL))
-    return;
   if (arg >= 0) {
     int old_bp = ctx->bp;
     ctx->bp = ctx->memory[ctx->bp - 2];
     ctx->memory[ctx->bp - 1] = ctx->pc;
     ctx->memory[ctx->bp] = old_bp;
-    if (checkError(ctx, NULL, NULL, ctx->bp, NULL))
+    if (checkError(ctx, NULL, arg, ctx->bp, NULL))
       return;
     ctx->pc = arg;
     ctx->ds = ctx->sp + 1;
     return;
-  } else {
-    // TODO: 시스템 함수 호출
+  } else if (arg == -1) {
+    Read();
+  } else if (arg == -2) {
+    Write();
+  } else if (arg == -3) {
+    lf();
   }
   return;
 }
@@ -100,9 +102,7 @@ void lod(int arg) {
 void lda(int arg) {
   VMContext *ctx = getVMContext();
   int addr = ctx->symbols.symbols[arg].offset;
-  if (checkError(ctx, addr, NULL, NULL, NULL))
-    return;
-  pushCPUStack(ctx->memory[addr]);
+  pushCPUStack(addr);
   return;
 }
 

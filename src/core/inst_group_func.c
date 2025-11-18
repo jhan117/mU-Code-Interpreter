@@ -1,48 +1,48 @@
 #include "core/inst.h"
+#include "core/opcode.h"
 #include "core/vm_context.h"
-#include "opcode.h"
 #include "runner.h"
 
-static InstructionGroup inst_group_map[] = {
-    // 함수 정의 및 호출 (5)
-    {OP_PROC, proc},
-    {OP_RET, ret},
-    {OP_LDP, ldp},
-    {OP_PUSH, push},
-    {OP_CALL, call},
+// static InstructionGroup inst_group_map[] = {
+//     // 함수 정의 및 호출 (5)
+//     {OP_PROC, proc},
+//     {OP_RET, ret},
+//     {OP_LDP, ldp},
+//     {OP_PUSH, push},
+//     {OP_CALL, call},
 
-    // 흐름 제어 (3)
-    {OP_UJP, ujp},
-    {OP_TJP, tjp},
-    {OP_FJP, fjp},
+//     // 흐름 제어 (3)
+//     {OP_UJP, ujp},
+//     {OP_TJP, tjp},
+//     {OP_FJP, fjp},
 
-    // 데이터 이동 연산자 (6)
-    {OP_LOD, lod},
-    {OP_LDA, lda},
-    {OP_LDC, ldc},
-    {OP_STR, str},
-    {OP_LDI, ldi},
-    {OP_STI, sti},
+//     // 데이터 이동 연산자 (6)
+//     {OP_LOD, lod},
+//     {OP_LDA, lda},
+//     {OP_LDC, ldc},
+//     {OP_STR, str},
+//     {OP_LDI, ldi},
+//     {OP_STI, sti},
 
-    // 이항 연산자 (13)
-    {OP_GT, gt},
-    {OP_LT, lt},
-    {OP_GE, ge},
-    {OP_LE, le},
-    {OP_EQ, eq},
-    {OP_NE, ne},
-    {OP_AND, andI},
-    {OP_OR, orI},
+//     // 이항 연산자 (13)
+//     {OP_GT, gt},
+//     {OP_LT, lt},
+//     {OP_GE, ge},
+//     {OP_LE, le},
+//     {OP_EQ, eq},
+//     {OP_NE, ne},
+//     {OP_AND, andI},
+//     {OP_OR, orI},
 
-    {OP_ADD, add},
-    {OP_SUB, sub},
-    {OP_MULT, mult},
-    {OP_DIV, divI},
-    {OP_MOD, mod},
+//     {OP_ADD, add},
+//     {OP_SUB, sub},
+//     {OP_MULT, mult},
+//     {OP_DIV, divI},
+//     {OP_MOD, mod},
 
-    // 단항 연산자 (2)
-    {OP_NOT, not },
-    {OP_NEG, neg}};
+//     // 단항 연산자 (2)
+//     {OP_NOT, not },
+//     {OP_NEG, neg}};
 
 void initInstGroup() {
   VMContext *ctx = getVMContext();

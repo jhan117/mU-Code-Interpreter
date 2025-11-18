@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -Wall -Wextra -I../include -I.
+CFLAGS := -Wall -Wextra -I../include -I../include/core -I.
 
 SRC_DIR := ../src
 TEST_DIR := .

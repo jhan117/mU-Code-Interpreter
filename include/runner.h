@@ -1,5 +1,7 @@
 #pragma once
 
+#include "core/constants.h"
+
 #define INIT_OUTPUT_BUF_CAPACITY 50
 
 typedef struct {
@@ -20,3 +22,8 @@ typedef struct {
   int bp;
   int flags;
 } Snapshot;
+
+void saveChanges();
+void initSnapshot();
+void step();
+int runner();

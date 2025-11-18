@@ -39,26 +39,26 @@ void gt(int arg) {
   VMContext *ctx = getVMContext();
   int a = popCPUStack();
   int b = popCPUStack();
-  pushCPUStack(b < a);
+  pushCPUStack(b > a);
 }
 void lt(int arg) {
   VMContext *ctx = getVMContext();
   int a = popCPUStack();
   int b = popCPUStack();
-  pushCPUStack(b > a);
+  pushCPUStack(b < a);
 }
 void ge(int arg) {
   VMContext *ctx = getVMContext();
   int a = popCPUStack();
   int b = popCPUStack();
-  pushCPUStack(b <= a);
+  pushCPUStack(b >= a);
 }
 
 void le(int arg) {
   VMContext *ctx = getVMContext();
   int a = popCPUStack();
   int b = popCPUStack();
-  pushCPUStack(b >= a);
+  pushCPUStack(b <= a);
 }
 
 void eq(int arg) {

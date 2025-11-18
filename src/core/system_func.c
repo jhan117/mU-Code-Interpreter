@@ -1,10 +1,52 @@
 #include "core/stack_operations.h"
 #include "core/vm_context.h"
 #include "inst.h"
+#include "runner.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+static char *out_buffer;
+static int out_buffer_capacity;
+static int out_buffer_len;
+
+void initOutBuffer() {
+  freeOutBuffer();
+  out_buffer = malloc(sizeof(char) * INIT_OUTPUT_BUF_CAPACITY);
+  out_buffer[0] = '\0';
+  out_buffer_capacity = INIT_OUTPUT_BUF_CAPACITY;
+  out_buffer_len = 0;
+  return;
+}
+
+void freeOutBuffer() {
+  if (out_buffer) {
+    free(out_buffer);
+    out_buffer = NULL;
+    out_buffer_capacity = 0;
+    out_buffer_len = 0;
+  }
+  return;
+}
+
+void catString(const char *s) {
+  int len = strlen(s);
+
+  while (out_buffer_len + len + 1 > out_buffer_capacity) {
+    expandOutBuffer();
+  }
+
+  memcpy(out_buffer + out_buffer_len, s, len);
+  out_buffer_len += len;
+
+  out_buffer[out_buffer_len] = '\0';
+}
+
+void expandOutBuffer() {
+  out_buffer_capacity *= 2;
+  out_buffer = realloc(out_buffer, sizeof(char) * out_buffer_capacity);
+}
 
 int reqWrite(const char *s) {
   VMContext *ctx = getVMContext();
@@ -14,10 +56,12 @@ int reqWrite(const char *s) {
   if (ctx->run_mode == GUI) {
     // callWrite() gui 요청
   }
-  // lst 파일 반영 위해 버퍼에 저장
+  catString(s);
+
+  return 1;
 }
 
-void write() {
+void Write() {
   VMContext *ctx = getVMContext();
   int data = popCPUStack();
   char data_s[33];
@@ -34,13 +78,12 @@ int reqRead() {
     scanf("%d", &data);
   }
   if (ctx->run_mode == GUI) {
-    // callRead() gui 요청
+    // data = callRead() gui 요청 예정
   }
-  // lst 파일 반영 위해 버퍼에 저장
   return data;
 }
 
-void write() {
+void Read() {
   VMContext *ctx = getVMContext();
   int addr = popCPUStack();
   if (checkError(ctx, addr, NULL, NULL, NULL)) {
@@ -49,6 +92,24 @@ void write() {
   }
   int data = reqRead();
   ctx->memory[addr] = data;
+  ret(NULL);
+  return;
+}
+
+void reqLf() {
+  VMContext *ctx = getVMContext();
+  if (ctx->run_mode == CLI) {
+    printf("\n");
+  }
+  if (ctx->run_mode == GUI) {
+    // gui에 요청
+  }
+  catString("\n");
+}
+
+void lf() {
+  VMContext *ctx = getVMContext();
+  reqLf();
   ret(NULL);
   return;
 }
