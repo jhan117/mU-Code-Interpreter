@@ -8,6 +8,15 @@ typedef struct {
   int buf_len;
 } Output;
 
-int decodeGroup(int inst);
-int decodeOpcode(int inst);
-int decodeArg(int inst);
+typedef struct {
+  int memory[INIT_MEMORY_SIZE];
+  int cpu_stack[INIT_CPU_STACK_CAPACITY];
+  int cpu_top;
+  int cs;
+  int pc;
+  int ds;
+  int ss;
+  int sp;
+  int bp;
+  int flags;
+} Snapshot;

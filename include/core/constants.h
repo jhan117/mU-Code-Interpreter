@@ -16,6 +16,15 @@
 #define ERR_CPU_STACK_OVERFLOW 0x20
 #define ERR_CPU_STACK_UNDERFLOW 0x40
 
+#define HD_NUM_MEMORY 0
+#define HD_NUM_CPU_STACK 1
+#define HD_NUM_CS 2
+#define HD_NUM_PC 3
+#define HD_NUM_DS 4
+#define HD_NUM_SS 5
+#define HD_NUM_SP 6
+#define HD_NUM_BP 7
+
 #define OPCODE_MAX 47
 
 #define TOTAL_OPCODE_GROUPS 5

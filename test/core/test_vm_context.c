@@ -24,6 +24,7 @@ void testInitVMContext(void) {
   // 상태 변화 리스트 초기화 테스트
   assert(ctx->changes.change_list != NULL);
   assert(ctx->changes.list_count == 0);
+  assert(ctx->changes.list_size == INIT_LIST_CAPACITY);
 
   // 통계 정보 초기화 테스트
   for (int i = 0; i < OPCODE_MAX; i++) {

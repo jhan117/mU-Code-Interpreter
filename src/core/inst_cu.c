@@ -4,8 +4,6 @@
 #include "runner.h"
 #include <stdio.h>
 
-static int nextBP;
-
 void proc(int arg) {
   VMContext *ctx = getVMContext();
   ctx->sp -= arg;
@@ -26,9 +24,9 @@ void ret(int arg) {
 
 void ldp(int arg) {
   VMContext *ctx = getVMContext();
-  nextBP = ctx->bp;
-  ctx->bp = ctx->bp - 2;
-  if (checkError(ctx, NULL, NULL, ctx->bp, NULL))
+  ctx->memory[ctx->bp - 2] = ctx->sp;
+  ctx->sp = ctx->sp - 3;
+  if (checkError(ctx, NULL, NULL, ctx->bp, ctx->sp))
     return;
   return;
 }
@@ -47,13 +45,14 @@ void call(int arg) {
   if (checkError(ctx, NULL, arg, NULL, NULL))
     return;
   if (arg >= 0) {
-    ctx->memory[nextBP - 1] = ctx->pc;
-    ctx->memory[nextBP] = ctx->bp;
-    ctx->bp = nextBP;
+    int old_bp = ctx->bp;
+    ctx->bp = ctx->memory[ctx->bp - 2];
+    ctx->memory[ctx->bp - 1] = ctx->pc;
+    ctx->memory[ctx->bp] = old_bp;
     if (checkError(ctx, NULL, NULL, ctx->bp, NULL))
       return;
     ctx->pc = arg;
-    // TODO: 변수 테이블 주소 계산
+    ctx->ds = ctx->sp + 1;
     return;
   } else {
     // TODO: 시스템 함수 호출

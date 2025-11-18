@@ -39,7 +39,6 @@ typedef struct {
 typedef struct Change {
   int hdware_num;
   int addr;
-  int old_value;
   int new_value;
   struct Change *next;
 } Change;

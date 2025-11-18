@@ -54,6 +54,7 @@ void initVMContext(void) {
   // 상태 변화 리스트 초기화
   ctx.changes.change_list = malloc(sizeof(Change *) * INIT_LIST_CAPACITY);
   ctx.changes.list_count = 0;
+  ctx.changes.list_size = INIT_LIST_CAPACITY;
 
   // 통계 정보 초기화
   for (int i = 0; i < OPCODE_MAX; i++) {
