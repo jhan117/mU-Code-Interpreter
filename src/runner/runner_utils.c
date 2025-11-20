@@ -7,16 +7,6 @@
 
 static Snapshot snapshot;
 
-void updateSymbols() {
-  VMContext *ctx = getVMContext();
-
-  for (int i = 0; i < ctx->symbols.count; i++) {
-    if (ctx->symbols.symbols[i].block != 0) {
-      // 주소를 계산
-    }
-  }
-}
-
 void initSnapshot() {
   VMContext *ctx = getVMContext();
   memcpy(snapshot.memory, ctx->memory, sizeof(int) * INIT_MEMORY_SIZE);

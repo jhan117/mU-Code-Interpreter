@@ -11,3 +11,10 @@ void testPopCPUStack(void);
 
 void testInitVMContext(void);
 void testFreeVMContext(void);
+
+void testFunctionInstructions(void);
+void testBranchInstructions(void);
+void testDataMovementInstructions(void);
+void testArithmeticInstructions(void);
+void testComparisonInstructions(void);
+void testLogicalInstructions(void);

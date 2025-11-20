@@ -24,9 +24,10 @@ void ret(int arg) {
 
 void ldp(int arg) {
   VMContext *ctx = getVMContext();
-  ctx->memory[ctx->bp - 2] = ctx->sp;
-  ctx->sp = ctx->sp - 3;
-  if (checkError(ctx, NULL, NULL, ctx->bp, ctx->sp))
+  ctx->memory[ctx->sp] = ctx->bp;
+  ctx->bp = ctx->sp;
+  ctx->sp = ctx->sp - 2;
+  if (checkError(ctx, NULL, NULL, NULL, ctx->sp))
     return;
   return;
 }
@@ -43,14 +44,11 @@ void push(int arg) {
 void call(int arg) {
   VMContext *ctx = getVMContext();
   if (arg >= 0) {
-    int old_bp = ctx->bp;
-    ctx->bp = ctx->memory[ctx->bp - 2];
     ctx->memory[ctx->bp - 1] = ctx->pc;
-    ctx->memory[ctx->bp] = old_bp;
     if (checkError(ctx, NULL, arg, ctx->bp, NULL))
       return;
     ctx->pc = arg;
-    ctx->ds = ctx->sp + 1;
+
     return;
   } else if (arg == -1) {
     Read();
@@ -92,7 +90,7 @@ void fjp(int arg) {
 
 void lod(int arg) {
   VMContext *ctx = getVMContext();
-  int addr = ctx->symbols.symbols[arg].offset;
+  int addr = ctx->symbols.symbols[arg].addr;
   if (checkError(ctx, addr, NULL, NULL, NULL))
     return;
   pushCPUStack(ctx->memory[addr]);
@@ -101,7 +99,7 @@ void lod(int arg) {
 
 void lda(int arg) {
   VMContext *ctx = getVMContext();
-  int addr = ctx->symbols.symbols[arg].offset;
+  int addr = ctx->symbols.symbols[arg].addr;
   pushCPUStack(addr);
   return;
 }
@@ -114,7 +112,7 @@ void ldc(int arg) {
 
 void str(int arg) {
   VMContext *ctx = getVMContext();
-  int addr = ctx->symbols.symbols[arg].offset;
+  int addr = ctx->symbols.symbols[arg].addr;
   if (checkError(ctx, addr, NULL, NULL, NULL))
     return;
   int item = popCPUStack();

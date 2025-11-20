@@ -27,6 +27,7 @@ typedef struct {
 typedef struct {
   int index;
   int block;
+  int addr;
   int offset;
   int size;
 } Symbol;
@@ -36,6 +37,7 @@ typedef struct {
   int count;
   int capacity;
 } SymbolList;
+
 typedef struct Change {
   int hdware_num;
   int addr;

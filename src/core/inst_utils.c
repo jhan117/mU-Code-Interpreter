@@ -3,6 +3,18 @@
 #include "runner.h"
 #include <stdio.h>
 
+void updateSymbols() {
+  VMContext *ctx = getVMContext();
+
+  for (int i = 0; i < ctx->symbols.count; i++) {
+    if (ctx->symbols.symbols[i].block != 0) {
+      ctx->symbols.symbols[i].addr =
+          ctx->bp - 2 - ctx->symbols.symbols[i].offset;
+    }
+  }
+  return;
+}
+
 int checkError(VMContext *ctx, int addr, int pc, int bp, int sp) {
   int result = 0;
   if (addr != NULL) {

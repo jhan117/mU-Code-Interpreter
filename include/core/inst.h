@@ -12,6 +12,7 @@ int decodeArg(int inst);
 
 // 명령어 오류 검사
 int checkError(VMContext *ctx, int addr, int pc, int bp, int sp);
+void updateSymbols();
 
 // 출력 버퍼 초기화
 void initOutBuffer();
