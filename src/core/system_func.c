@@ -1,6 +1,6 @@
+#include "core/inst.h"
 #include "core/stack_operations.h"
 #include "core/vm_context.h"
-#include "inst.h"
 #include "runner.h"
 
 #include <stdio.h>

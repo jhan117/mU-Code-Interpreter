@@ -1,6 +1,6 @@
+#include "core/inst.h"
 #include "test.h"
 
-#include "core/inst.h"
 #include <assert.h>
 #include <stdio.h>
 

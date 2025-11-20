@@ -1,6 +1,6 @@
+#include "assemble.h"
 #include "test.h"
 
-#include "assemble.h"
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -2,6 +2,7 @@
 #include "core/inst.h"
 #include "core/opcode.h"
 #include "core/vm_context.h"
+
 #include <stdio.h>
 
 static const int opcode_base[TOTAL_OPCODE_GROUPS] = {OP_PROC, OP_UJP, OP_LOD,
