@@ -21,12 +21,35 @@ void step() {
   return;
 }
 
-void printError() {}
+void printError() {
+  VMContext *ctx = getVMContext();
+  if (ctx->bp == -1)
+    printf("[INFO] runner stopped (bp == -1)\n");
+
+  if (ctx->flags == 0)
+    return;
+
+  if (ctx->flags & ERR_INVALID_ADDR)
+    printf("[ERROR] Invalid address access\n");
+  if (ctx->flags & ERR_INVALID_PC)
+    printf("[ERROR] Invalid program counter\n");
+  if (ctx->flags & ERR_INVALID_BP)
+    printf("[ERROR] Invalid base pointer\n");
+  if (ctx->flags & ERR_STACK_OVERFLOW)
+    printf("[ERROR] Stack overflow\n");
+  if (ctx->flags & ERR_STACK_UNDERFLOW)
+    printf("[ERROR] Stack underflow\n");
+  if (ctx->flags & ERR_CPU_STACK_OVERFLOW)
+    printf("[ERROR] CPU stack overflow\n");
+  if (ctx->flags & ERR_CPU_STACK_UNDERFLOW)
+    printf("[ERROR] CPU stack underflow\n");
+}
 
 int runner() {
   VMContext *ctx = getVMContext();
   initOutBuffer();
   initSnapshot();
+  updateSymbols();
 
   while (1) {
     if (ctx->flags != 0 || ctx->bp == -1) {

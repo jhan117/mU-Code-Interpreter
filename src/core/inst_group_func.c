@@ -54,7 +54,6 @@ void initInstGroup() {
 }
 
 void execInstGroup0(int inst) {
-  VMContext *ctx = getVMContext();
   int arg = decodeArg(inst);
   int opcode = decodeOpcode(inst);
   switch (opcode) {
@@ -77,7 +76,6 @@ void execInstGroup0(int inst) {
   return;
 }
 void execInstGroup1(int inst) {
-  VMContext *ctx = getVMContext();
   int arg = decodeArg(inst);
   int opcode = decodeOpcode(inst);
   switch (opcode) {
@@ -95,7 +93,6 @@ void execInstGroup1(int inst) {
 }
 
 void execInstGroup2(int inst) {
-  VMContext *ctx = getVMContext();
   int arg = decodeArg(inst);
   int opcode = decodeOpcode(inst);
   switch (opcode) {
@@ -121,7 +118,6 @@ void execInstGroup2(int inst) {
   return;
 }
 void execInstGroup3(int inst) {
-  VMContext *ctx = getVMContext();
   int arg = decodeArg(inst);
   int opcode = decodeOpcode(inst);
   switch (opcode) {
@@ -153,7 +149,6 @@ void execInstGroup3(int inst) {
   return;
 }
 void execInstGroup4(int inst) {
-  VMContext *ctx = getVMContext();
   int arg = decodeArg(inst);
   int opcode = decodeOpcode(inst);
   switch (opcode) {

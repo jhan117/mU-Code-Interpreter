@@ -21,7 +21,14 @@ int main(void) {
   testArithmeticInstructions();
   testComparisonInstructions();
   testLogicalInstructions();
+  testDecodeArgSignExtension();
   printf("All inst tests passed successfully!\n\n");
+
+  printf("=====runner 테스트=====\n");
+  testRunnerStep();
+  testRunnerErrorExit();
+  testRunnerSaveChanges();
+  printf("All runner tests passed successfully!\n\n");
 
   // assembler test는 실패 횟수 반환함
   printf("\n===== Running assemble success tests... =====\n");

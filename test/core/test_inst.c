@@ -199,7 +199,7 @@ void testBranchInstructions(void) {
   assert((ctx->flags & ERR_INVALID_PC) == ERR_INVALID_PC);
   freeVMContext();
 
-  // tjp 실패 
+  // tjp 실패
   // pc가 ds보다 뒤
   ctx = setupContext();
   ctx->cs = 0;
@@ -245,7 +245,6 @@ void testDataMovementInstructions(void) {
   ldc(999);
   assert(popCPUStack() == 999);
   freeVMContext();
-
 
   // str 테스트
   ctx = setupContext();
@@ -300,9 +299,8 @@ void testDataMovementInstructions(void) {
   assert((ctx->flags & ERR_INVALID_ADDR) == ERR_INVALID_ADDR);
   freeVMContext();
 
-
-  //sti 실패
-  // 주소가 ds보다 앞
+  // sti 실패
+  //  주소가 ds보다 앞
   ctx = setupContext();
   pushCPUStack(111);
   pushCPUStack(ctx->ds - 2);
@@ -352,4 +350,14 @@ void testLogicalInstructions(void) {
   assert(runUnaryInst(not, 5) == 0);
 
   printf("test : logical instructions pass\n");
+}
+
+void testDecodeArgSignExtension(void) {
+  int inst = (-2) & 0x03FFFFFF;
+  assert(decodeArg(inst) == -2);
+
+  inst = 123456 & 0x03FFFFFF;
+  assert(decodeArg(inst) == 123456);
+
+  printf("test : decodeArg sign extension pass\n");
 }

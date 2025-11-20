@@ -6,6 +6,10 @@
 int testAssembleSuccess();
 int testAssembleFailures();
 
+void testRunnerStep(void);
+void testRunnerErrorExit(void);
+void testRunnerSaveChanges(void);
+
 void testPushCPUStack(void);
 void testPopCPUStack(void);
 
@@ -18,3 +22,4 @@ void testDataMovementInstructions(void);
 void testArithmeticInstructions(void);
 void testComparisonInstructions(void);
 void testLogicalInstructions(void);
+void testDecodeArgSignExtension(void);

@@ -88,14 +88,14 @@ void saveChanges() {
   // 레지스터
   if (snapshot.bp != ctx->bp) {
     snapshot.bp = ctx->bp;
-    addNewChange(HD_NUM_BP, NULL, ctx->bp);
+    addNewChange(HD_NUM_BP, 0, ctx->bp);
   }
   if (snapshot.pc != ctx->pc) {
-    addNewChange(HD_NUM_PC, NULL, ctx->pc);
+    addNewChange(HD_NUM_PC, 0, ctx->pc);
     snapshot.pc = ctx->pc;
   }
   if (snapshot.sp != ctx->sp) {
-    addNewChange(HD_NUM_SP, NULL, ctx->sp);
+    addNewChange(HD_NUM_SP, 0, ctx->sp);
     snapshot.sp = ctx->sp;
   }
   ctx->changes.list_count++;

@@ -15,32 +15,37 @@ void updateSymbols() {
   return;
 }
 
-int checkError(VMContext *ctx, int addr, int pc, int bp, int sp) {
+int checkError(VMContext *ctx, const int *addr, const int *pc, const int *bp,
+               const int *sp) {
   int result = 0;
   if (addr != NULL) {
-    if ((ctx->ds > addr) || (addr > ctx->bp - 2)) {
+    int value = *addr;
+    if ((ctx->ds > value) || (value > ctx->bp - 2)) {
       ctx->flags |= ERR_INVALID_ADDR;
       result = 1;
     }
   }
   if (pc != NULL) {
-    if ((ctx->cs > pc) || (pc >= ctx->ds)) {
+    int value = *pc;
+    if ((ctx->cs > value) || (value >= ctx->ds)) {
       ctx->flags |= ERR_INVALID_PC;
       result = 1;
     }
   }
   if (bp != NULL) {
-    if ((ctx->ss + 2 > bp) || (bp >= INIT_MEMORY_SIZE)) {
+    int value = *bp;
+    if ((ctx->ss + 2 > value) || (value >= INIT_MEMORY_SIZE)) {
       ctx->flags |= ERR_INVALID_BP;
       result = 1;
     }
   }
   if (sp != NULL) {
-    if (sp < ctx->ss) {
+    int value = *sp;
+    if (value < ctx->ss) {
       ctx->flags |= ERR_STACK_OVERFLOW;
       result = 1;
     }
-    if (sp >= ctx->bp) {
+    if (value >= ctx->bp) {
       ctx->flags |= ERR_STACK_UNDERFLOW;
       result = 1;
     }
@@ -52,4 +57,10 @@ inline int decodeGroup(int inst) { return (inst >> 29) & 0x7; }
 
 inline int decodeOpcode(int inst) { return (inst >> 26) & 0x7; }
 
-inline int decodeArg(int inst) { return inst & 0x03FFFFFF; }
+inline int decodeArg(int inst) {
+  int arg = inst & 0x03FFFFFF;
+  if (arg & (1 << 25)) {
+    arg |= ~0x03FFFFFF;
+  }
+  return arg;
+}

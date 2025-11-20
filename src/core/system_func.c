@@ -62,12 +62,11 @@ int reqWrite(const char *s) {
 }
 
 void Write() {
-  VMContext *ctx = getVMContext();
   int data = popCPUStack();
   char data_s[33];
   sprintf(data_s, "%d", data);
   reqWrite(data_s);
-  ret(NULL);
+  ret(0);
   return;
 }
 
@@ -78,7 +77,7 @@ int reqRead() {
     scanf("%d", &data);
   }
   if (ctx->run_mode == GUI) {
-    // data = callRead() gui 요청 예정
+    // data = callRead() gui 요청
   }
   return data;
 }
@@ -86,13 +85,13 @@ int reqRead() {
 void Read() {
   VMContext *ctx = getVMContext();
   int addr = popCPUStack();
-  if (checkError(ctx, addr, NULL, NULL, NULL)) {
-    ret(NULL);
+  if (checkError(ctx, &addr, NULL, NULL, NULL)) {
+    ret(0);
     return;
   }
   int data = reqRead();
   ctx->memory[addr] = data;
-  ret(NULL);
+  ret(0);
   return;
 }
 
@@ -108,8 +107,7 @@ void reqLf() {
 }
 
 void lf() {
-  VMContext *ctx = getVMContext();
   reqLf();
-  ret(NULL);
+  ret(0);
   return;
 }
