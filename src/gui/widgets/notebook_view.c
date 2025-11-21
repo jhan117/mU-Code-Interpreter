@@ -1,4 +1,4 @@
-#include "gui.h"
+#include "gui/gui.h"
 
 GtkWidget *createNotebookView(NotebookPageInfo *pages, int page_count) {
   GtkWidget *notebook = gtk_notebook_new();

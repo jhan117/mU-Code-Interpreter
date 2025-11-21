@@ -1,4 +1,4 @@
-#include "gui.h"
+#include "gui/gui.h"
 
 int main(int argc, char **argv) {
   GtkApplication *app = gtk_application_new("org.uci.mu_code_interpreter",

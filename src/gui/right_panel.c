@@ -1,16 +1,17 @@
-#include "gui.h"
+#include "gui/gui.h"
 
 GtkWidget *createRightPanel() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16);
 
-  GtkWidget *reg = createViewTable("CPU Registers");
-  gtk_widget_set_halign(reg,
-                        GTK_ALIGN_START); // 나중에 1행으로 고정하는 기능 추가
+  // cpu register view
+  GtkWidget *reg = createRegTable();
+  gtk_widget_set_halign(reg, GTK_ALIGN_START);
 
   GtkWidget *status_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
 
+  // 그 외 view
   GtkWidget *cpu = createViewTable("CPU Stack");
-  GtkWidget *mem = createViewTable("Memory");
+  GtkWidget *mem = createViewTable("Memory Stack");
   GtkWidget *labels = createViewTable("Labels");
   GtkWidget *symbols = createViewTable("Symbols");
 
@@ -33,14 +34,15 @@ GtkWidget *createRightPanel() {
   gtk_box_pack_start(GTK_BOX(box), reg, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(box), notebook_mid, FALSE, FALSE, 0);
 
-  GtkWidget *log_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
-  GtkWidget *log_label = gtk_label_new("입출력");
-  gtk_widget_set_halign(log_label, GTK_ALIGN_START);
-  GtkWidget *log_view = gtk_text_view_new();
+  // 입출력 view
+  GtkWidget *io_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+  GtkWidget *io_label = gtk_label_new("입출력");
+  gtk_widget_set_halign(io_label, GTK_ALIGN_START);
+  GtkWidget *io_view = gtk_text_view_new();
 
-  gtk_box_pack_start(GTK_BOX(log_box), log_label, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(log_box), log_view, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(io_box), io_label, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(io_box), io_view, TRUE, TRUE, 0);
 
-  gtk_box_pack_start(GTK_BOX(box), log_box, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(box), io_box, TRUE, TRUE, 0);
   return box;
 }
