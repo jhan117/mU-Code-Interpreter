@@ -10,6 +10,9 @@ typedef struct {
   int sp;
   int bp;
 
+  int code_len;
+  int g_var_cnt;
+
   LabelList labels;
   PatchList patches;
   SymbolList symbols;
