@@ -27,6 +27,7 @@ typedef struct {
 typedef struct {
   int index;
   int block;
+  int addr;
   int offset;
   int size;
 } Symbol;
@@ -40,7 +41,6 @@ typedef struct {
 typedef struct Change {
   int hdware_num;
   int addr;
-  int old_value;
   int new_value;
   struct Change *next;
 } Change;
@@ -48,6 +48,7 @@ typedef struct Change {
 typedef struct {
   Change **change_list;
   int list_count;
+  int list_size;
 } ChangeList;
 
 typedef struct {
