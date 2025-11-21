@@ -10,10 +10,14 @@ typedef struct {
   int sp;
   int bp;
 
+  int code_len;
+  int g_var_cnt;
+
   LabelList labels;
   PatchList patches;
   SymbolList symbols;
 
+  int run_mode;
   unsigned int flags;
   int memory[INIT_MEMORY_SIZE];
   InstructionGroup inst_group[TOTAL_OPCODE_GROUPS];

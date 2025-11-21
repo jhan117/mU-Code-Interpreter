@@ -1,6 +1,6 @@
+#include "assemble.h"
 #include "test.h"
 
-#include "assemble.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -71,20 +71,21 @@ int testAssembleSuccess() {
   VMContext *ctx = getVMContext();
 
   printf("\n========= Assembled memory =========\n");
-  for (int i = 0; i < INIT_MEMORY_SIZE; i++) {
+  for (int i = 0; i < ctx->code_len; i++) {
     int inst = ctx->memory[i];
-    int opcode = (inst >> 26) & 0x3F;
+    int opGroup = (inst >> 29) & 0x7;
+    int opGroupIdx = (inst >> 26) & 0x7;
     int operand = inst & 0x03FFFFFF;
 
     // 26비트 signed 처리 ==> 음수 변환
     if (operand & (1 << 25))
       operand |= ~0x03FFFFFF;
 
-    if (opcode == 0 && operand == 0)
-      break;
-
-   printf("%04d: opcode=%02d operand=%d\n", i, opcode, operand);
+    printf("%04d: opcode=%d%d operand=%d\n", i, opGroup, opGroupIdx, operand);
   }
+  // 코드 영역 끝났는지 확인
+  if (ctx->memory[ctx->code_len])
+    printf("Code Not End\n");
 
   printf("\n========= Label list =========\n");
   for (int i = 0; i < ctx->labels.count; i++) {
@@ -98,6 +99,7 @@ int testAssembleSuccess() {
     printf("Symbol[%d]: block=%d, offset=%d, size=%d\n", sym->index, sym->block,
            sym->offset, sym->size);
   }
+  printf("Global Symbol Count: %d\n", ctx->g_var_cnt);
 
   freeVMContext();
 

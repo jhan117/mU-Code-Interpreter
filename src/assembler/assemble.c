@@ -32,7 +32,11 @@ static int returnError(int code, char *operands[], int count, int line,
 }
 
 static inline int encodeInst(int opcode, int operand_val) {
-  return ((opcode & 0x3F) << 26) | (operand_val & 0x03FFFFFF);
+  int opGroup = opcode / 10;
+  int opGroupIdx = opcode % 10;
+
+  return ((opGroup & 0x7) << 29) | ((opcode & 0x7) << 26) |
+         (operand_val & 0x03FFFFFF);
 }
 
 int assemble(char **lines, int line_count) {
@@ -79,6 +83,10 @@ int assemble(char **lines, int line_count) {
     if (info->opcode < 0) {
       if (strcmp(cmd, "bgn") == 0) {
         ctx->symbols.count = 0;
+        if (!isNumber(operands[0]))
+          return returnError(ASSEMBLE_ERR_ARG_TYPE, operands, operand_count,
+                             i + 1, "invalid operand type");
+        ctx->g_var_cnt = atoi(operands[0]);
       } else if (strcmp(cmd, "sym") == 0) {
         if (!isNumber(operands[0]) || !isNumber(operands[1]) ||
             !isNumber(operands[2]))
@@ -150,5 +158,6 @@ int assemble(char **lines, int line_count) {
     ctx->memory[addr++] = encodeInst(info->opcode, operand_val);
     freeOperands(operands, operand_count);
   }
+  ctx->code_len = addr;
   return applyPatches();
 }
