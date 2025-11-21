@@ -8,6 +8,7 @@
 #include <string.h>
 
 static OutputBuffer output_buffer;
+OutputBuffer *getOutputBuffer() { return &output_buffer; }
 
 void initOutBuffer() {
   freeOutBuffer();

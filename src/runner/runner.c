@@ -17,6 +17,7 @@ void step() {
   int inst = ctx->memory[ctx->pc++];
   int group_code = decodeGroup(inst);
   int opcode = opcode_base[group_code] + decodeOpcode(inst);
+  ctx->stat.inst_run_count[opcode]++;
   ctx->stat.memory_access_count += mem_access[opcode];
   ctx->inst_group[group_code].execInst(inst);
   return;
@@ -49,8 +50,8 @@ void printError() {
 void readyToRun() {
   VMContext *ctx = getVMContext();
   ctx->cs = 0;
-  ctx->ds = 1000;
-  ctx->ss = 2000;
+  ctx->ds = 1000; // 나중에 수정
+  ctx->ss = 2000; // 나중에 수정
   ctx->pc = 0;
 
   int stack_top = INIT_MEMORY_SIZE - 1;
