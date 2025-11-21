@@ -9,7 +9,16 @@
 #include <string.h>
 #include <unistd.h>
 
-static const char *inst_names[] = {
+static const int opcode_list[] = {
+    OP_PROC, OP_RET, OP_LDP, OP_PUSH, OP_CALL, OP_UJP, OP_TJP, OP_FJP,
+    OP_LOD,  OP_LDA, OP_LDC, OP_STR,  OP_LDI,  OP_STI, OP_GT,  OP_LT,
+    OP_GE,   OP_LE,  OP_EQ,  OP_NE,   OP_AND,  OP_OR,  OP_ADD, OP_SUB,
+    OP_MULT, OP_DIV, OP_MOD, OP_NOT,  OP_NEG};
+
+static const int opcode_list_count =
+    sizeof(opcode_list) / sizeof(opcode_list[0]);
+
+static const char *opcode_names[] = {
     [OP_PROC] = "proc", [OP_RET] = "ret", [OP_LDP] = "ldp", [OP_PUSH] = "push",
     [OP_CALL] = "call", [OP_UJP] = "ujp", [OP_TJP] = "tjp", [OP_FJP] = "fjp",
     [OP_LOD] = "lod",   [OP_LDA] = "lda", [OP_LDC] = "ldc", [OP_STR] = "str",
@@ -30,11 +39,12 @@ int saveLst(const char *path, UCodeLines *lines) {
   OutputBuffer *output = getOutputBuffer();
 
   // 어셈블결과, 인코딩 결과
-  nbytes = snprintf(buf, sizeof(buf), "%19s %8s\n",
-                    "=======원본 코드=======", "==어셈블 결과==");
+  const char *src_header = "======= 원본 코드 =======";
+  const char *opcode_header = "==== 어셈블 결과 ====";
+  nbytes = snprintf(buf, sizeof(buf), "%-35s %s\n", src_header, opcode_header);
   write(fd, buf, nbytes);
   for (int i = 0; i < lines->line_count; i++) {
-    nbytes = snprintf(buf, sizeof(buf), "%19s %8d\n", lines->ucode_lines[i],
+    nbytes = snprintf(buf, sizeof(buf), "%-35s %12d\n", lines->ucode_lines[i],
                       lines->opcode[i]);
     write(fd, buf, nbytes);
   }
@@ -45,22 +55,27 @@ int saveLst(const char *path, UCodeLines *lines) {
   write(fd, output->data, output->length);
 
   // 명령어 사용 횟수
-  nbytes = snprintf(buf, sizeof(buf), "===========명령어 사용 횟수=========\n");
-  write(fd, buf, strlen(buf));
-  for (int i = 0; i < OPCODE_MAX; i++) {
+  nbytes = snprintf(buf, sizeof(buf), "\n========명령어 사용 횟수======\n");
+  write(fd, buf, nbytes);
+  for (int i = 0; i < opcode_list_count; i++) {
     // TODO: 명령어 사용 횟수 넣기
   }
 
   // 명령어 실행 횟수
-  nbytes = snprintf(buf, sizeof(buf), "======명령어 실행 횟수======\n");
-  write(fd, buf, nbytes));
-  for (int i = 0; i < OPCODE_MAX; i++) {
-    nbytes = snprintf(buf, sizeof(buf), "%5s = ", inst_names[i]);
+  nbytes = snprintf(buf, sizeof(buf), "\n======명령어 실행 횟수======\n");
+  write(fd, buf, nbytes);
+  for (int i = 0; i < opcode_list_count; i++) {
+    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ",
+                      opcode_names[opcode_list[i]],
+                      ctx->stat.inst_run_count[opcode_list[i]]);
     write(fd, buf, nbytes);
-    write(fd, &ctx->stat.inst_run_count[i], sizeof(int));
     if ((i + 1) % 3 == 0)
       write(fd, "\n", sizeof(char));
+    else
+      write(fd, "  ", sizeof(char));
   }
 
   close(fd);
+
+  return 1;
 }

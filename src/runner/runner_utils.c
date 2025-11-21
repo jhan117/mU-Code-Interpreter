@@ -69,6 +69,13 @@ void makeSnapshot() {
   snapshot_list.snapshot_list[idx].flags = ctx->flags;
 }
 
+void expandChangeList() {
+  VMContext *ctx = getVMContext();
+  ctx->changes.list_size *= 2;
+  ctx->changes.change_list = realloc(ctx->changes.change_list,
+                                     sizeof(Change *) * ctx->changes.list_size);
+}
+
 void addNewChange(int hdware_num, int addr, int new_value) {
   VMContext *ctx = getVMContext();
 
@@ -82,13 +89,6 @@ void addNewChange(int hdware_num, int addr, int new_value) {
 
   head = new;
   ctx->changes.change_list[ctx->changes.list_count] = head;
-}
-
-void expandChangeList() {
-  VMContext *ctx = getVMContext();
-  ctx->changes.list_size *= 2;
-  ctx->changes.change_list = realloc(ctx->changes.change_list,
-                                     sizeof(Change *) * ctx->changes.list_size);
 }
 
 void saveChanges() {
