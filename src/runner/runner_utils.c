@@ -7,6 +7,8 @@
 #include <string.h>
 
 static Snapshot snapshot;
+static SnapshotList snapshot_list;
+SnapshotList *getSnapshotList() { return &snapshot_list; }
 
 void initSnapshot() {
   VMContext *ctx = getVMContext();
@@ -21,6 +23,50 @@ void initSnapshot() {
   snapshot.sp = ctx->sp;
   snapshot.bp = ctx->bp;
   snapshot.flags = ctx->flags;
+}
+
+void initSnapshotList() {
+  freeSnapshotList();
+  snapshot_list.snapshot_list =
+      malloc(sizeof(Snapshot) * INIT_SNAPSHOT_LIST_CAPACITY);
+  snapshot_list.snapshot_count = 0;
+  snapshot_list.snapshot_capacity = INIT_SNAPSHOT_LIST_CAPACITY;
+}
+
+void freeSnapshotList() {
+  if (snapshot_list.snapshot_list) {
+    free(snapshot_list.snapshot_list);
+  }
+  memset(&snapshot_list, 0, sizeof(SnapshotList));
+}
+
+void expandSnapshotList() {
+  snapshot_list.snapshot_capacity *= 2;
+  snapshot_list.snapshot_list =
+      realloc(snapshot_list.snapshot_list, snapshot_list.snapshot_capacity);
+  return;
+}
+
+void makeSnapshot() {
+  VMContext *ctx = getVMContext();
+
+  if (snapshot_list.snapshot_count >= snapshot_list.snapshot_capacity)
+    expandSnapshotList();
+  snapshot_list.snapshot_count++;
+  memcpy(snapshot_list.snapshot_list->memory, ctx->memory,
+         sizeof(int) * INIT_MEMORY_SIZE);
+  memcpy(snapshot_list.snapshot_list->cpu_stack, ctx->cpu_stack.items,
+         sizeof(int) * INIT_CPU_STACK_CAPACITY);
+
+  int idx = snapshot_list.snapshot_count;
+  snapshot_list.snapshot_list[idx].cpu_top = ctx->cpu_stack.top;
+  snapshot_list.snapshot_list[idx].cs = ctx->cs;
+  snapshot_list.snapshot_list[idx].pc = ctx->pc;
+  snapshot_list.snapshot_list[idx].ds = ctx->ds;
+  snapshot_list.snapshot_list[idx].ss = ctx->ss;
+  snapshot_list.snapshot_list[idx].sp = ctx->sp;
+  snapshot_list.snapshot_list[idx].bp = ctx->bp;
+  snapshot_list.snapshot_list[idx].flags = ctx->flags;
 }
 
 void addNewChange(int hdware_num, int addr, int new_value) {
@@ -47,6 +93,9 @@ void expandChangeList() {
 
 void saveChanges() {
   VMContext *ctx = getVMContext();
+
+  if (ctx->changes.list_count % SNAPSHOT_INTERVAL == 0)
+    makeSnapshot();
 
   int start = snapshot.sp + 1 <= ctx->sp + 1 ? snapshot.sp + 1 : ctx->sp + 1;
   int end = snapshot.bp > ctx->bp ? snapshot.bp : ctx->bp;

@@ -15,6 +15,12 @@ int checkError(VMContext *ctx, const int *addr, const int *pc, const int *bp,
                const int *sp);
 void updateSymbols();
 
+typedef struct {
+  char *data;
+  int capacity;
+  int length;
+} OutputBuffer;
+
 // 출력 버퍼 초기화
 void initOutBuffer();
 void freeOutBuffer();

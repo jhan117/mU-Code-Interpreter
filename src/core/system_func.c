@@ -7,45 +7,44 @@
 #include <stdlib.h>
 #include <string.h>
 
-static char *out_buffer;
-static int out_buffer_capacity;
-static int out_buffer_len;
+static OutputBuffer output_buffer;
 
 void initOutBuffer() {
   freeOutBuffer();
-  out_buffer = malloc(sizeof(char) * INIT_OUTPUT_BUF_CAPACITY);
-  out_buffer[0] = '\0';
-  out_buffer_capacity = INIT_OUTPUT_BUF_CAPACITY;
-  out_buffer_len = 0;
+  output_buffer.data = malloc(sizeof(char) * INIT_OUTPUT_BUF_CAPACITY);
+  output_buffer.capacity = INIT_OUTPUT_BUF_CAPACITY;
+  output_buffer.length = 0;
+  if (output_buffer.data)
+    output_buffer.data[0] = '\0';
   return;
 }
 
 void freeOutBuffer() {
-  if (out_buffer) {
-    free(out_buffer);
-    out_buffer = NULL;
-    out_buffer_capacity = 0;
-    out_buffer_len = 0;
+  if (output_buffer.data) {
+    free(output_buffer.data);
+    output_buffer.data = NULL;
   }
+  memset(&output_buffer, 0, sizeof(OutputBuffer));
   return;
 }
 
 void catString(const char *s) {
   int len = strlen(s);
 
-  while (out_buffer_len + len + 1 > out_buffer_capacity) {
+  while (output_buffer.length + len + 1 > output_buffer.capacity) {
     expandOutBuffer();
   }
 
-  memcpy(out_buffer + out_buffer_len, s, len);
-  out_buffer_len += len;
+  memcpy(output_buffer.data + output_buffer.length, s, len);
+  output_buffer.length += len;
 
-  out_buffer[out_buffer_len] = '\0';
+  output_buffer.data[output_buffer.length] = '\0';
 }
 
 void expandOutBuffer() {
-  out_buffer_capacity *= 2;
-  out_buffer = realloc(out_buffer, sizeof(char) * out_buffer_capacity);
+  output_buffer.capacity *= 2;
+  output_buffer.data =
+      realloc(output_buffer.data, sizeof(char) * output_buffer.capacity);
 }
 
 int reqWrite(const char *s) {

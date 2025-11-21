@@ -46,10 +46,26 @@ void printError() {
     printf("[ERROR] CPU stack underflow\n");
 }
 
+void readyToRun() {
+  VMContext *ctx = getVMContext();
+  ctx->cs = 0;
+  ctx->ds = 1000;
+  ctx->ss = 2000;
+  ctx->pc = 0;
+
+  int stack_top = INIT_MEMORY_SIZE - 1;
+  ctx->bp = stack_top;
+  ctx->sp = stack_top - 2;
+  ctx->memory[stack_top - 1] = 0;
+  ctx->memory[stack_top] = -1;
+}
+
 int runner() {
   VMContext *ctx = getVMContext();
   initOutBuffer();
   initSnapshot();
+  initSnapshotList();
+  readyToRun();
   updateSymbols();
 
   while (1) {

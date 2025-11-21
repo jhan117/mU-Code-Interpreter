@@ -23,7 +23,20 @@ typedef struct {
   int flags;
 } Snapshot;
 
+typedef struct {
+  Snapshot *snapshot_list;
+  int snapshot_count;
+  int snapshot_capacity;
+} SnapshotList;
+
+SnapshotList *getSnapshotList();
+
 void saveChanges();
 void initSnapshot();
+void initSnapshotList();
+void freeSnapshotList();
+void expandSnapshotList();
+void makeSnapshot();
+void readyToRun();
 void step();
 int runner();

@@ -28,6 +28,8 @@ int main(void) {
   testRunnerStep();
   testRunnerErrorExit();
   testRunnerSaveChanges();
+  testRunnerSnapshotListInit();
+  testRunnerSnapshotAfterStep();
   printf("All runner tests passed successfully!\n\n");
 
   // assembler test는 실패 횟수 반환함

@@ -9,6 +9,8 @@ int testAssembleFailures();
 void testRunnerStep(void);
 void testRunnerErrorExit(void);
 void testRunnerSaveChanges(void);
+void testRunnerSnapshotListInit(void);
+void testRunnerSnapshotAfterStep(void);
 
 void testPushCPUStack(void);
 void testPopCPUStack(void);
