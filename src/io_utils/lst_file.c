@@ -76,6 +76,77 @@ int saveLst(const char *path, UCodeLines *lines) {
   }
 
   close(fd);
+  freeOutBuffer();
 
   return 1;
+}
+
+int loadLst(const char *path, char ***lines, int *line_count) {
+  int fd = open(path, O_RDONLY);
+  if (fd < 0)
+    return 0;
+
+  int capacity = 100;
+  *lines = malloc(sizeof(char *) * capacity);
+  if (!*lines) {
+    close(fd);
+    return 0;
+  }
+  *line_count = 0;
+
+  char buffer[256];
+  ssize_t n;
+  int pos = 0;
+  char c;
+  while ((n = read(fd, &c, 1)) > 0) {
+    if (c == '\n') {
+      buffer[pos] = '\0';
+      if (*line_count >= capacity) {
+        capacity *= 2;
+        char **tmp = realloc(*lines, sizeof(char *) * capacity);
+        if (!tmp) {
+          freeLst(*lines, *line_count);
+          close(fd);
+          return 0;
+        }
+        *lines = tmp;
+      }
+      (*lines)[*line_count] = malloc(pos + 1);
+      memcpy((*lines)[*line_count], buffer, pos + 1);
+      (*line_count)++;
+      pos = 0;
+    } else if (pos < sizeof(buffer) - 1) {
+      buffer[pos++] = c;
+    }
+  }
+
+  if (pos > 0) {
+    buffer[pos] = '\0';
+    if (*line_count >= capacity) {
+      capacity *= 2;
+      char **tmp = realloc(*lines, sizeof(char *) * capacity);
+      if (!tmp) {
+        freeLst(*lines, *line_count);
+        close(fd);
+        return 0;
+      }
+      *lines = tmp;
+    }
+    (*lines)[*line_count] = malloc(pos + 1);
+    memcpy((*lines)[*line_count], buffer, pos + 1);
+    (*line_count)++;
+  }
+
+  close(fd);
+  return 1;
+}
+
+void freeLst(char **lines, int line_count) {
+  if (!lines)
+    return;
+
+  for (int i = 0; i < line_count; i++) {
+    free(lines[i]);
+  }
+  free(lines);
 }
