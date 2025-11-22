@@ -54,7 +54,7 @@ int reqWrite(const char *s) {
     printf("%s", s);
   }
   if (ctx->run_mode == GUI) {
-    // callWrite() gui 요청
+    // gui 쓰기 요청
   }
   catString(s);
 
@@ -77,7 +77,7 @@ int reqRead() {
     scanf("%d", &data);
   }
   if (ctx->run_mode == GUI) {
-    // data = callRead() gui 요청
+    // data = gui에 읽기 요청
   }
   return data;
 }
@@ -101,7 +101,7 @@ void reqLf() {
     printf("\n");
   }
   if (ctx->run_mode == GUI) {
-    // gui에 요청
+    // gui에 줄바꿈 요청
   }
   catString("\n");
 }
