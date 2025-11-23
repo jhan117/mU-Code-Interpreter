@@ -78,7 +78,7 @@ void highlightLine(GtkTextView *view, int line_number) {
 void highlightRow() {
   GuiContext *g_ctx = getGuiContext();
   VMContext *vm_ctx = getVMContext();
-  GtkListStore *store = g_ctx->ucode_table->list_data;
+  GtkListStore *store = g_ctx->code_ctx.ucode_table.list_data;
   int prev = g_ctx->uco_prev_line;
   int cur = vm_ctx->source_map.line[g_ctx->current_step];
 
@@ -108,7 +108,8 @@ void onScaleChanged(GtkRange *range, gpointer user_data) {
   ctx->current_step = gtk_adjustment_get_value(adj);
   updateLabel(label, adj);
 
-  highlightLine(GTK_TEXT_VIEW(ctx->assemble_view), gtk_range_get_value(range));
+  highlightLine(GTK_TEXT_VIEW(ctx->code_ctx.assemble_view.text_view),
+                gtk_range_get_value(range));
   highlightRow();
 
   updateVM(ctx->current_step);

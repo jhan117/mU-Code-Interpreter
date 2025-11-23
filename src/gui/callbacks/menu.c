@@ -1,5 +1,6 @@
 #include "gui/gui.h"
 
+#include "gui/callbacks.h"
 #include "io_utils/io_utils.h"
 
 char *joinLines(char **lines, int line_count) {
@@ -55,8 +56,8 @@ void onOpenUco() {
     if (filename) {
       ctx->current_step = 0;
       loadUcoToTable(filename);
-      g_free(ctx->uco_filename);
-      ctx->uco_filename = g_strdup(filename);
+      g_free(ctx->file_ctx.uco_filename);
+      ctx->file_ctx.uco_filename = g_strdup(filename);
       g_free(filename);
     }
   }
@@ -91,9 +92,9 @@ void onOpenLst() {
   gtk_widget_destroy(dialog);
 }
 
-void onSaveUco(GtkMenuItem *item) {
+void onSaveUco() {
   GuiContext *ctx = getGuiContext();
-  char *file_name = ctx->uco_filename;
+  char *file_name = ctx->file_ctx.uco_filename;
 
   if (!file_name) {
     // 파일명이 없으면 Save As로 fallback
@@ -157,8 +158,8 @@ void onSaveAsUco() {
       if (!saveUco(final_name, content)) {
         g_warning("Failed to save .uco file: %s", final_name);
       } else {
-        g_free(ctx->uco_filename);
-        ctx->uco_filename = g_strdup(final_name);
+        g_free(ctx->file_ctx.uco_filename);
+        ctx->file_ctx.uco_filename = g_strdup(final_name);
       }
       g_free(content);
       g_free(filename);
@@ -182,7 +183,7 @@ void onSaveLst() {
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
 
   if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-    char *filename = ctx->lst_filename;
+    char *filename = ctx->file_ctx.lst_filename;
     if (filename) {
       // load 하기
       // save 하기

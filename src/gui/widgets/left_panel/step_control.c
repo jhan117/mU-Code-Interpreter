@@ -89,6 +89,7 @@ void updateStep() {
   sprintf(buf, "Step 01 of %02d", vm_ctx->code_len);
   gtk_label_set_text(ctx->step_label, buf);
 
-  highlightLine(GTK_TEXT_VIEW(ctx->assemble_view), ctx->current_step);
+  highlightLine(GTK_TEXT_VIEW(ctx->code_ctx.assemble_view.text_view),
+                ctx->current_step);
   highlightRow();
 }

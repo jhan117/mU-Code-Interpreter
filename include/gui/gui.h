@@ -4,26 +4,11 @@
 #include "runner.h"
 #include <gtk/gtk.h>
 
-typedef struct {
-  const char *tab_title; // 탭 이름
-  GtkWidget *child;      // 페이지에 들어갈 위젯
-} NotebookPageInfo;
-
-typedef struct {
-  GtkWidget *text_view;
-  GtkWidget *scroll;
-} TextScrollInfo;
-
 void onActivate(GtkApplication *app, gpointer user_data);
 GtkWidget *createLeftPanel();
 GtkWidget *createRightPanel();
 
 GtkWidget *createMenubar();
-GtkWidget *createFileChooser();
-
-GtkWidget *initUcodeView();
-void loadUcoToTable(const char *filename);
-int loadTableToUco(char ***lines, int *line_count);
 
 TextScrollInfo initAssembleView();
 void setAssembleView();
@@ -34,6 +19,7 @@ GtkWidget *createStepControl();
 void updateStep();
 
 GtkWidget *createRegTable();
+void updateRegTable(Snapshot *snap);
 
 GtkWidget *createCPUStackTable();
 GtkWidget *createMemoryStackTable();
@@ -48,7 +34,6 @@ GtkWidget *initStatisticsBox();
 void updateStatisticsBox();
 
 // 여긴 콜백함수(분리할수도 있음 파일 분리는 고민 중)
-void onFileChosen(GtkFileChooserButton *chooser);
 
 void onOpenUco();
 void onOpenLst();

@@ -1,8 +1,8 @@
-#include "gui/gui.h"
+#include "gui/widgets.h"
 
-void onFileChosen(GtkFileChooserButton *chooser);
+#include "gui/callbacks.h"
 
-GtkWidget *createFileChooser() {
+GtkWidget *initFileChooser() {
   GtkWidget *button =
       gtk_file_chooser_button_new("파일 선택", GTK_FILE_CHOOSER_ACTION_OPEN);
 
@@ -13,17 +13,4 @@ GtkWidget *createFileChooser() {
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(button), filter);
 
   return button;
-}
-
-void onFileChosen(GtkFileChooserButton *chooser) {
-  GuiContext *ctx = getGuiContext();
-
-  char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
-  if (!filename)
-    return;
-
-  g_free(ctx->uco_filename);
-  ctx->uco_filename = g_strdup(filename);
-  loadUcoToTable(filename);
-  g_free(filename);
 }

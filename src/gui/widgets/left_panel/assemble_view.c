@@ -25,8 +25,8 @@ TextScrollInfo initAssembleView() {
 void setAssembleView() {
   VMContext *ctx = getVMContext();
 
-  GtkTextBuffer *buffer =
-      gtk_text_view_get_buffer(GTK_TEXT_VIEW(getGuiContext()->assemble_view));
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(
+      GTK_TEXT_VIEW(getGuiContext()->code_ctx.assemble_view.text_view));
   gtk_text_buffer_set_text(buffer, "", -1);
 
   char line[128];

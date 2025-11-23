@@ -2,8 +2,7 @@
 
 #include "gui/gui_context.h"
 
-gboolean onEnterPress(GtkWidget *widget, GdkEventKey *event,
-                      gpointer user_data) {
+gboolean onEnterPress(GtkWidget *widget, GdkEventKey *event) {
   GuiContext *ctx = getGuiContext();
 
   if (event->keyval == GDK_KEY_Return) {

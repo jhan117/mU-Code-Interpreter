@@ -1,27 +1,30 @@
 #pragma once
 
+#include "gui/types.h"
 #include <gtk/gtk.h>
 
 typedef struct {
-  GtkWidget *tree_view;
-  GtkListStore *list_data;
-} TableInfo;
+  GtkWidget *file_chooser;
+  char *uco_filename;
+  char *lst_filename;
+} FileContext;
 
-// 이 친구 모든 위젯을 들고 있어야 하나... 많아져서 보기 싫은데
+typedef struct {
+  TableInfo ucode_table;
+  TextScrollInfo assemble_view;
+} CodeContext;
+
 typedef struct {
   GtkWidget *main_window;
+
+  FileContext file_ctx;
+  CodeContext code_ctx;
 
   int is_run_done;
   int timeout_id;
   int current_step;
-  char *uco_filename;
-  char *lst_filename;
-
   int uco_prev_line;
 
-  GtkWidget *file_chooser;
-  GtkWidget *ucode_view;
-  GtkWidget *assemble_view;
   GtkWidget *lst_view;
 
   GtkAdjustment *adj;
@@ -32,7 +35,6 @@ typedef struct {
   GtkWidget *btn_next;
   GtkWidget *btn_last;
 
-  TableInfo *ucode_table;
   GtkListStore *reg_store;
   GtkListStore *cpu_stack_store;
   GtkListStore *memory_store;
