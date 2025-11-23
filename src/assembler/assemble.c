@@ -35,7 +35,7 @@ static inline int encodeInst(int opcode, int operand_val) {
   int opGroup = opcode / 10;
   int opGroupIdx = opcode % 10;
 
-  return ((opGroup & 0x7) << 29) | ((opcode & 0x7) << 26) |
+  return ((opGroup & 0x7) << 29) | ((opGroupIdx & 0x7) << 26) |
          (operand_val & 0x03FFFFFF);
 }
 
@@ -155,6 +155,7 @@ int assemble(char **lines, int line_count) {
       return returnError(ASSEMBLE_ERR_MEMORY, operands, operand_count, i + 1,
                          "memory address out of range");
 
+    ctx->stat.inst_use_count[info->opcode]++;
     ctx->memory[addr++] = encodeInst(info->opcode, operand_val);
     freeOperands(operands, operand_count);
   }
