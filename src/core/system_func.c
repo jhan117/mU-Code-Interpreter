@@ -54,7 +54,7 @@ int reqWrite(const char *s) {
     printf("%s", s);
   }
   if (ctx->run_mode == GUI) {
-    // gui 쓰기 요청
+    // gui에 쓰기 요청
   }
   catString(s);
 
