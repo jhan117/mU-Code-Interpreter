@@ -21,22 +21,31 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # 기본 타겟: GUI 실행 파일 빌드
-all: build/gui_app
+all: $(TARGET)
 
 # GUI 실행
-run: build/gui_app
-	./build/gui_app
+run: $(TARGET)
+	./$(TARGET)
+
+# 더미 빌드용 타겟
+dummy: CFLAGS += -DUSE_DUMMY
+dummy: clean-dummy $(TARGET)
+dummy-run: dummy
+	./$(TARGET)
 
 test:
 	$(MAKE) -C test test
 
 # 테스트 clean
 test-clean:
-	$(MAKE) -C test clean
+	$(MAKE) -C test test-clean
+
+clean-dummy:
+	rm -rf $(BUILD_DIR)
 
 # 전체 clean
 clean:
-	rm -rf build
-	$(MAKE) -C test clean
+	rm -rf $(BUILD_DIR)
+	$(MAKE) -C test test-clean
 
-.PHONY: all run test test-clean clean
+.PHONY: all run dummy dummy-run test test-clean clean

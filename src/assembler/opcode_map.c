@@ -45,9 +45,19 @@ static OpInfo op_table[] = {
     {"neg", OP_NEG, 0, OPERAND_NONE},
 };
 
+static const int op_table_count = sizeof(op_table) / sizeof(op_table[0]);
+
 const OpInfo *findOpInfo(const char *name) {
-  for (size_t i = 0; i < sizeof(op_table) / sizeof(op_table[0]); i++) {
+  for (int i = 0; i < op_table_count; i++) {
     if (strcmp(op_table[i].name, name) == 0)
+      return &op_table[i];
+  }
+  return NULL;
+}
+
+const OpInfo *findByCode(Opcode code) {
+  for (int i = 0; i < op_table_count; i++) {
+    if (code == op_table[i].opcode)
       return &op_table[i];
   }
   return NULL;

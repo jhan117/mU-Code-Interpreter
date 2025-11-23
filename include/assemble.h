@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/opcode.h"
 #include "core/vm_context.h"
 
 typedef enum {
@@ -37,5 +38,6 @@ void addSymbol(int block, int offset, int size);
 int parseLine(const char *line, char *label, char *opcode, char *operands[4],
               int *operand_count);
 const OpInfo *findOpInfo(const char *name);
+const OpInfo *findByCode(Opcode code);
 
 int assemble(char **lines, int line_count);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gui/gui_context.h"
+#include "runner.h"
 #include <gtk/gtk.h>
 
 typedef struct {
@@ -19,13 +20,29 @@ GtkWidget *createRightPanel();
 
 GtkWidget *createMenubar();
 GtkWidget *createFileChooser();
-char *getTextFromView(GtkTextView *view); // 유틸
-TextScrollInfo createTextView();
+
+GtkWidget *initUcodeView();
+void loadUcoToTable(const char *filename);
+int loadTableToUco(char ***lines, int *line_count);
+
+TextScrollInfo initAssembleView();
+void setAssembleView();
+
 GtkWidget *createNotebookView(NotebookPageInfo *pages, int page_count);
 GtkWidget *createStepControl();
 GtkWidget *createRegTable();
-GtkWidget *createViewTable(const char *label_text);
-void addRow(const char *text);
+
+GtkWidget *createCPUStackTable();
+GtkWidget *createMemoryStackTable();
+GtkWidget *createLabelTable();
+GtkWidget *createSymbolTable();
+void updateLabelsView();
+void updateSymbolsView();
+void updateCPUStackView(Snapshot *snap);
+void updateMemoryView(Snapshot *snap);
+
+GtkWidget *initStatisticsBox();
+void updateStatisticsBox();
 
 // 여긴 콜백함수(분리할수도 있음 파일 분리는 고민 중)
 void onFileChosen(GtkFileChooserButton *chooser);
@@ -36,6 +53,7 @@ void onSaveUco();
 void onSaveAsUco();
 void onSaveLst();
 
+// 이름 헷갈림 변경해야 할듯
 void updateLabel(GtkLabel *label, GtkAdjustment *adjustment);
 void onScaleChanged(GtkRange *range, gpointer user_data);
 void onFirstClicked(GtkButton *button, gpointer user_data);

@@ -56,14 +56,14 @@ int parseLine(const char *line, char *label, char *opcode, char *operands[4],
     return ASSEMBLE_ERR_INVALID_FORMAT;
 
   // 첫 토큰: opcode
-  char *tok = strtok(ptr, " \t");
+  char *tok = strtok(ptr, " \t\r\n");
   if (!tok)
     return ASSEMBLE_ERR_INVALID_FORMAT;
   strncpy(opcode, trim(tok), 4);
   opcode[4] = '\0';
 
   // 나머지 토큰: operands
-  while ((tok = strtok(NULL, " \t")) != NULL) {
+  while ((tok = strtok(NULL, " \t\r\n")) != NULL) {
     if (*operand_count >= 4)
       return ASSEMBLE_ERR_ARG_COUNT;
     operands[*operand_count] = malloc(strlen(tok) + 1);

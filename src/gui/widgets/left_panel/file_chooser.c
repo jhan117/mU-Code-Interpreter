@@ -1,6 +1,6 @@
 #include "gui/gui.h"
 
-#include "io_utils/io_utils.h"
+void onFileChosen(GtkFileChooserButton *chooser);
 
 GtkWidget *createFileChooser() {
   GtkWidget *button =
@@ -13,4 +13,17 @@ GtkWidget *createFileChooser() {
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(button), filter);
 
   return button;
+}
+
+void onFileChosen(GtkFileChooserButton *chooser) {
+  GuiContext *ctx = getGuiContext();
+
+  char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
+  if (!filename)
+    return;
+
+  g_free(ctx->uco_filename);
+  ctx->uco_filename = g_strdup(filename);
+  loadUcoToTable(filename);
+  g_free(filename);
 }

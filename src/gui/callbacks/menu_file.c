@@ -2,40 +2,38 @@
 
 #include "io_utils/io_utils.h"
 
-// 파일 읽기 함수 통합할까나...
-static void loadUcoToTextView(const char *filename) {
-  GuiContext *ctx = getGuiContext();
-  GtkTextView *view = GTK_TEXT_VIEW(ctx->ucode_view);
-  ctx->current_step = 0;
+char *joinLines(char **lines, int line_count) {
+  if (line_count == 0 || !lines)
+    return NULL;
 
-  char **lines = NULL;
-  int line_count = 0;
-
-  if (loadUco(filename, &lines, &line_count)) {
-    GtkTextBuffer *buffer = gtk_text_view_get_buffer(view);
-    gtk_text_buffer_set_text(buffer, "", -1);
-
-    for (int i = 0; i < line_count; i++) {
-      gtk_text_buffer_insert_at_cursor(buffer, lines[i], -1);
-      gtk_text_buffer_insert_at_cursor(buffer, "\n", -1);
+  // 전체 길이 계산
+  size_t total_len = 0;
+  for (int i = 0; i < line_count; i++) {
+    if (lines[i]) {
+      total_len += strlen(lines[i]) + 1; // 문자열 길이 + '\n'
     }
-
-    freeUco(lines, line_count);
   }
+
+  // 마지막 '\0' 포함
+  char *result = malloc(total_len + 1);
+  if (!result)
+    return NULL;
+
+  result[0] = '\0'; // 초기화
+
+  // 문자열 합치기
+  for (int i = 0; i < line_count; i++) {
+    if (lines[i]) {
+      strcat(result, lines[i]);
+      strcat(result, "\n");
+    }
+  }
+
+  return result;
 }
 
 static void loadLstToTextView(const char *filename) {
   // .lst 파일을 읽어서 GtkTextView에 표시
-}
-
-// file_chooser 버튼에서 파일 선택 시 호출되는 콜백
-void onFileChosen(GtkFileChooserButton *chooser) {
-  char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
-  if (!filename)
-    return;
-
-  loadUcoToTextView(filename);
-  g_free(filename);
 }
 
 // 메뉴바의 "Open .uco" 메뉴 선택 시 호출되는 콜백
@@ -56,7 +54,7 @@ void onOpenUco() {
     char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
     if (filename) {
       ctx->current_step = 0;
-      loadUcoToTextView(filename);
+      loadUcoToTable(filename);
       g_free(ctx->uco_filename);
       ctx->uco_filename = g_strdup(filename);
       g_free(filename);
@@ -103,7 +101,16 @@ void onSaveUco(GtkMenuItem *item) {
     return;
   }
 
-  char *content = getTextFromView(GTK_TEXT_VIEW(ctx->ucode_view));
+  char **lines = NULL;
+  int line_count = 0;
+  char *content;
+  if (loadTableToUco(&lines, &line_count)) {
+    content = joinLines(lines, line_count);
+    for (int i = 0; i < line_count; i++) {
+      free(lines[i]);
+    }
+    free(lines);
+  }
   if (!saveUco(file_name, content)) {
     g_warning("Failed to save .uco file: %s", file_name);
   }
@@ -137,12 +144,21 @@ void onSaveAsUco() {
     if (filename) {
       char *final_name = ensureUcoExtension(filename);
 
-      char *content = getTextFromView(GTK_TEXT_VIEW(ctx->ucode_view));
+      char **lines = NULL;
+      int line_count = 0;
+      char *content;
+      if (loadTableToUco(&lines, &line_count)) {
+        content = joinLines(lines, line_count);
+        for (int i = 0; i < line_count; i++) {
+          free(lines[i]);
+        }
+        free(lines);
+      }
       if (!saveUco(final_name, content)) {
         g_warning("Failed to save .uco file: %s", final_name);
       } else {
         g_free(ctx->uco_filename);
-        ctx->uco_filename = g_strdup(final_name); // 새 파일명 저장
+        ctx->uco_filename = g_strdup(final_name);
       }
       g_free(content);
       g_free(filename);
@@ -168,9 +184,9 @@ void onSaveLst() {
   if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename = ctx->lst_filename;
     if (filename) {
-      char *content = getTextFromView(GTK_TEXT_VIEW(ctx->lst_view));
+      // load 하기
       // save 하기
-      g_free(content);
+      // g_free(content);
       g_free(filename);
     }
   }

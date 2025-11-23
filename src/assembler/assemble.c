@@ -35,7 +35,7 @@ static inline int encodeInst(int opcode, int operand_val) {
   int opGroup = opcode / 10;
   int opGroupIdx = opcode % 10;
 
-  return ((opGroup & 0x7) << 29) | ((opcode & 0x7) << 26) |
+  return ((opGroup & 0x7) << 29) | ((opGroupIdx & 0x7) << 26) |
          (operand_val & 0x03FFFFFF);
 }
 

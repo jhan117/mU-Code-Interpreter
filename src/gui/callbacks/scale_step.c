@@ -75,12 +75,16 @@ static void highlightLine(GtkTextView *view, int line_number) {
 
 // Scale 값 변경 시 호출되는 콜백
 void onScaleChanged(GtkRange *range, gpointer user_data) {
+  GuiContext *ctx = getGuiContext();
+
   GtkLabel *label = GTK_LABEL(user_data);
   GtkAdjustment *adj = gtk_range_get_adjustment(range);
+  ctx->current_step = gtk_adjustment_get_value(adj);
   updateLabel(label, adj);
 
-  GuiContext *ctx = getGuiContext();
-  highlightLine(GTK_TEXT_VIEW(ctx->ucode_view), gtk_range_get_value(range));
+  highlightLine(GTK_TEXT_VIEW(ctx->assemble_view), gtk_range_get_value(range));
+
+  updateVM(ctx->current_step);
 }
 
 // 버튼 콜백들

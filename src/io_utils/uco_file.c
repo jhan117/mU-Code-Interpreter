@@ -1,5 +1,6 @@
 #include "io_utils/io_utils.h"
 
+#include "core/constants.h"
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -12,7 +13,7 @@ int loadUco(const char *path, char ***lines, int *line_count) {
     return 0;
 
   // 라인 동적 할당
-  int capacity = 100;
+  int capacity = INIT_LINE_CAPACITY;
   *lines = malloc(sizeof(char *) * capacity);
   if (!*lines) {
     close(fd);
