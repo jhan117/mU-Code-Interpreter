@@ -3,3 +3,5 @@ test:
 
 clean:
 	$(MAKE) -C test clean
+
+.PHONY: test clean
