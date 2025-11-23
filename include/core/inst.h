@@ -21,6 +21,8 @@ typedef struct {
   int length;
 } OutputBuffer;
 
+OutputBuffer *getOutputBuffer();
+
 // 출력 버퍼 초기화
 void initOutBuffer();
 void freeOutBuffer();
