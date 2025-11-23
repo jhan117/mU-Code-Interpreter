@@ -7,6 +7,17 @@ void onFileChosen(GtkFileChooserButton *chooser);
 
 // ucode view
 gboolean onKeyPress(GtkWidget *widget, GdkEventKey *event);
+void highlightLine(GtkTextView *view, int line_number);
+void highlightRow();
 
 // 실행
 void onRun(GtkButton *button);
+void updateVM(int step);
+
+// 입출력
+void guiIoWrite(int data);
+int guiIoRead();
+void guiIoWrite(int data);
+void guiIoLf();
+gboolean onEnterPress(GtkWidget *widget, GdkEventKey *event,
+                      gpointer user_data);

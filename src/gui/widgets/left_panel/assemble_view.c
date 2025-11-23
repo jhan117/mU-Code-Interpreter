@@ -44,18 +44,18 @@ void setAssembleView() {
 
     if (info->operand_count == 0) {
       if (i == ctx->code_len - 1) {
-        snprintf(line, sizeof(line), "%04d: operator=%d%d", i, opGroup,
+        snprintf(line, sizeof(line), "%04d: operator=%d%d", i + 1, opGroup,
                  opGroupIdx);
       } else {
-        snprintf(line, sizeof(line), "%04d: operator=%d%d\n", i, opGroup,
+        snprintf(line, sizeof(line), "%04d: operator=%d%d\n", i + 1, opGroup,
                  opGroupIdx);
       }
     } else {
       if (i == ctx->code_len - 1) {
-        snprintf(line, sizeof(line), "%04d: operator=%d%d operand=%d", i,
+        snprintf(line, sizeof(line), "%04d: operator=%d%d operand=%d", i + 1,
                  opGroup, opGroupIdx, operand);
       } else {
-        snprintf(line, sizeof(line), "%04d: operator=%d%d operand=%d\n", i,
+        snprintf(line, sizeof(line), "%04d: operator=%d%d operand=%d\n", i + 1,
                  opGroup, opGroupIdx, operand);
       }
     }

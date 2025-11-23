@@ -21,6 +21,10 @@ void initVMContext(void) {
   // 기존 메모리 해제
   freeVMContext();
 
+  ctx.source_map.line = malloc(sizeof(int) * INIT_LINE_CAPACITY);
+  ctx.source_map.len = 0;
+  ctx.source_map.capacity = INIT_LINE_CAPACITY;
+
   // 레이블 리스트 초기화
   ctx.labels.labels = malloc(sizeof(Label) * INIT_LIST_CAPACITY);
   ctx.labels.count = 0;
@@ -76,6 +80,11 @@ void initVMContext(void) {
 
 // VMContext 해제
 void freeVMContext(void) {
+  if (ctx.source_map.line) {
+    free(ctx.source_map.line);
+    ctx.source_map.line = NULL;
+  }
+
   if (ctx.labels.labels) {
     free(ctx.labels.labels);
     ctx.labels.labels = NULL;

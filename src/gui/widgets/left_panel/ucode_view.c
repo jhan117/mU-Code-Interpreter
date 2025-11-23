@@ -25,8 +25,8 @@ GtkWidget *initUcodeView() {
   if (!ctx->ucode_table)
     ctx->ucode_table = g_malloc0(sizeof(TableInfo));
 
-  GtkListStore *store =
-      gtk_list_store_new(3, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+  GtkListStore *store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING,
+                                           G_TYPE_STRING, G_TYPE_STRING);
 
   // 첫 빈 행 추가
   GtkTreeIter iter;
@@ -65,7 +65,7 @@ static void addColumn(GtkWidget *tree_view, GtkListStore *store,
 
   // 열 추가
   GtkTreeViewColumn *col = gtk_tree_view_column_new_with_attributes(
-      title, renderer, "text", col_idx, NULL);
+      title, renderer, "text", col_idx, "background", 3, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(tree_view), col);
 
   // 글자 수 제한 이벤트

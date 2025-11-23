@@ -29,7 +29,10 @@ TextScrollInfo initAssembleView();
 void setAssembleView();
 
 GtkWidget *createNotebookView(NotebookPageInfo *pages, int page_count);
+
 GtkWidget *createStepControl();
+void updateStep();
+
 GtkWidget *createRegTable();
 
 GtkWidget *createCPUStackTable();

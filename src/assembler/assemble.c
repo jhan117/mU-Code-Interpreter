@@ -39,6 +39,16 @@ static inline int encodeInst(int opcode, int operand_val) {
          (operand_val & 0x03FFFFFF);
 }
 
+void pushSourceLine(int line) {
+  SourceMap *m = &getVMContext()->source_map;
+
+  if (m->len >= m->capacity) {
+    m->capacity *= 2;
+    m->line = realloc(m->line, sizeof(int) * m->capacity);
+  }
+  m->line[m->len++] = line;
+}
+
 int assemble(char **lines, int line_count) {
   VMContext *ctx = getVMContext();
   int addr = 0;
@@ -156,6 +166,7 @@ int assemble(char **lines, int line_count) {
                          "memory address out of range");
 
     ctx->memory[addr++] = encodeInst(info->opcode, operand_val);
+    pushSourceLine(i);
     freeOperands(operands, operand_count);
   }
   ctx->code_len = addr;

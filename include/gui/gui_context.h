@@ -12,15 +12,20 @@ typedef struct {
   GtkWidget *main_window;
 
   int is_run_done;
+  int timeout_id;
   int current_step;
   char *uco_filename;
   char *lst_filename;
+
+  int uco_prev_line;
 
   GtkWidget *file_chooser;
   GtkWidget *ucode_view;
   GtkWidget *assemble_view;
   GtkWidget *lst_view;
 
+  GtkAdjustment *adj;
+  GtkWidget *step_label;
   GtkWidget *btn_first;
   GtkWidget *btn_prev;
   GtkWidget *btn_toggle;
@@ -34,11 +39,13 @@ typedef struct {
   GtkListStore *labels_store;
   GtkListStore *symbols_store;
 
-  GtkLabel *stat_mem_label;
+  GtkWidget *stat_mem_label;
   GtkListStore *stat_use_store;
   GtkListStore *stat_run_store;
 
   GtkWidget *io_view;
+  int got_input;
+  int value;
 } GuiContext;
 
 GuiContext *getGuiContext(void);

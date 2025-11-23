@@ -120,10 +120,19 @@ void onRun(GtkButton *button) {
 #ifdef USE_DUMMY
   initDummyVM();
 
+  updateStep();
   updateVM(ctx->current_step);
   updateLabelsView();
   updateSymbolsView();
   updateStatisticsBox();
+
+  // 입출력 테스트
+  guiIoWrite(1);
+  int read2 = guiIoRead();
+  guiIoWrite(read2);
+  guiIoRead();
+  guiIoWrite(3);
+  guiIoLf();
 #endif
 
   // run은 나중에

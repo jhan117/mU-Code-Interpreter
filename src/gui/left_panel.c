@@ -13,15 +13,9 @@ GtkWidget *createLeftPanel() {
   gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(assemble_info.text_view),
                                    FALSE);
 
-  // TextScrollInfo lst_info = createTextView();
-  // ctx->lst_view = lst_info.text_view;
-  // gtk_text_view_set_editable(GTK_TEXT_VIEW(lst_info.text_view), FALSE);
-  // gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(lst_info.text_view), FALSE);
-
   NotebookPageInfo pages[] = {
       {"uCode", ucode_scroll},
       {"assemble 결과", assemble_info.scroll},
-      {".lst 결과", gtk_text_view_new()},
   };
 
   ctx->is_run_done = 0;
@@ -34,7 +28,7 @@ GtkWidget *createLeftPanel() {
                    NULL);
 
   gtk_box_pack_start(GTK_BOX(box), ctx->file_chooser, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), createNotebookView(pages, 3), TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(box), createNotebookView(pages, 2), TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(box), createStepControl(), FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(box), run_btn, FALSE, FALSE, 0);
 

@@ -1,5 +1,7 @@
 #include "gui/gui.h"
 
+#include "core/vm_context.h"
+
 static void onToggled(GtkToggleButton *button, gpointer user_data) {
   GuiContext *ctx = getGuiContext();
   GtkImage *icon = GTK_IMAGE(user_data);
@@ -55,11 +57,10 @@ static GtkWidget *createPlayControl(GtkAdjustment *adj, GtkLabel *label) {
 GtkWidget *createStepControl() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
 
-  // 최소값 0, 최대값 100, 초기값 0
-  GtkAdjustment *adjustment = gtk_adjustment_new(0, 0, 100, 1, 10, 0);
+  GtkAdjustment *adjustment = gtk_adjustment_new(0, 0, 0, 1, 10, 0);
   GtkWidget *scale = gtk_scale_new(GTK_ORIENTATION_HORIZONTAL, adjustment);
   gtk_scale_set_digits(GTK_SCALE(scale), 0);
-  gtk_scale_set_draw_value(GTK_SCALE(scale), TRUE);
+  gtk_scale_set_draw_value(GTK_SCALE(scale), FALSE);
 
   GtkWidget *label = gtk_label_new("Step 00 of 00");
 
@@ -71,5 +72,23 @@ GtkWidget *createStepControl() {
                      FALSE, 0);
   gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
 
+  GuiContext *ctx = getGuiContext();
+  ctx->step_label = label;
+  ctx->adj = adjustment;
   return box;
+}
+
+void updateStep() {
+  VMContext *vm_ctx = getVMContext();
+  GuiContext *ctx = getGuiContext();
+
+  gtk_adjustment_set_upper(ctx->adj, vm_ctx->code_len - 1);
+  gtk_adjustment_set_value(ctx->adj, 0);
+
+  char buf[32];
+  sprintf(buf, "Step 01 of %02d", vm_ctx->code_len);
+  gtk_label_set_text(ctx->step_label, buf);
+
+  highlightLine(GTK_TEXT_VIEW(ctx->assemble_view), ctx->current_step);
+  highlightRow();
 }

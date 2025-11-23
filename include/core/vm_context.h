@@ -24,6 +24,8 @@ typedef struct {
   ChangeList changes;
   Statistics stat;
   Stack cpu_stack;
+
+  SourceMap source_map;
 } VMContext;
 
 VMContext *getVMContext(void);

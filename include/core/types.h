@@ -3,6 +3,12 @@
 #include "constants.h"
 
 typedef struct {
+  int *line;
+  int capacity;
+  int len;
+} SourceMap; // 원본코드 위치
+
+typedef struct {
   char name[MAX_LABEL_NAME_LEN];
   int addr;
 } Label;
