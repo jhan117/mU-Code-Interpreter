@@ -74,6 +74,13 @@ int saveLst(const char *path, UCodeLines *lines) {
       write(fd, "  ", sizeof(char));
   }
 
+  // 기타 통계
+  nbytes = snprintf(buf, sizeof(buf), "\n======기타 통계======\n");
+  write(fd, buf, nbytes);
+  nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d\n", "메모리 접근 횟수",
+                    ctx->stat.memory_access_count);
+  write(fd, buf, nbytes);
+
   close(fd);
   freeOutBuffer();
 
