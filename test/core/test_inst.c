@@ -19,13 +19,13 @@ static VMContext *setupContext(void) {
 
 static void setSymbol(int index, int offset) {
   VMContext *ctx = getVMContext();
-  ctx->symbols.symbols[index].index = index;
-  ctx->symbols.symbols[index].block = 0;
-  ctx->symbols.symbols[index].offset = offset;
-  ctx->symbols.symbols[index].addr = offset;
-  ctx->symbols.symbols[index].size = 1;
-  if (ctx->symbols.count <= index)
-    ctx->symbols.count = index + 1;
+  ctx->symbol_list.symbols[index].index = index;
+  ctx->symbol_list.symbols[index].block = 0;
+  ctx->symbol_list.symbols[index].offset = offset;
+  ctx->symbol_list.symbols[index].addr = offset;
+  ctx->symbol_list.symbols[index].size = 1;
+  if (ctx->symbol_list.count <= index)
+    ctx->symbol_list.count = index + 1;
 }
 
 static int runBinaryInst(void (*inst)(int), int lhs, int rhs) {

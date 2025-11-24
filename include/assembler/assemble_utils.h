@@ -1,0 +1,28 @@
+#pragma once
+
+#include "assembler/assemble_error.h"
+#include "core/instruction.h" // OpInfo 불러오기
+#include "core/vm_context.h"
+
+// parse.c
+void strcopy(char *dst, const char *src, int size);
+AssembleError parseLine(const char *line, char *label, char *opcode,
+                        char *operands[4], int *operand_count);
+
+// label.c
+#define LABEL_NOT_FOUND -9999
+void addSystemLabel();
+int findLabel(const char *name);
+AssembleError addLabel(const char *name, int addr);
+AssembleError addPatch(int addr, int src_idx, const char *name);
+AssembleError applyPatches();
+
+// symbol.c
+#define SYMBOL_NOT_FOUND -9999
+int findSymbol(int block, int offset);
+AssembleError addSymbol(int block, int offset, int size);
+
+// operand.c
+int isNumber(const char *s);
+AssembleError validOperands(const OpInfo *info, char *operands[], int count,
+                            int *operand_val, int src_idx);

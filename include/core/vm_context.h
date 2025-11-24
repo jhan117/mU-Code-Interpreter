@@ -1,5 +1,6 @@
 #pragma once
 
+#include "constants.h"
 #include "types.h"
 
 typedef struct {
@@ -10,12 +11,12 @@ typedef struct {
   int sp;
   int bp;
 
-  int code_len;
-  int g_var_cnt;
+  int code_len;  // 코드 영역 길이
+  int g_var_cnt; // 전역변수 개수
 
-  LabelList labels;
-  PatchList patches;
-  SymbolList symbols;
+  LabelList label_list;   // 라벨
+  PatchList patch_list;   // 패치할 라벨
+  SymbolList symbol_list; // 변수 정보
 
   int run_mode;
   unsigned int flags;
@@ -26,6 +27,6 @@ typedef struct {
   Stack cpu_stack;
 } VMContext;
 
-VMContext *getVMContext(void);
-void initVMContext(void);
-void freeVMContext(void);
+VMContext *getVMContext();
+void initVMContext();
+void freeVMContext();

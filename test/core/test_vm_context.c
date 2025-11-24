@@ -6,7 +6,6 @@
 
 // VMContext 초기화/해제
 void testInitVMContext(void) {
-
   initVMContext();
   VMContext *ctx = getVMContext();
 

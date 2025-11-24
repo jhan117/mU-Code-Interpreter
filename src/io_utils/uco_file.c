@@ -1,5 +1,6 @@
 #include "io_utils/io_utils.h"
 
+#include "io_utils/io_constants.h" // LINE_BUFFER_LEN
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,7 +20,7 @@ int loadUco(const char *path, char ***lines, int *line_count) {
   }
   *line_count = 0;
 
-  char buffer[256];
+  char buffer[LINE_BUFFER_LEN];
   ssize_t n;
   int pos = 0;
   char c;

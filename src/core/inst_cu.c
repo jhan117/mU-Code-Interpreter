@@ -93,7 +93,7 @@ void fjp(int arg) {
 
 void lod(int arg) {
   VMContext *ctx = getVMContext();
-  int addr = ctx->symbols.symbols[arg].addr;
+  int addr = ctx->symbol_list.symbols[arg].addr;
   if (checkError(ctx, &addr, NULL, NULL, NULL))
     return;
   pushCPUStack(ctx->memory[addr]);
@@ -102,7 +102,7 @@ void lod(int arg) {
 
 void lda(int arg) {
   VMContext *ctx = getVMContext();
-  int addr = ctx->symbols.symbols[arg].addr;
+  int addr = ctx->symbol_list.symbols[arg].addr;
   pushCPUStack(addr);
   return;
 }
@@ -116,7 +116,7 @@ void ldc(int arg) {
 
 void str(int arg) {
   VMContext *ctx = getVMContext();
-  int addr = ctx->symbols.symbols[arg].addr;
+  int addr = ctx->symbol_list.symbols[arg].addr;
   if (checkError(ctx, &addr, NULL, NULL, NULL))
     return;
   int item = popCPUStack();

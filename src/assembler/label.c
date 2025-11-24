@@ -1,82 +1,99 @@
-#include "assemble.h"
+#include "assembler/assemble_utils.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static const Label system_labels[] = {{"read", -1}, {"write", -2}, {"lf", -3}};
+static const Label system_labels[] = {
+    {"read", -1},
+    {"write", -2},
+    {"lf", -3},
+};
 static const int system_label_count =
     sizeof(system_labels) / sizeof(system_labels[0]);
 
-int isSystemLabel(const char *name) {
+void addSystemLabel() {
+  LabelList *label_list = &getVMContext()->label_list;
+
   for (int i = 0; i < system_label_count; i++) {
-    if (strcmp(system_labels[i].name, name) == 0)
-      return 1;
+    const char *name = system_labels[i].name;
+    int addr = system_labels[i].addr;
+
+    strcopy(label_list->labels[label_list->count].name, name, MAX_LABEL_LEN);
+    label_list->labels[label_list->count].addr = addr;
+    label_list->count++;
   }
-  return 0;
 }
 
 int findLabel(const char *name) {
-  LabelList *t = &getVMContext()->labels;
+  LabelList label_list = getVMContext()->label_list;
+  Label *labels = label_list.labels;
 
-  for (int i = 0; i < t->count; i++) {
-    if (strcmp(t->labels[i].name, name) == 0)
-      return t->labels[i].addr;
-  }
   for (int i = 0; i < system_label_count; i++) {
     if (strcmp(system_labels[i].name, name) == 0)
       return system_labels[i].addr;
   }
-  return -1; // 못 찾음
-}
 
-void addLabel(const char *name, int addr) {
-  LabelList *t = &getVMContext()->labels;
-
-  if (t->count >= t->capacity) {
-    int newcap = t->capacity == 0 ? 8 : t->capacity * 2;
-    Label *p = realloc(t->labels, sizeof(Label) * newcap);
-    if (!p)
-      return;
-    t->labels = p;
-    t->capacity = newcap;
+  for (int i = 0; i < label_list.count; i++) {
+    if (strcmp(labels[i].name, name) == 0)
+      return labels[i].addr;
   }
 
-  strncpy(t->labels[t->count].name, name, MAX_LABEL_NAME_LEN - 1);
-  t->labels[t->count].name[MAX_LABEL_NAME_LEN - 1] = '\0';
-  t->labels[t->count].addr = addr;
-  t->count++;
+  return LABEL_NOT_FOUND;
 }
 
-void addPatch(int addr, const char *name) {
-  PatchList *t = &getVMContext()->patches;
+AssembleError addLabel(const char *name, int addr) {
+  LabelList *label_list = &getVMContext()->label_list;
 
-  if (t->count >= t->capacity) {
-    int newcap = t->capacity == 0 ? 8 : t->capacity * 2;
-    Patch *p = realloc(t->patches, sizeof(Patch) * newcap);
-    t->patches = p;
-    t->capacity = newcap;
+  if (label_list->count >= label_list->capacity) {
+    int new_cap = label_list->capacity * 2;
+    Label *new_labels = realloc(label_list->labels, sizeof(Label) * new_cap);
+    if (!new_labels)
+      return ASSEMBLE_ERR_MEMORY;
+    label_list->labels = new_labels;
+    label_list->capacity = new_cap;
   }
-  t->patches[t->count].core_idx = addr;
-  strncpy(t->patches[t->count].label_name, name, MAX_LABEL_NAME_LEN - 1);
-  t->patches[t->count].label_name[MAX_LABEL_NAME_LEN - 1] = '\0';
-  t->count++;
+
+  strcopy(label_list->labels[label_list->count].name, name, MAX_LABEL_LEN);
+  label_list->labels[label_list->count].addr = addr;
+  label_list->count++;
+
+  return ASSEMBLE_ERR_NONE;
 }
 
-int applyPatches() {
-  PatchList *pt = &getVMContext()->patches;
-  int *memory = getVMContext()->memory;
+AssembleError addPatch(int addr, int src_idx, const char *name) {
+  PatchList *patch_list = &getVMContext()->patch_list;
 
-  for (int i = 0; i < pt->count; i++) {
-    Patch *p = &pt->patches[i];
-    int la = findLabel(p->label_name);
-    if (la == -1) {
-      printf("[ERROR] Patch %d: label '%s' missing\n", i, p->label_name);
-      return ASSEMBLE_ERR_LABEL_MISSING;
+  if (patch_list->count >= patch_list->capacity) {
+    int new_cap = patch_list->capacity * 2;
+    Patch *new_patches = realloc(patch_list->patches, sizeof(Patch) * new_cap);
+    if (!new_patches)
+      return ASSEMBLE_ERR_MEMORY;
+    patch_list->patches = new_patches;
+    patch_list->capacity = new_cap;
+  }
+
+  patch_list->patches[patch_list->count].code_idx = addr;
+  patch_list->patches[patch_list->count].src_idx = src_idx;
+  strcopy(patch_list->patches[patch_list->count].label_name, name,
+          MAX_LABEL_LEN);
+  patch_list->count++;
+
+  return ASSEMBLE_ERR_NONE;
+}
+
+AssembleError applyPatches() {
+  VMContext *ctx = getVMContext();
+  PatchList *patch_list = &ctx->patch_list;
+  int *memory = ctx->memory;
+
+  for (int i = 0; i < patch_list->count; i++) {
+    Patch *patch = &patch_list->patches[i];
+    int addr = findLabel(patch->label_name);
+    if (addr == LABEL_NOT_FOUND) {
+      return returnError(ASSEMBLE_ERR_LABEL_UNDEF, patch->src_idx);
     }
-    int old = memory[p->core_idx];
-    int opcode = (old >> 26) & 0x3F;
-    memory[p->core_idx] = (opcode << 26) | (la & 0x03FFFFFF);
+    memory[patch->code_idx] = patchInst(memory[patch->code_idx], addr);
   }
-  return ASSEMBLE_OK;
+  return ASSEMBLE_ERR_NONE;
 }
