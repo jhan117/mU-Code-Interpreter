@@ -227,7 +227,6 @@ void testDataMovementInstructions(void) {
   VMContext *ctx = setupContext();
   int addr = ctx->ds + 16;
   setSymbol(0, addr);
-
   ctx->memory[addr] = 55;
   lod(0);
   assert(popCPUStack() == 55);

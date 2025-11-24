@@ -9,7 +9,7 @@ typedef struct {
   int count;
 } OpcodeData;
 
-// const OpcodeData *getOpcodeData(void);
-// const char *getOpcodeName(int opcode);
-// int getOpcodeFromGroup(int group_code, int opcode_index);
-// int getOpcodeFromInst(int inst);
+const OpcodeData *getOpcodeData(void);
+const char *getOpcodeName(int opcode);
+int getOpcodeFromGroup(int group_code, int opcode_index);
+int getOpcodeFromInst(int inst);

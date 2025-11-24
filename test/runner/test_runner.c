@@ -70,14 +70,12 @@ void testRunnerErrorExit(void) {
 void testRunnerSaveChanges(void) {
   initVMContext();
   VMContext *ctx = getVMContext();
-  printf("123123\n");
   // 변경 내용 저장 테스트
   ctx->ds = 10;
   ctx->ss = 20;
   ctx->sp = 15;
   ctx->bp = 30;
   ctx->pc = 5;
-  printf("123123\n");
 
   initSnapshot();
 
