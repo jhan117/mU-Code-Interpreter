@@ -34,3 +34,5 @@
 
 #define CLI 0
 #define GUI 1
+
+#define GLOBAL_BLOCK 1

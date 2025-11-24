@@ -13,7 +13,6 @@ int decodeArg(int inst);
 // 명령어 오류 검사
 int checkError(VMContext *ctx, const int *addr, const int *pc, const int *bp,
                const int *sp);
-void updateSymbols();
 
 typedef struct {
   char *data;

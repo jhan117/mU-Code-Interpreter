@@ -1,10 +1,12 @@
 #include "runner.h"
+#include "assemble.h"
 #include "core/inst.h"
 #include "core/opcode.h"
 #include "core/opcode_utils.h"
 #include "core/vm_context.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 
 static const int mem_access[OPCODE_MAX] = {
     [OP_RET] = 2, [OP_PUSH] = 1, [OP_CALL] = 2, [OP_LOD] = 1,
@@ -21,7 +23,7 @@ void step() {
   return;
 }
 
-void printError() {
+void printError(int prev_pc) {
   VMContext *ctx = getVMContext();
   if (ctx->bp == -1)
     printf("[INFO] runner stopped (bp == -1)\n");
@@ -43,13 +45,26 @@ void printError() {
     printf("[ERROR] CPU stack overflow\n");
   if (ctx->flags & ERR_CPU_STACK_UNDERFLOW)
     printf("[ERROR] CPU stack underflow\n");
+
+  if (prev_pc >= 0 && prev_pc < ctx->code_len) {
+    char inst[32];
+    int inst_val = ctx->memory[prev_pc];
+    int opcode = getOpcodeFromInst(inst_val);
+    int operand = decodeArg(inst_val);
+    const char *opcode_name = getOpcodeName(opcode);
+    if (!opcode_name)
+      opcode_name = "";
+    snprintf(inst, sizeof(inst), "%s %d", opcode_name, operand);
+    printf("[DEBUG] instruction : %s | pc : %d | bp : %d | sp : %d\n", inst,
+           ctx->pc, ctx->bp, ctx->sp);
+  }
 }
 
 void readyToRun() {
   VMContext *ctx = getVMContext();
   ctx->cs = 0;
-  ctx->ds = 1000; // 나중에 수정
-  ctx->ss = 2000; // 나중에 수정
+  ctx->ds = ctx->code_len;
+  ctx->ss = ctx->code_len + ctx->g_var_cnt;
   ctx->pc = 0;
 
   int stack_top = INIT_MEMORY_SIZE - 1;
@@ -65,13 +80,15 @@ int runner() {
   initSnapshot();
   initSnapshotList();
   readyToRun();
-  updateSymbols();
+
+  int prev_pc = 0;
 
   while (1) {
     if (ctx->flags != 0 || ctx->bp == -1) {
-      printError();
+      printError(prev_pc);
       return -1;
     }
+    prev_pc = ctx->pc;
     step();
     saveChanges();
   }

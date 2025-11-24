@@ -37,5 +37,6 @@ void addSymbol(int block, int offset, int size);
 int parseLine(const char *line, char *label, char *opcode, char *operands[4],
               int *operand_count);
 const OpInfo *findOpInfo(const char *name);
+const OpInfo *findOpInfoByOpcode(int opcode);
 
 int assemble(char **lines, int line_count);

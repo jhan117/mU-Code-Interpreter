@@ -21,7 +21,7 @@ static void setSymbol(int index, int offset) {
   VMContext *ctx = getVMContext();
   ctx->symbols.symbols[index].index = index;
   ctx->symbols.symbols[index].block = 0;
-  ctx->symbols.symbols[index].offset = offset;
+  ctx->symbols.symbols[index].offset = ctx->bp - 2 - offset;
   ctx->symbols.symbols[index].addr = offset;
   ctx->symbols.symbols[index].size = 1;
   if (ctx->symbols.count <= index)
@@ -227,6 +227,7 @@ void testDataMovementInstructions(void) {
   VMContext *ctx = setupContext();
   int addr = ctx->ds + 16;
   setSymbol(0, addr);
+
   ctx->memory[addr] = 55;
   lod(0);
   assert(popCPUStack() == 55);
