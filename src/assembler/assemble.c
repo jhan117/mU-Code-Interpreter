@@ -85,6 +85,13 @@ AssembleError assemble(char **lines, int line_count) {
           return returnError(ASSEMBLE_ERR_ARG_TYPE, i + 1);
         }
         ctx->g_var_cnt = atoi(operands[0]);
+        current_func = addFunc("global", addr);
+
+        if (!current_func) {
+          freeOperands(operands, operand_count);
+          return returnError(ASSEMBLE_ERR_MEMORY, i + 1);
+        }
+        current_func->func_block = 1;
         continue;
       } else if (strcmp(info->name, "sym") == 0) {
         if (!isNumber(operands[0]) || !isNumber(operands[1]) ||
@@ -112,8 +119,7 @@ AssembleError assemble(char **lines, int line_count) {
           }
         }
         continue;
-      } else if (strcmp(info->name, "end") == 0 ||
-                 strcmp(info->name, "nop") == 0) {
+      } else if (strcmp(info->name, "nop") == 0) {
         continue;
       }
     }

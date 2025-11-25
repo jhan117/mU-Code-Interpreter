@@ -34,7 +34,6 @@ typedef struct {
 typedef struct {
   int index;
   int block;
-  int addr;
   int offset;
   int size;
 } Symbol;
