@@ -2,6 +2,7 @@
 
 #include "assembler/assemble_utils.h"
 #include "core/opcode.h" // OP_* 필요
+#include "io_utils/io_utils.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,7 +13,7 @@ static void freeOperands(char *operands[], int count) {
     free(operands[i]);
 }
 
-AssembleError assemble(char **lines, int line_count) {
+AssembleError assemble(char **lines, int line_count, int *encoded) {
   VMContext *ctx = getVMContext();
   int addr = 0;
   FuncInfo *current_func = NULL;
@@ -186,6 +187,8 @@ AssembleError assemble(char **lines, int line_count) {
     }
 
     ctx->stat.inst_use_count[info->opcode]++;
+    if (encoded)
+      encoded[addr] = encodeInst(info->opcode, operand_val);
     ctx->memory[addr++] = encodeInst(info->opcode, operand_val);
     freeOperands(operands, operand_count);
   }

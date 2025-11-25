@@ -36,7 +36,7 @@ int testAssembleSuccess() {
   initVMContext();
   VMContext *ctx = getVMContext();
 
-  if (assemble(lines, line_count) != ASSEMBLE_ERR_NONE) {
+  if (assemble(lines, line_count, NULL) != ASSEMBLE_ERR_NONE) {
     printf("[FAIL] assemble() test failed\n");
     return 1;
   }
@@ -89,7 +89,7 @@ int testAssembleSuccess() {
 
 static int checkAssemble(int idx, char **lines, int line_count, int expected) {
   initVMContext();
-  int res = assemble(lines, line_count);
+  int res = assemble(lines, line_count, NULL);
 
   if (res != expected) {
     printf("[FAIL] assemble() fail test %d failed (expected %d, got %d)\n\n",

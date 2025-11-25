@@ -2,4 +2,4 @@
 
 #include "assembler/assemble_error.h"
 
-AssembleError assemble(char **lines, int line_count);
+AssembleError assemble(char **lines, int line_count, int *encoded);

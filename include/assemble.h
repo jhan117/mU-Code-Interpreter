@@ -22,4 +22,4 @@ int findSymbol(int block, int offset);
 void addSymbol(int block, int offset, int size);
 int parseLine(const char *line, char *label, char *opcode, char *operands[4],
               int *operand_count);
-int assemble(char **lines, int line_count);
+int assemble(char **lines, int line_count, int *encoded);

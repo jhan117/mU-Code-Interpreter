@@ -6,14 +6,17 @@ TEST_DIR := .
 BUILD_TEST := ../build-test
 TARGET := $(BUILD_TEST)/run_tests
 
-# 메인 소스 자동 수집
-SRC := $(shell find $(SRC_DIR) -name "*.c")
+# 메인 소스 자동 수집 (실행 진입점 제외)
+SRC := $(shell find $(SRC_DIR) -name "*.c" ! -name "main.c")
 # 테스트 소스 자동 수집 (test 폴더만)
 TEST_SRC := $(shell find $(TEST_DIR) -name "*.c")
 
 # 오브젝트 분리 저장
 OBJ := $(SRC:$(SRC_DIR)/%.c=$(BUILD_TEST)/src/%.o) \
        $(TEST_SRC:$(TEST_DIR)/%.c=$(BUILD_TEST)/test/%.o)
+
+
+build: $(TARGET)
 
 $(TARGET): $(OBJ)
 	@mkdir -p $(dir $@)
@@ -35,4 +38,4 @@ test: $(TARGET)
 clean:
 	rm -rf $(BUILD_TEST)
 
-.PHONY: test clean
+.PHONY: build test clean

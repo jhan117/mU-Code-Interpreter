@@ -26,6 +26,7 @@ int saveLst(const char *path, UCodeLines *lines) {
   char buf[128];
   VMContext *ctx = getVMContext();
   OutputBuffer *output = getOutputBuffer();
+  printf("OUT: data=%p, len=%d\n", output->data, output->length);
   OpInfo *op;
 
   const char *src_header = "======= 원본 코드 =======";

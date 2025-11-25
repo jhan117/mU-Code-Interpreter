@@ -17,7 +17,8 @@ void step() {
   int inst = ctx->memory[ctx->pc++];
   int group_code;
   int g_idx;
-  decodeInst(inst, &group_code, &g_idx, NULL);
+  int operand;
+  decodeInst(inst, &group_code, &g_idx, &operand);
   int opcode = group_code * 10 + g_idx;
   ctx->stat.inst_run_count[opcode]++;
   ctx->stat.memory_access_count += mem_access[opcode];
@@ -27,8 +28,6 @@ void step() {
 
 void printError(int prev_pc) {
   VMContext *ctx = getVMContext();
-  if (ctx->bp == -1)
-    printf("[INFO] runner stopped (bp == -1)\n");
 
   if (ctx->flags == 0)
     return;
@@ -86,7 +85,11 @@ int runner() {
   int prev_pc = 0;
 
   while (1) {
-    if (ctx->flags != 0 || ctx->bp == -1) {
+    if (ctx->bp == -1) {
+      printf("[INFO] runner stopped\n");
+      return 0;
+    }
+    if (ctx->flags != 0) {
       printError(prev_pc);
       return -1;
     }

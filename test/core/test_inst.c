@@ -281,8 +281,8 @@ void testDataMovementInstructions(void) {
   // sti 테스트
   ctx = setupContext();
   addr = ctx->ds + 80;
-  pushCPUStack(333);
   pushCPUStack(addr);
+  pushCPUStack(333);
   sti(0);
   assert(ctx->memory[addr] == 333);
   freeVMContext();

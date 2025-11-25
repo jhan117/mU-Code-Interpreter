@@ -142,10 +142,10 @@ void ldi(int arg) {
 void sti(int arg) {
   VMContext *ctx = getVMContext();
   (void)arg;
+  int item = popCPUStack();
   int addr = popCPUStack();
   if (checkError(ctx, &addr, NULL, NULL, NULL))
     return;
-  int item = popCPUStack();
   ctx->memory[addr] = item;
   return;
 }
