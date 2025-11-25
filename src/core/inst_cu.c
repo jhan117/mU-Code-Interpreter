@@ -23,16 +23,8 @@ void ret(int arg) {
   return;
 }
 
-void ldp(int arg) {
-  VMContext *ctx = getVMContext();
-  (void)arg;
-  ctx->memory[ctx->sp] = ctx->bp;
-  ctx->bp = ctx->sp;
-  ctx->sp = ctx->sp - 2;
-  if (checkError(ctx, NULL, NULL, NULL, &ctx->sp))
-    return;
-  return;
-}
+// 얘 할일 사라짐
+void ldp(int arg) { (void)arg; }
 
 void push(int arg) {
   VMContext *ctx = getVMContext();
@@ -47,8 +39,11 @@ void push(int arg) {
 void call(int arg) {
   VMContext *ctx = getVMContext();
   if (arg >= 0) {
-    ctx->memory[ctx->bp - 1] = ctx->pc;
-    if (checkError(ctx, NULL, &arg, &ctx->bp, NULL))
+    ctx->memory[ctx->sp] = ctx->bp;
+    ctx->memory[ctx->sp - 1] = ctx->pc;
+    ctx->bp = ctx->sp;
+    ctx->sp = ctx->sp - 2;
+    if (checkError(ctx, NULL, &arg, &ctx->bp, &ctx->sp))
       return;
     ctx->pc = arg;
 
@@ -91,9 +86,17 @@ void fjp(int arg) {
   return;
 }
 
+// 아래 데이터 이동 연산자에서만 사용
+static inline int resolveAddress(VMContext *ctx, int index) {
+  if (ctx->symbols.symbols[index].block == GLOBAL_BLOCK)
+    return ctx->ds + ctx->symbols.symbols[index].offset;
+  else
+    return ctx->bp - ctx->symbols.symbols[index].offset;
+}
+
 void lod(int arg) {
   VMContext *ctx = getVMContext();
-  int addr = ctx->symbols.symbols[arg].addr;
+  int addr = resolveAddress(ctx, arg);
   if (checkError(ctx, &addr, NULL, NULL, NULL))
     return;
   pushCPUStack(ctx->memory[addr]);
@@ -102,8 +105,18 @@ void lod(int arg) {
 
 void lda(int arg) {
   VMContext *ctx = getVMContext();
-  int addr = ctx->symbols.symbols[arg].addr;
+  int addr = resolveAddress(ctx, arg);
   pushCPUStack(addr);
+  return;
+}
+
+void str(int arg) {
+  VMContext *ctx = getVMContext();
+  int addr = resolveAddress(ctx, arg);
+  if (checkError(ctx, &addr, NULL, NULL, NULL))
+    return;
+  int item = popCPUStack();
+  ctx->memory[addr] = item;
   return;
 }
 
@@ -111,16 +124,6 @@ void ldc(int arg) {
   VMContext *ctx = getVMContext();
   (void)ctx;
   pushCPUStack(arg);
-  return;
-}
-
-void str(int arg) {
-  VMContext *ctx = getVMContext();
-  int addr = ctx->symbols.symbols[arg].addr;
-  if (checkError(ctx, &addr, NULL, NULL, NULL))
-    return;
-  int item = popCPUStack();
-  ctx->memory[addr] = item;
   return;
 }
 

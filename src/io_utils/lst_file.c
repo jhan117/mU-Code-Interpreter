@@ -44,7 +44,17 @@ int saveLst(const char *path, UCodeLines *lines) {
   nbytes = snprintf(buf, sizeof(buf), "\n========명령어 사용 횟수======\n");
   write(fd, buf, nbytes);
   for (int i = 0; i < opcode_data->count; i++) {
-    // TODO: 명령어 사용 횟수 넣기
+    int opcode_value = opcode_data->codes[i];
+    const char *opcode_name = opcode_data->names[opcode_value];
+    if (!opcode_name)
+      opcode_name = "";
+    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", opcode_name,
+                      ctx->stat.inst_use_count[opcode_value]);
+    write(fd, buf, nbytes);
+    if ((i + 1) % 3 == 0)
+      write(fd, "\n", sizeof(char));
+    else
+      write(fd, "  ", sizeof(char));
   }
 
   // 명령어 실행 횟수
@@ -63,6 +73,13 @@ int saveLst(const char *path, UCodeLines *lines) {
     else
       write(fd, "  ", sizeof(char));
   }
+
+  // 기타 통계
+  nbytes = snprintf(buf, sizeof(buf), "\n======기타 통계======\n");
+  write(fd, buf, nbytes);
+  nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d\n", "메모리 접근 횟수",
+                    ctx->stat.memory_access_count);
+  write(fd, buf, nbytes);
 
   close(fd);
   freeOutBuffer();
