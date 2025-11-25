@@ -72,6 +72,7 @@ AssembleError assemble(char **lines, int line_count) {
           return returnError(ASSEMBLE_ERR_ARG_TYPE, i + 1);
         }
         ctx->g_var_cnt = atoi(operands[0]);
+        continue;
       } else if (strcmp(info->name, "sym") == 0) {
         if (!isNumber(operands[0]) || !isNumber(operands[1]) ||
             !isNumber(operands[2])) {
@@ -97,6 +98,10 @@ AssembleError assemble(char **lines, int line_count) {
             func->func_block = block;
           }
         }
+        continue;
+      } else if (strcmp(info->name, "end") == 0 ||
+                 strcmp(info->name, "nop") == 0) {
+        continue;
       }
     }
 
