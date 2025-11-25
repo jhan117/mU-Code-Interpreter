@@ -1,7 +1,5 @@
 #include "gui/gui_callbacks.h"
 
-#include "gui/gui_context.h"
-
 void onFileChosen(GtkFileChooserButton *chooser) {
   FileContext *file_ctx = &getGuiContext()->file_ctx;
 
@@ -11,6 +9,11 @@ void onFileChosen(GtkFileChooserButton *chooser) {
 
   g_free(file_ctx->uco_filename);
   file_ctx->uco_filename = g_strdup(filename);
-  loadUcoToTable(filename);
+
+  char **lines = NULL;
+  int line_count = 0;
+  loadUco(filename, &lines, &line_count);
+  updateUcodeView(&lines, &line_count);
+
   g_free(filename);
 }

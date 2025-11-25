@@ -48,7 +48,7 @@ GtkWidget *createRegTable() {
   gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(box), treeview, TRUE, TRUE, 0);
 
-  getGuiContext()->reg_store = reg_store;
+  getGuiContext()->cur_status_ctx.reg_store = reg_store;
   return box;
 }
 
@@ -57,7 +57,7 @@ void updateRegTable(Snapshot *snap) {
     return;
 
   GtkTreeIter iter;
-  GtkListStore *store = getGuiContext()->reg_store;
+  GtkListStore *store = getGuiContext()->cur_status_ctx.reg_store;
 
   gtk_list_store_clear(store);
   gtk_list_store_append(store, &iter);
@@ -365,7 +365,7 @@ void updateStatisticsBox() {
       break;
     }
   if (has_use) {
-    gtk_list_store_clear(ctx->stat_use_store);
+    // gtk_list_store_clear(ctx->stat_use_store);
     for (int i = 0; i < OPCODE_MAX; i++) {
       // if (stats->inst_use_count[i] > 0) {
       //   const OpInfo *op = findOpInfoByOpcode(i);

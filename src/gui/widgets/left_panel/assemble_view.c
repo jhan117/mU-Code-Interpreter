@@ -1,11 +1,7 @@
-#include "gui/gui.h"
+#include "gui/gui_widgets.h"
 
-#include "core/instruction.h" // OpInfo 불러오기
-#include "core/vm_context.h"
+#include "assembler/assemble.h" // printAssembleRes()
 
-void setAssembleView();
-
-// 어셈블 화면 초기화
 TextScrollInfo initAssembleView() {
   GtkWidget *text_view = gtk_text_view_new();
   gtk_text_view_set_left_margin(GTK_TEXT_VIEW(text_view), 12);
@@ -18,48 +14,41 @@ TextScrollInfo initAssembleView() {
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(text_scroll),
                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(text_view), FALSE);
+  gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(text_view), FALSE);
+
   TextScrollInfo info = {text_view, text_scroll};
   return info;
 }
 
-void setAssembleView() {
-  VMContext *ctx = getVMContext();
+void updateAssembleView() {
+  GtkWidget *text_view = getGuiContext()->code_ctx.assemble_view.text_view;
 
-  GtkTextBuffer *buffer = gtk_text_view_get_buffer(
-      GTK_TEXT_VIEW(getGuiContext()->code_ctx.assemble_view.text_view));
-  gtk_text_buffer_set_text(buffer, "", -1);
+  resetAllText(text_view);
+  insertAtEnd(text_view, printAssembleRes());
+}
 
-  char line[128];
-  for (int i = 0; i < ctx->code_len; i++) {
-    int inst = ctx->memory[i];
-    int opGroup = 0;
-    int opGroupIdx = 0;
-    int operand = 0;
+void highlightLine() {
+  GuiContext *ctx = getGuiContext();
+  GtkWidget *text_view = ctx->code_ctx.assemble_view.text_view;
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
 
-    decodeInst(inst, &opGroup, &opGroupIdx, &operand);
-    int opcode = opGroup * 10 + opGroupIdx;
-
-    const OpInfo *info = findOpInfoByOpcode(opcode);
-    if (info->operand_count == 0) {
-      if (i == ctx->code_len - 1) {
-        snprintf(line, sizeof(line), "%04d: operator=%d%d", i + 1, opGroup,
-                 opGroupIdx);
-      } else {
-        snprintf(line, sizeof(line), "%04d: operator=%d%d\n", i + 1, opGroup,
-                 opGroupIdx);
-      }
-    } else {
-      if (i == ctx->code_len - 1) {
-        snprintf(line, sizeof(line), "%04d: operator=%d%d operand=%d", i + 1,
-                 opGroup, opGroupIdx, operand);
-      } else {
-        snprintf(line, sizeof(line), "%04d: operator=%d%d operand=%d\n", i + 1,
-                 opGroup, opGroupIdx, operand);
-      }
-    }
-
-    GtkTextIter end;
-    gtk_text_buffer_get_end_iter(buffer, &end);
-    gtk_text_buffer_insert(buffer, &end, line, -1);
+  GtkTextTagTable *table = gtk_text_buffer_get_tag_table(buffer);
+  GtkTextTag *tag = gtk_text_tag_table_lookup(table, "highlight");
+  if (!tag) {
+    tag = gtk_text_tag_new("highlight");
+    g_object_set(tag, "foreground", "red", NULL);
+    gtk_text_tag_table_add(table, tag);
   }
+
+  GtkTextIter start, end;
+  gtk_text_buffer_get_start_iter(buffer, &start);
+  gtk_text_buffer_get_end_iter(buffer, &end);
+  gtk_text_buffer_remove_tag(buffer, tag, &start, &end);
+
+  GtkTextIter iter;
+  GtkTextIter line_end = iter;
+  gtk_text_buffer_get_iter_at_line(buffer, &iter, ctx->current_step);
+  gtk_text_iter_forward_to_line_end(&line_end);
+  gtk_text_buffer_apply_tag(buffer, tag, &iter, &line_end);
 }

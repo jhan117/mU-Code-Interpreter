@@ -1,60 +1,46 @@
-#include "gui/gui.h"
+#include "gui/gui_widgets.h"
 
-#include "core/vm_context.h"
-
-static void onToggled(GtkToggleButton *button, gpointer user_data) {
-  GuiContext *ctx = getGuiContext();
-  GtkImage *icon = GTK_IMAGE(user_data);
-
-  if (gtk_toggle_button_get_active(button)) {
-    gtk_image_set_from_icon_name(icon, "media-playback-pause",
-                                 GTK_ICON_SIZE_BUTTON);
-    gtk_widget_set_sensitive(ctx->btn_first, FALSE);
-    gtk_widget_set_sensitive(ctx->btn_prev, FALSE);
-    gtk_widget_set_sensitive(ctx->btn_next, FALSE);
-    gtk_widget_set_sensitive(ctx->btn_last, FALSE);
-  } else {
-    gtk_image_set_from_icon_name(icon, "media-playback-start",
-                                 GTK_ICON_SIZE_BUTTON);
-    gtk_widget_set_sensitive(ctx->btn_first, TRUE);
-    gtk_widget_set_sensitive(ctx->btn_prev, TRUE);
-    gtk_widget_set_sensitive(ctx->btn_next, TRUE);
-    gtk_widget_set_sensitive(ctx->btn_last, TRUE);
-  }
-}
-
-static GtkWidget *createPlayControl(GtkAdjustment *adj, GtkLabel *label) {
-  GuiContext *ctx = getGuiContext();
+static GtkWidget *initControlBtns() {
+  StepContext *step_ctx = &getGuiContext()->step_ctx;
 
   GtkWidget *button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
 
-  ctx->btn_first = gtk_button_new_with_label("◀◀ First");
-  ctx->btn_prev = gtk_button_new_with_label("◀ Prev");
-  ctx->btn_next = gtk_button_new_with_label("Next ▶");
-  ctx->btn_last = gtk_button_new_with_label("Last ▶▶");
+  GtkWidget *btn_first = gtk_button_new_with_label("◀◀ First");
+  GtkWidget *btn_prev = gtk_button_new_with_label("◀ Prev");
+  GtkWidget *btn_next = gtk_button_new_with_label("Next ▶");
+  GtkWidget *btn_last = gtk_button_new_with_label("Last ▶▶");
 
-  ctx->btn_toggle = gtk_toggle_button_new();
+  GtkWidget *btn_toggle = gtk_toggle_button_new();
   GtkWidget *icon = gtk_image_new_from_icon_name("media-playback-start",
                                                  GTK_ICON_SIZE_BUTTON);
-  gtk_button_set_image(GTK_BUTTON(ctx->btn_toggle), icon);
-  g_signal_connect(ctx->btn_toggle, "toggled", G_CALLBACK(onToggled), icon);
+  gtk_button_set_image(GTK_BUTTON(btn_toggle), icon);
 
-  g_signal_connect(ctx->btn_first, "clicked", G_CALLBACK(onFirstClicked), adj);
-  g_signal_connect(ctx->btn_prev, "clicked", G_CALLBACK(onPrevClicked), adj);
-  g_signal_connect(ctx->btn_next, "clicked", G_CALLBACK(onNextClicked), adj);
-  g_signal_connect(ctx->btn_last, "clicked", G_CALLBACK(onLastClicked), adj);
-  g_signal_connect(ctx->btn_toggle, "toggled", G_CALLBACK(onPlayToggled), adj);
+  // 플레이 버튼 토클 이벤트
+  g_signal_connect(btn_toggle, "toggled", G_CALLBACK(onIconToggled), icon);
+  g_signal_connect(btn_toggle, "toggled", G_CALLBACK(onPlayToggled), NULL);
 
-  gtk_box_pack_start(GTK_BOX(button_box), ctx->btn_first, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(button_box), ctx->btn_prev, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(button_box), ctx->btn_toggle, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(button_box), ctx->btn_next, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(button_box), ctx->btn_last, FALSE, FALSE, 0);
+  // 버튼 클릭 이벤트
+  g_signal_connect(btn_first, "clicked", G_CALLBACK(onFirstClicked), NULL);
+  g_signal_connect(btn_prev, "clicked", G_CALLBACK(onPrevClicked), NULL);
+  g_signal_connect(btn_next, "clicked", G_CALLBACK(onNextClicked), NULL);
+  g_signal_connect(btn_last, "clicked", G_CALLBACK(onLastClicked), NULL);
+
+  gtk_box_pack_start(GTK_BOX(button_box), btn_first, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(button_box), btn_prev, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(button_box), btn_toggle, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(button_box), btn_next, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(button_box), btn_last, FALSE, FALSE, 0);
+
+  step_ctx->btn_first = btn_first;
+  step_ctx->btn_prev = btn_prev;
+  step_ctx->btn_next = btn_next;
+  step_ctx->btn_last = btn_last;
+  step_ctx->btn_toggle = btn_toggle;
 
   return button_box;
 }
 
-GtkWidget *createStepControl() {
+GtkWidget *initStepControl() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
 
   GtkAdjustment *adjustment = gtk_adjustment_new(0, 0, 0, 1, 10, 0);
@@ -64,32 +50,45 @@ GtkWidget *createStepControl() {
 
   GtkWidget *label = gtk_label_new("Step 00 of 00");
 
-  g_signal_connect(scale, "value-changed", G_CALLBACK(onScaleChanged), label);
+  // 스케일 변화 이벤트
+  g_signal_connect(scale, "value-changed", G_CALLBACK(onScaleChanged), NULL);
 
   gtk_box_pack_start(GTK_BOX(box), scale, TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(box),
-                     createPlayControl(adjustment, GTK_LABEL(label)), FALSE,
-                     FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), initControlBtns(), FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
 
-  GuiContext *ctx = getGuiContext();
-  ctx->step_label = label;
-  ctx->adj = adjustment;
+  StepContext *step_ctx = &getGuiContext()->step_ctx;
+  step_ctx->step_label = label;
+  step_ctx->adj = adjustment;
   return box;
 }
 
-void updateStep() {
+void initStep() {
   VMContext *vm_ctx = getVMContext();
-  GuiContext *ctx = getGuiContext();
+  StepContext *step_ctx = &getGuiContext()->step_ctx;
 
-  gtk_adjustment_set_upper(ctx->adj, vm_ctx->code_len - 1);
-  gtk_adjustment_set_value(ctx->adj, 0);
+  gtk_adjustment_set_upper(step_ctx->adj, vm_ctx->code_len - 1);
+  gtk_adjustment_set_value(step_ctx->adj, 0);
 
-  char buf[32];
+  char buf[64];
   sprintf(buf, "Step 01 of %02d", vm_ctx->code_len);
-  gtk_label_set_text(ctx->step_label, buf);
+  gtk_label_set_text(step_ctx->step_label, buf);
 
-  highlightLine(GTK_TEXT_VIEW(ctx->code_ctx.assemble_view.text_view),
-                ctx->current_step);
+  highlightLine();
+  highlightRow();
+}
+
+void updateStep() {
+  StepContext *step_ctx = &getGuiContext()->step_ctx;
+
+  int value = gtk_adjustment_get_value(step_ctx->adj);
+  int upper = gtk_adjustment_get_upper(step_ctx->adj);
+  char buf[64];
+  snprintf(buf, sizeof(buf), "Step %02d of %02d", value + 1, upper + 1);
+  gtk_label_set_text(label, buf);
+
+  step_ctx->current_step = value;
+
+  highlightLine();
   highlightRow();
 }

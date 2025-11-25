@@ -1,6 +1,6 @@
 #include "gui/gui.h"
 
-#include "gui/gui_callbacks.h"
+#include "gui/gui_widgets.h"
 
 GtkWidget *createRightPanel() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16);
@@ -29,8 +29,8 @@ GtkWidget *createRightPanel() {
   gtk_box_pack_start(GTK_BOX(status_box), symbols, TRUE, TRUE, 0);
   gtk_widget_set_margin_top(status_box, 4);
   gtk_widget_set_margin_bottom(status_box, 4);
-  gtk_widget_set_margin_start(status_box, 8); // 왼쪽 여백
-  gtk_widget_set_margin_end(status_box, 8);   // 오른쪽 여백
+  gtk_widget_set_margin_start(status_box, 8);
+  gtk_widget_set_margin_end(status_box, 8);
 
   NotebookPageInfo pages_mid[] = {
       {"현재 상태", status_box},
@@ -41,20 +41,7 @@ GtkWidget *createRightPanel() {
 
   gtk_box_pack_start(GTK_BOX(box), reg, FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(box), notebook_mid, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(box), initIOView(), TRUE, TRUE, 0);
 
-  // 입출력 view
-  GtkWidget *io_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
-  GtkWidget *io_label = gtk_label_new("입출력");
-  gtk_widget_set_halign(io_label, GTK_ALIGN_START);
-  GuiContext *ctx = getGuiContext();
-  GtkWidget *io_view = gtk_text_view_new();
-  g_signal_connect(io_view, "key-press-event", G_CALLBACK(onEnterPress), NULL);
-
-  gtk_box_pack_start(GTK_BOX(io_box), io_label, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(io_box), io_view, TRUE, TRUE, 0);
-
-  gtk_box_pack_start(GTK_BOX(box), io_box, TRUE, TRUE, 0);
-
-  ctx->io_view = io_view;
   return box;
 }

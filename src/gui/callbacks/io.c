@@ -1,90 +1,70 @@
 #include "gui/gui_callbacks.h"
 
-#include "gui/gui_context.h"
+#include "assembler/aseemble_utils.h" // isNumber()
 
-gboolean onEnterPress(GtkWidget *widget, GdkEventKey *event) {
-  GuiContext *ctx = getGuiContext();
+void onInsertText(GtkTextBuffer *buffer, GtkTextIter *location, gchar *text,
+                  gint len, gpointer user_data) {
+  GtkTextIter start = *location;
+  GtkTextIter end = *location;
 
-  if (event->keyval == GDK_KEY_Return) {
-    GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
-    GtkTextIter start, end;
+  gtk_text_iter_set_line_offset(&start, 0);
+  gtk_text_iter_forward_to_line_end(&end);
 
-    // 현재 줄 가져오기
-    gtk_text_buffer_get_end_iter(buf, &end);
-    gtk_text_iter_set_line_offset(&end, 0); // 줄 시작
-    start = end;
-    gtk_text_iter_forward_to_line_end(&end);
+  gchar *line_text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
 
-    char *line = gtk_text_buffer_get_text(buf, &start, &end, FALSE);
-    if (g_str_has_prefix(line, ">> ")) {
-      const char *input = line + 3;
-      if (*input != '\0') {
-        char *endptr;
-        long val = strtol(input, &endptr, 10);
-        if (endptr != input && *endptr == '\0') {
-          ctx->value = (int)val;
-          ctx->got_input = 1; // 입력 완료 표시
-        } else {
-          // 잘못된 입력이면 에러 메시지 출력
-          GtkTextIter buf_end;
-          gtk_text_buffer_get_end_iter(buf, &buf_end);
-          gtk_text_buffer_insert(buf, &buf_end, "\n<< Error: 숫자만 입력하세요",
-                                 -1);
-          gtk_text_buffer_insert(buf, &buf_end, "\n>> ", -1);
-        }
-      }
-    }
-    g_free(line);
-    return TRUE; // 기본 엔터 동작 막기
+  if (strncmp(line_text, ">> ", 3) != 0) {
+    g_signal_stop_emission_by_name(buffer, "insert-text");
+    g_free(line_text);
+    return;
   }
-  return FALSE;
+
+  if (g_strcmp0(text, "\n") == 0) {
+    const char *num_str = line_text + 3;
+    if (isNumber(num_str) && strlen(num_str) > 0) {
+      int val = atoi(num_str);
+      io_ctx->input_value = val;
+      io_ctx->is_input = 1;
+    }
+  }
+
+  g_free(line_text);
 }
 
 void guiIoWrite(int data) {
-  GtkTextBuffer *buf =
-      gtk_text_view_get_buffer(GTK_TEXT_VIEW(getGuiContext()->io_view));
-  GtkTextIter end;
-  gtk_text_buffer_get_end_iter(buf, &end);
+  GtkWidget *io_view = getGuiContext()->io_ctx.io_view;
+
+  GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(io_view));
 
   char tmp[32];
-  sprintf(tmp, "%d ", data); // 숫자 뒤에 공백 추가
-
   if (gtk_text_buffer_get_char_count(buf) == 0) {
-    gtk_text_buffer_insert(buf, &end, "<< ", -1);
+    snprintf(tmp, sizeof(tmp), "<< %d ", data);
   } else {
-    gtk_text_buffer_insert(buf, &end, "\n<< ", -1);
+    snprintf(tmp, sizeof(tmp), "\n<< %d ", data);
   }
-  gtk_text_buffer_insert(buf, &end, tmp, -1);
+  insertAtEnd(io_view, tmp);
 }
 
 int guiIoRead() {
-  GuiContext *ctx = getGuiContext();
-  GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(ctx->io_view));
-  GtkTextIter end;
-  gtk_text_buffer_get_end_iter(buf, &end);
+  GtkWidget *io_view = getGuiContext()->io_ctx.io_view;
 
-  // 프롬프트 출력
+  GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(io_view));
+
   if (gtk_text_buffer_get_char_count(buf) == 0) {
-    gtk_text_buffer_insert(buf, &end, ">> ", -1);
+    insertAtEnd(io_view, ">> ");
   } else {
-    gtk_text_buffer_insert(buf, &end, "\n>> ", -1);
+    insertAtEnd(io_view, "\n>> ");
   }
 
-  // 엔터 이벤트 기다리기
-  ctx->got_input = 0;
-  while (!ctx->got_input) {
+  io_ctx->is_input = 0;
+  while (!io_ctx->is_input) {
     while (gtk_events_pending())
       gtk_main_iteration();
   }
 
-  return ctx->value;
+  return io_ctx->input_value;
 }
 
 void guiIoLf() {
-  GtkTextBuffer *buf =
-      gtk_text_view_get_buffer(GTK_TEXT_VIEW(getGuiContext()->io_view));
-  GtkTextIter end;
-  gtk_text_buffer_get_end_iter(buf, &end);
-
-  gtk_text_buffer_insert(buf, &end, "\n", -1);
+  GtkWidget *io_view = getGuiContext()->io_ctx.io_view;
+  insertAtEnd(io_view, "\n");
 }

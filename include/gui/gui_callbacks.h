@@ -1,24 +1,40 @@
 #pragma once
 
+#include "gui/gui_context.h"
 #include <gtk/gtk.h>
 
-// 파일 선택
+// file_io.c
 void onFileChosen(GtkFileChooserButton *chooser);
 
-// ucode view
-gboolean onKeyPress(GtkWidget *widget, GdkEventKey *event);
-void highlightLine(GtkTextView *view, int line_number);
-void highlightRow();
-void loadUcoToTable(const char *filename);
-int loadTableToUco(char ***lines, int *line_count);
+// ucode editor.c
+GtkCellRenderer *addColumn(GtkWidget *tree_view, GtkListStore *store,
+                           const char *title, int col_idx,
+                           void (*onEdited)(GtkCellRendererText *, gchar *path,
+                                            gchar *new_text,
+                                            gpointer user_data));
+void onLabelEdited(GtkCellRendererText *renderer, gchar *path_text,
+                   gchar *new_text, gpointer user_data);
+void onOperatorEdited(GtkCellRendererText *renderer, gchar *path_text,
+                      gchar *new_text, gpointer user_data);
+void onOperandEdited(GtkCellRendererText *renderer, gchar *path_text,
+                     gchar *new_text, gpointer user_data);
+gboolean onKeyPress(GtkWidget *widget, GdkEventKey *event); // 기능 수정 필요
+
+// step_control.c
+void onPlayToggled(GtkToggleButton *button);
+void onFirstClicked(GtkButton *button);
+void onPrevClicked(GtkButton *button);
+void onNextClicked(GtkButton *button);
+void onLastClicked(GtkButton *button);
+void onIconToggled(GtkToggleButton *button);
 
 // 실행
 void onRun(GtkButton *button);
 void updateVM(int step);
 
-// 입출력
+// io.c
+void onInsertText(GtkTextBuffer *buffer, GtkTextIter *location, gchar *text,
+                  gint len, gpointer user_data);
 void guiIoWrite(int data);
 int guiIoRead();
-void guiIoWrite(int data);
 void guiIoLf();
-gboolean onEnterPress(GtkWidget *widget, GdkEventKey *event);

@@ -100,7 +100,7 @@ void onRun(GtkButton *button) {
 
   char **lines = NULL;
   int line_count = 0;
-  if (!loadTableToUco(&lines, &line_count)) {
+  if (!getUcodeView(&lines, &line_count)) {
     // 경고창
     return;
   }
@@ -113,21 +113,22 @@ void onRun(GtkButton *button) {
   }
 
   freeLines(lines, line_count);
-  setAssembleView();
+  updateAssembleView();
+  initStep();
 
-  updateStep();
+  // === 수정해야함
   // updateVM(ctx->current_step);
   updateLabelsView();
   updateSymbolsView();
   updateStatisticsBox();
 
   // run은 나중에
-  int run_res = runner();
-  if (run_res == -1) {
-    // 경고창
-    initVMContext();
-    return;
-  }
+  // int run_res = runner();
+  // if (run_res == -1) {
+  //   // 경고창
+  //   initVMContext();
+  //   return;
+  // }
 
   ctx->is_run_done = 1;
 }

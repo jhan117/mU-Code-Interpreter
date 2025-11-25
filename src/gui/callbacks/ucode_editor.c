@@ -1,7 +1,74 @@
-#include "gui/gui.h"
+#include "gui/gui_callbacks.h"
 
-#include "assembler/assemble_error.h"
-#include "io_utils/io_utils.h"
+GtkCellRenderer *addColumn(GtkWidget *tree_view, GtkListStore *store,
+                           const char *title, int col_idx,
+                           void (*onEdited)(GtkCellRendererText *, gchar *path,
+                                            gchar *new_text,
+                                            gpointer user_data)) {
+  GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
+  g_object_set(renderer, "editable", TRUE, NULL);
+
+  GtkTreeViewColumn *col = gtk_tree_view_column_new_with_attributes(
+      title, renderer, "text", col_idx, "background", 3, NULL);
+  gtk_tree_view_append_column(tree_view, col);
+
+  // 글자 수 제한 이벤트
+  g_signal_connect(renderer, "edited", G_CALLBACK(onEdited), store);
+
+  return renderer;
+}
+void onLabelEdited(GtkCellRendererText *renderer, gchar *path_text,
+                   gchar *new_text, gpointer user_data) {
+  const int max_chars = MAX_LABEL_LEN - 1;
+  GtkListStore *store = GTK_LIST_STORE(user_data);
+
+  gchar *final = new_text;
+  if (max_chars > 0 && g_utf8_strlen(new_text, -1) > max_chars) {
+    final = g_utf8_substring(new_text, 0, max_chars);
+  }
+
+  GtkTreeIter iter;
+  GtkTreePath *path = gtk_tree_path_new_from_string(path_text);
+  gtk_tree_model_get_iter(store, &iter, path);
+  gtk_list_store_set(store, &iter, 0, final, -1);
+
+  if (final != new_text)
+    g_free(final);
+
+  gtk_tree_path_free(path);
+}
+void onOperatorEdited(GtkCellRendererText *renderer, gchar *path_text,
+                      gchar *new_text, gpointer user_data) {
+  const int max_chars = MAX_OP_LEN - 1;
+  GtkListStore *store = GTK_LIST_STORE(user_data);
+
+  gchar *final = new_text;
+  if (max_chars > 0 && g_utf8_strlen(new_text, -1) > max_chars) {
+    final = g_utf8_substring(new_text, 0, max_chars);
+  }
+
+  GtkTreeIter iter;
+  GtkTreePath *path = gtk_tree_path_new_from_string(path_text);
+  gtk_tree_model_get_iter(store, &iter, path);
+
+  gtk_list_store_set(store, &iter, 1, final, -1);
+
+  if (final != new_text)
+    g_free(final);
+  gtk_tree_path_free(path);
+}
+void onOperandEdited(GtkCellRendererText *renderer, gchar *path_text,
+                     gchar *new_text, gpointer user_data) {
+  GtkListStore *store = GTK_LIST_STORE(user_data);
+
+  GtkTreeIter iter;
+  GtkTreePath *path = gtk_tree_path_new_from_string(path_text);
+  gtk_tree_model_get_iter(store, &iter, path);
+
+  gtk_list_store_set(store, &iter, 2, new_text, -1);
+
+  gtk_tree_path_free(path);
+}
 
 // 키로 행 추가/삭제
 gboolean onKeyPress(GtkWidget *widget, GdkEventKey *event) {
@@ -14,7 +81,7 @@ gboolean onKeyPress(GtkWidget *widget, GdkEventKey *event) {
     return FALSE;
 
   switch (event->keyval) {
-    // 엔터로 행 추가
+    // 엔터로 행 추가 => insert로 바꿀까 말까...
   case GDK_KEY_Return:
   case GDK_KEY_KP_Enter: {
     GtkTreeIter new_iter;
@@ -36,7 +103,7 @@ gboolean onKeyPress(GtkWidget *widget, GdkEventKey *event) {
     return TRUE;
   }
 
-    // 백스페이스로 삭제 (최소 1행은 유지)
+    // 백스페이스로 삭제 (최소 1행은 유지) => delete 로 바꿀까 말까
   case GDK_KEY_BackSpace: {
     GtkTreeModel *model = GTK_TREE_MODEL(gtk_tree_view_get_model(tree));
     gint n_rows = gtk_tree_model_iter_n_children(model, NULL);
@@ -67,100 +134,4 @@ gboolean onKeyPress(GtkWidget *widget, GdkEventKey *event) {
   }
 
   return FALSE;
-}
-
-void loadUcoToTable(const char *filename) {
-  GuiContext *ctx = getGuiContext();
-  GtkListStore *store = ctx->code_ctx.ucode_table.list_data;
-
-  gtk_list_store_clear(store);
-
-  char **lines = NULL;
-  int line_count = 0;
-  if (!loadUco(filename, &lines, &line_count))
-    return;
-
-  for (int i = 0; i < line_count; i++) {
-    char label[MAX_LABEL_LEN] = "";
-    char opcode[MAX_OP_LEN] = "";
-    char *operands[4] = {0};
-    int operand_count = 0;
-
-    int err = parseLine(lines[i], label, opcode, operands, &operand_count);
-    if (err != ASSEMBLE_ERR_NONE)
-      continue;
-
-    char operand_str[256] = "";
-    for (int j = 0; j < operand_count; j++) {
-      strcat(operand_str, operands[j]);
-      if (j != operand_count - 1)
-        strcat(operand_str, " ");
-      free(operands[j]);
-    }
-
-    GtkTreeIter iter;
-    gtk_list_store_append(store, &iter);
-    gtk_list_store_set(store, &iter, 0, label, 1, opcode, 2, operand_str, -1);
-  }
-
-  freeUco(lines, line_count);
-  ctx->current_step = 0;
-}
-int loadTableToUco(char ***lines, int *line_count) {
-  GtkListStore *store = getGuiContext()->code_ctx.ucode_table.list_data;
-  GtkTreeModel *model = GTK_TREE_MODEL(store);
-  GtkTreeIter iter;
-  gboolean valid = gtk_tree_model_get_iter_first(model, &iter);
-
-  int capacity = INIT_LINE_CAPACITY;
-  *lines = malloc(sizeof(char *) * capacity);
-  if (!*lines)
-    return 0;
-  *line_count = 0;
-  char buffer[256];
-
-  while (valid) {
-    char *label = NULL;
-    char *operator= NULL;
-    char *operand = NULL;
-
-    gtk_tree_model_get(model, &iter, 0, &label, 1, &operator, 2, &operand, -1);
-
-    if (!label && !operator&& !operand)
-      break;
-
-    snprintf(buffer, sizeof(buffer), "%-10.10s %s %s\n",
-                          label ? label : "",
-                      operator ? operator : "",
-                      operand ? operand : "");
-
-    if (*line_count >= capacity) {
-      capacity *= 2;
-      char **tmp = realloc((*lines), sizeof(char *) * capacity);
-      if (!tmp) {
-        for (int i = 0; i < (*line_count); i++)
-          free((*lines)[i]);
-        free((*lines));
-        g_free(label);
-        g_free(operator);
-        g_free(operand);
-        return 0;
-      }
-      (*lines) = tmp;
-    }
-
-    (*lines)[*line_count] = malloc(strlen(buffer) + 1);
-    if ((*lines)[*line_count]) {
-      strcpy((*lines)[*line_count], buffer);
-      (*line_count)++;
-    }
-
-    g_free(label);
-    g_free(operator);
-    g_free(operand);
-
-    valid = gtk_tree_model_iter_next(model, &iter);
-  }
-
-  return 1;
 }

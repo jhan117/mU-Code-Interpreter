@@ -6,7 +6,7 @@ typedef struct {
   int *line;
   int capacity;
   int len;
-} SourceMap; // 원본코드 위치
+} SourceMap;
 
 typedef struct {
   char name[MAX_LABEL_LEN];

@@ -4,50 +4,23 @@
 #include <gtk/gtk.h>
 
 typedef struct {
-  GtkWidget *file_chooser;
-  char *uco_filename;
-  char *lst_filename;
-} FileContext;
-
-typedef struct {
-  TableInfo ucode_table;
-  TextScrollInfo assemble_view;
-} CodeContext;
-
-typedef struct {
   GtkWidget *main_window;
 
+  int is_run_done;
+
+  // 왼쪽 패널
   FileContext file_ctx;
   CodeContext code_ctx;
+  StepContext step_ctx;
+  GtkWidget *run_btn;
 
-  int is_run_done;
-  int timeout_id;
-  int current_step;
-  int uco_prev_line;
+  // 오른쪽 상중단 패널
+  CurStatusContext cur_status_ctx;
+  StatContext stat_ctx;
 
+  // 오른쪽 하단 패널
   GtkWidget *lst_view;
-
-  GtkAdjustment *adj;
-  GtkWidget *step_label;
-  GtkWidget *btn_first;
-  GtkWidget *btn_prev;
-  GtkWidget *btn_toggle;
-  GtkWidget *btn_next;
-  GtkWidget *btn_last;
-
-  GtkListStore *reg_store;
-  GtkListStore *cpu_stack_store;
-  GtkListStore *memory_store;
-  GtkListStore *labels_store;
-  GtkListStore *symbols_store;
-
-  GtkWidget *stat_mem_label;
-  GtkListStore *stat_use_store;
-  GtkListStore *stat_run_store;
-
-  GtkWidget *io_view;
-  int got_input;
-  int value;
+  IOContext io_ctx;
 } GuiContext;
 
-GuiContext *getGuiContext(void);
+GuiContext *getGuiContext();

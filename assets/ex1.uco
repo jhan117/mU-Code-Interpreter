@@ -10,6 +10,7 @@ main       proc 12
            sym 2 1 10
            sym 2 11 1
            ldc 0
+           ldc 0
            str 2 11
            str 2 0
 $$0        nop

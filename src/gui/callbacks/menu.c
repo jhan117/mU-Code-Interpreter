@@ -54,11 +54,15 @@ void onOpenUco() {
   if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
     if (filename) {
-      ctx->current_step = 0;
-      loadUcoToTable(filename);
+      char **lines = NULL;
+      int line_count = 0;
+      loadUco(filename, &lines, &line_count);
+      updateUcodeView(&lines, &line_count);
+
       g_free(ctx->file_ctx.uco_filename);
       ctx->file_ctx.uco_filename = g_strdup(filename);
       g_free(filename);
+      ctx->current_step = 0;
     }
   }
 
@@ -105,7 +109,7 @@ void onSaveUco() {
   char **lines = NULL;
   int line_count = 0;
   char *content;
-  if (loadTableToUco(&lines, &line_count)) {
+  if (getUcodeView(&lines, &line_count)) {
     content = joinLines(lines, line_count);
     for (int i = 0; i < line_count; i++) {
       free(lines[i]);
@@ -148,7 +152,7 @@ void onSaveAsUco() {
       char **lines = NULL;
       int line_count = 0;
       char *content;
-      if (loadTableToUco(&lines, &line_count)) {
+      if (getUcodeView(&lines, &line_count)) {
         content = joinLines(lines, line_count);
         for (int i = 0; i < line_count; i++) {
           free(lines[i]);

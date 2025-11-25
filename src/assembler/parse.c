@@ -25,7 +25,6 @@ void strcopy(char *dst, const char *src, int size) {
 
 AssembleError parseLine(const char *line, char *label, char *opcode,
                         char *operands[4], int *operand_count) {
-
   char buf[LINE_BUFFER_LEN];
   strcopy(buf, line, LINE_BUFFER_LEN);
   int line_len = strlen(buf);
@@ -66,4 +65,37 @@ AssembleError parseLine(const char *line, char *label, char *opcode,
   }
 
   return ASSEMBLE_ERR_NONE;
+}
+
+int parseTable(const char *line, char *label, char *opcode, char *operands) {
+  char buf[LINE_BUFFER_LEN];
+  strcopy(buf, line, LINE_BUFFER_LEN);
+  int line_len = strlen(buf);
+
+  // 11열은 반드시 공백
+  if (line_len < MAX_LABEL_LEN || buf[MAX_LABEL_LEN - 1] != ' ')
+    return 0;
+
+  char *ptr = buf + MAX_LABEL_LEN;
+  while (isspace(*ptr))
+    ptr++;
+
+  // 1~10열: 라벨
+  strcopy(label, buf, MAX_LABEL_LEN);
+  strcopy(label, trim(label), MAX_LABEL_LEN);
+
+  // 첫 토큰: opcode
+  char *tok = strtok(ptr, " \t\r\n");
+  if (!tok) {
+    opcode[0] = '\0';
+    operands[0] = '\0';
+    return 1; // 어셈블 아니니까 오류 x
+  }
+  strcpy(opcode, tok);
+
+  // 이후 전부: operands
+  char *op_start = tok + strlen(tok);
+  while (isspace(*op_start))
+    op_start++;
+  strcopy(operands, trim(op_start), LINE_BUFFER_LEN);
 }
