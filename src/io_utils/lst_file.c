@@ -1,6 +1,6 @@
 #include "core/inst.h"
+#include "core/instruction.h"
 #include "core/opcode.h"
-#include "core/opcode_utils.h"
 #include "core/vm_context.h"
 #include "io_utils/io_utils.h"
 
@@ -9,6 +9,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+static char *opcodes[] = {
+    // 프로그램 구성 명령
+    "bgn", "sym", "end", "nop", "proc", "ret", "ldp", "push", "call",
+    "ujp", "tjp", "fjp", "lod", "lda",  "ldc", "str", "ldi",  "sti",
+    "gt",  "lt",  "ge",  "le",  "eq",   "ne",  "and", "or",   "add",
+    "sub", "mul", "div", "mod", "not",  "neg"};
 
 int saveLst(const char *path, UCodeLines *lines) {
   int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -19,7 +26,7 @@ int saveLst(const char *path, UCodeLines *lines) {
   char buf[128];
   VMContext *ctx = getVMContext();
   OutputBuffer *output = getOutputBuffer();
-  const OpcodeData *opcode_data = getOpcodeData();
+  OpInfo *op;
 
   const char *src_header = "======= 원본 코드 =======";
   nbytes = snprintf(buf, sizeof(buf), "%-35s %-12s %-10s %7s\n", src_header,
@@ -28,10 +35,12 @@ int saveLst(const char *path, UCodeLines *lines) {
 
   for (int i = 0; i < lines->line_count; i++) {
     int inst = lines->opcode[i];
-    int opcode_value = getOpcodeFromInst(inst);
-    int operand = decodeArg(inst);
+    int group;
+    int g_idx;
+    int operand;
+    decodeInst(inst, &group, &g_idx, &operand);
     nbytes = snprintf(buf, sizeof(buf), "%-27s 0x%08X %8d %10d\n",
-                      lines->ucode_lines[i], inst, opcode_value, operand);
+                      lines->ucode_lines[i], inst, group * 10 + g_idx, operand);
     write(fd, buf, nbytes);
   }
 
@@ -43,13 +52,10 @@ int saveLst(const char *path, UCodeLines *lines) {
   // 명령어 사용 횟수
   nbytes = snprintf(buf, sizeof(buf), "\n========명령어 사용 횟수======\n");
   write(fd, buf, nbytes);
-  for (int i = 0; i < opcode_data->count; i++) {
-    int opcode_value = opcode_data->codes[i];
-    const char *opcode_name = opcode_data->names[opcode_value];
-    if (!opcode_name)
-      opcode_name = "";
-    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", opcode_name,
-                      ctx->stat.inst_use_count[opcode_value]);
+  for (int i = 0; i < OPCODE_MAX; i++) {
+    op = findOpInfoByName(opcodes[i]);
+    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op->name,
+                      ctx->stat.inst_use_count[op->opcode]);
     write(fd, buf, nbytes);
     if ((i + 1) % 3 == 0)
       write(fd, "\n", sizeof(char));
@@ -60,13 +66,10 @@ int saveLst(const char *path, UCodeLines *lines) {
   // 명령어 실행 횟수
   nbytes = snprintf(buf, sizeof(buf), "\n======명령어 실행 횟수======\n");
   write(fd, buf, nbytes);
-  for (int i = 0; i < opcode_data->count; i++) {
-    int opcode_value = opcode_data->codes[i];
-    const char *opcode_name = opcode_data->names[opcode_value];
-    if (!opcode_name)
-      opcode_name = "";
-    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", opcode_name,
-                      ctx->stat.inst_run_count[opcode_value]);
+  for (int i = 0; i < OPCODE_MAX; i++) {
+    op = findOpInfoByName(opcodes[i]);
+    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op->name,
+                      ctx->stat.inst_run_count[op->opcode]);
     write(fd, buf, nbytes);
     if ((i + 1) % 3 == 0)
       write(fd, "\n", sizeof(char));

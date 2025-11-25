@@ -1,21 +1,7 @@
 #pragma once
 
+#include "core/instruction.h"
 #include "core/vm_context.h"
-
-typedef enum {
-  OPERAND_NONE,
-  OPERAND_NUMBER,
-  OPERAND_LABEL,
-  OPERAND_BLOCK_OFFSET
-} OperandType;
-
-typedef struct {
-  const char *name;
-  int opcode;
-  int operand_count;
-  OperandType operand_type;
-} OpInfo;
-
 // 어셈블 에러 코드
 #define ASSEMBLE_OK 0
 #define ASSEMBLE_ERR_INVALID_FORMAT 1
@@ -36,7 +22,4 @@ int findSymbol(int block, int offset);
 void addSymbol(int block, int offset, int size);
 int parseLine(const char *line, char *label, char *opcode, char *operands[4],
               int *operand_count);
-const OpInfo *findOpInfo(const char *name);
-const OpInfo *findOpInfoByOpcode(int opcode);
-
 int assemble(char **lines, int line_count);

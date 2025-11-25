@@ -30,9 +30,11 @@ void push(int arg) {
   VMContext *ctx = getVMContext();
   (void)arg;
   int item = popCPUStack();
-  ctx->memory[ctx->sp--] = item;
+  ctx->sp--;
   if (checkError(ctx, NULL, NULL, NULL, &ctx->sp))
     return;
+  ctx->memory[ctx->sp] = item;
+
   return;
 }
 
@@ -106,6 +108,8 @@ void lod(int arg) {
 void lda(int arg) {
   VMContext *ctx = getVMContext();
   int addr = resolveAddress(ctx, arg);
+  if (checkError(ctx, &addr, NULL, NULL, NULL))
+    return;
   pushCPUStack(addr);
   return;
 }
