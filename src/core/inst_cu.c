@@ -30,11 +30,9 @@ void push(int arg) {
   VMContext *ctx = getVMContext();
   (void)arg;
   int item = popCPUStack();
-  ctx->sp--;
+  ctx->memory[ctx->sp--] = item;
   if (checkError(ctx, NULL, NULL, NULL, &ctx->sp))
     return;
-  ctx->memory[ctx->sp] = item;
-
   return;
 }
 

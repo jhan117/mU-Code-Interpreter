@@ -1,3 +1,5 @@
+#include "core/instruction.h"
+#include "core/opcode.h"
 #include "runner.h"
 #include "test.h"
 
@@ -32,7 +34,7 @@ void testRunnerStep(void) {
   ctx->pc = initial_pc;
 
   // 명령어 세팅
-  int inst = (0 << 29) | (3 << 26) | 0x15;
+  int inst = encodeInst(OP_PUSH, 0);
   ctx->memory[initial_pc] = inst;
 
   // 세팅한 명령어 다른 함수로 잠시 변경
@@ -42,7 +44,7 @@ void testRunnerStep(void) {
   ctx->inst_group[0].execInst = stubExecInst;
 
   step();
-
+  printf("%d\n", stub_exec_called);
   // 테스트
   assert(stub_exec_called == 1);
   assert(stub_exec_inst == inst);

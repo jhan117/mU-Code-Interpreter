@@ -31,4 +31,3 @@ void testDataMovementInstructions(void);
 void testArithmeticInstructions(void);
 void testComparisonInstructions(void);
 void testLogicalInstructions(void);
-void testDecodeArgSignExtension(void);
