@@ -82,7 +82,7 @@ void loadUcoToTable(const char *filename) {
 
   for (int i = 0; i < line_count; i++) {
     char label[MAX_LABEL_LEN] = "";
-    char opcode[MAX_CMD_LEN] = "";
+    char opcode[MAX_OP_LEN] = "";
     char *operands[4] = {0};
     int operand_count = 0;
 

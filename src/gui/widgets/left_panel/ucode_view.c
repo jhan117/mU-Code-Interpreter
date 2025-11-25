@@ -82,7 +82,7 @@ static void onLabelEdited(GtkCellRendererText *renderer, gchar *path_text,
 }
 static void onOperatorEdited(GtkCellRendererText *renderer, gchar *path_text,
                              gchar *new_text, gpointer user_data) {
-  const int max_chars = MAX_CMD_LEN - 1;
+  const int max_chars = MAX_OP_LEN - 1;
   GtkListStore *store = GTK_LIST_STORE(user_data);
 
   gchar *final = new_text;

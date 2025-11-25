@@ -1,9 +1,9 @@
-#include "assemble.h"
+#include "core/instruction.h"
 
 #include "core/opcode.h"
 #include <string.h>
 
-static OpInfo op_table[] = {
+static const OpInfo op_table[] = {
     // 프로그램 구성 명령
     {"bgn", -1, 1, OPERAND_NUMBER},
     {"sym", -1, 3, OPERAND_NUMBER},
@@ -47,7 +47,7 @@ static OpInfo op_table[] = {
 
 static const int op_table_count = sizeof(op_table) / sizeof(op_table[0]);
 
-const OpInfo *findOpInfo(const char *name) {
+const OpInfo *findOpInfoByName(const char *name) {
   for (int i = 0; i < op_table_count; i++) {
     if (strcmp(op_table[i].name, name) == 0)
       return &op_table[i];
@@ -55,10 +55,36 @@ const OpInfo *findOpInfo(const char *name) {
   return NULL;
 }
 
-const OpInfo *findByCode(Opcode code) {
-  for (int i = 0; i < op_table_count; i++) {
-    if (code == op_table[i].opcode)
+const OpInfo *findOpInfoByOpcode(int opcode) {
+  for (size_t i = 0; i < sizeof(op_table) / sizeof(op_table[0]); i++) {
+    if (opcode == op_table->opcode)
       return &op_table[i];
   }
   return NULL;
 }
+
+int encodeInst(int opcode, int operand_val) {
+  int opGroup = (opcode / 10) & 0x7;
+  int opGroupIdx = (opcode % 10) & 0x7;
+  int operand = operand_val & 0x03FFFFFF;
+
+  return (opGroup << 29) | (opGroupIdx << 26) | operand;
+}
+
+int patchInst(int old_inst, int new_addr) {
+  return (old_inst & 0xFC000000) | (new_addr & 0x03FFFFFF);
+}
+
+void decodeInst(int old_inst, int *op_group, int *op_group_idx, int *operand) {
+  *op_group = (old_inst >> 29) & 0x7;
+  *op_group_idx = (old_inst >> 26) & 0x7;
+  *operand = old_inst & 0x03FFFFFF;
+
+  // 음수 변환
+  if (*operand & (1 << 25))
+    *operand |= ~0x03FFFFFF;
+
+  return;
+}
+
+int getOperand(int inst) { return inst & 0x03FFFFFF; }

@@ -40,7 +40,7 @@ void setAssembleView() {
     if (operand & (1 << 25))
       operand |= ~0x03FFFFFF;
 
-    const OpInfo *info = findByCode(opcode);
+    const OpInfo *info = findOpInfoByOpcode(opcode);
 
     if (info->operand_count == 0) {
       if (i == ctx->code_len - 1) {

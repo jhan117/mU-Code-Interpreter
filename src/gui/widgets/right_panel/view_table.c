@@ -76,8 +76,8 @@ void updateLabelsView() {
   // 기존 내용 초기화
   gtk_list_store_clear(g_ctx->labels_store);
 
-  for (int i = 0; i < vm_ctx->labels.count; i++) {
-    Label *lbl = &vm_ctx->labels.labels[i];
+  for (int i = 0; i < vm_ctx->label_list.count; i++) {
+    Label *lbl = &vm_ctx->label_list.labels[i];
     GtkTreeIter iter;
     gtk_list_store_append(g_ctx->labels_store, &iter);
     gtk_list_store_set(g_ctx->labels_store, &iter, 0, lbl->name, 1, lbl->addr,
@@ -92,8 +92,8 @@ void updateSymbolsView() {
     return;
   gtk_list_store_clear(ctx->symbols_store);
 
-  for (int i = 0; i < vm_ctx->symbols.count; i++) {
-    Symbol *sym = &vm_ctx->symbols.symbols[i];
+  for (int i = 0; i < vm_ctx->symbol_list.count; i++) {
+    Symbol *sym = &vm_ctx->symbol_list.symbols[i];
     GtkTreeIter iter;
     gtk_list_store_append(ctx->symbols_store, &iter);
     gtk_list_store_set(ctx->symbols_store, &iter, 0, sym->index, 1, sym->block,
@@ -294,7 +294,7 @@ GtkWidget *initStatisticsBox() {
 
   GtkTreeIter iter;
   for (int i = 0; i < OPCODE_MAX; i++) {
-    const OpInfo *op = findByCode(i);
+    const OpInfo *op = findOpInfoByOpcode(i);
     if (!op)
       continue;
     gtk_list_store_append(use_store, &iter);
@@ -321,7 +321,7 @@ GtkWidget *initStatisticsBox() {
                                   "Run Count", renderer, "text", 1, NULL));
 
   for (int i = 0; i < OPCODE_MAX; i++) {
-    const OpInfo *op = findByCode(i);
+    const OpInfo *op = findOpInfoByOpcode(i);
     if (!op)
       continue;
     gtk_list_store_append(run_store, &iter);
@@ -368,7 +368,7 @@ void updateStatisticsBox() {
     gtk_list_store_clear(ctx->stat_use_store);
     for (int i = 0; i < OPCODE_MAX; i++) {
       if (stats->inst_use_count[i] > 0) {
-        const OpInfo *op = findByCode(i);
+        const OpInfo *op = findOpInfoByOpcode(i);
         GtkTreeIter use_iter;
         gtk_list_store_append(ctx->stat_use_store, &use_iter);
         gtk_list_store_set(ctx->stat_use_store, &use_iter, 0, op->name, 1,
@@ -389,7 +389,7 @@ void updateStatisticsBox() {
     gtk_list_store_clear(ctx->stat_run_store);
     for (int i = 0; i < OPCODE_MAX; i++) {
       if (stats->inst_run_count[i] > 0) {
-        const OpInfo *op = findByCode(i);
+        const OpInfo *op = findOpInfoByOpcode(i);
         GtkTreeIter run_iter;
         gtk_list_store_append(ctx->stat_run_store, &run_iter);
         gtk_list_store_set(ctx->stat_run_store, &run_iter, 0, op->name, 1,
