@@ -386,7 +386,7 @@ void updateStatisticsBox() {
     }
 
   if (has_run) {
-    gtk_list_store_clear(ctx->stat_run_store);
+    // gtk_list_store_clear(ctx->stat_run_store);
     for (int i = 0; i < OPCODE_MAX; i++) {
       // if (stats->inst_run_count[i] > 0) {
       //   const OpInfo *op = findOpInfoByOpcode(i);

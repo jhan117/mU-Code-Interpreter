@@ -1,8 +1,7 @@
 #include "assembler/assemble.h"
 
 #include "assembler/assemble_utils.h"
-#include "core/opcode.h"           // OP_* 필요
-#include "io_utils/io_constants.h" // LINE_BUFFER_LEN
+#include "core/opcode.h" // OP_* 필요
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>

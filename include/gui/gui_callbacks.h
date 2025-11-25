@@ -22,6 +22,7 @@ gboolean onKeyPress(GtkWidget *widget, GdkEventKey *event); // 기능 수정 필
 
 // step_control.c
 void onPlayToggled(GtkToggleButton *button);
+void onScaleChanged(GtkRange *range);
 void onFirstClicked(GtkButton *button);
 void onPrevClicked(GtkButton *button);
 void onNextClicked(GtkButton *button);

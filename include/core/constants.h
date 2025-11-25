@@ -1,8 +1,9 @@
 #pragma once
 
 // 명령어 형식
-#define MAX_LABEL_LEN 11 // 널문자 포함
-#define MAX_OP_LEN 5     // 널문자 포함
+#define LINE_BUFFER_LEN 256 // 널문자 포함 한 줄당 길이
+#define MAX_LABEL_LEN 11    // 널문자 포함
+#define MAX_OP_LEN 5        // 널문자 포함
 #define MAX_OPERANDS 3
 #define MAX_ARGS 10
 

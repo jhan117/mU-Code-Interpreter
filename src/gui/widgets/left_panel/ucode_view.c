@@ -1,5 +1,7 @@
 #include "gui/gui_widgets.h"
 
+#include "core/vm_context.h"
+
 GtkWidget *initUcodeView() {
   GtkListStore *store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING,
                                            G_TYPE_STRING, G_TYPE_STRING);
@@ -27,11 +29,11 @@ GtkWidget *initUcodeView() {
   g_signal_connect(tree_view, "key-press-event", G_CALLBACK(onKeyPress), NULL);
 
   TableInfo *ucode_table = &getGuiContext()->code_ctx.ucode_table;
-  ucode_table.tree_view = tree_view;
-  ucode_table.list_data = store;
-  ucode_table.renderer[0] = renderer1;
-  ucode_table.renderer[1] = renderer2;
-  ucode_table.renderer[2] = renderer3;
+  ucode_table->tree_view = tree_view;
+  ucode_table->list_data = store;
+  ucode_table->renderer[0] = renderer1;
+  ucode_table->renderer[1] = renderer2;
+  ucode_table->renderer[2] = renderer3;
 
   return scrolled;
 }
@@ -47,7 +49,7 @@ void updateUcodeView(char ***lines, int *line_count) {
     char opcode[MAX_OP_LEN] = "";
     char operands[LINE_BUFFER_LEN - MAX_OP_LEN - MAX_LABEL_LEN] = "";
 
-    if (parseTable(line, label, opcode, operands)) {
+    if (parseTable(lines, label, opcode, operands)) {
       printf("gui parsing 오류!\n");
       return;
     }
@@ -58,7 +60,7 @@ void updateUcodeView(char ***lines, int *line_count) {
   }
 
   freeUco(lines, line_count);
-  ctx->current_step = 0;
+  ctx->step_ctx.current_step = 0;
 }
 
 int getUcodeView(char ***lines, int *line_count) {
@@ -120,8 +122,8 @@ int getUcodeView(char ***lines, int *line_count) {
 void highlightRow() {
   GuiContext *ctx = getGuiContext();
   GtkListStore *store = ctx->code_ctx.ucode_table.list_data;
-  int prev = ctx->uco_prev_line;
-  int cur_line = getVMContext()->source_map.line[ctx->current_step];
+  int prev = ctx->code_ctx.uco_prev_line;
+  int cur_line = getVMContext()->source_map.line[ctx->step_ctx.current_step];
 
   GtkTreeIter iter;
   if (prev >= 0 &&
@@ -134,5 +136,5 @@ void highlightRow() {
     gtk_list_store_set(store, &iter, 3, "#ff0000", -1);
   }
 
-  g_ctx->uco_prev_line = cur_line;
+  ctx->code_ctx.uco_prev_line = cur_line;
 }

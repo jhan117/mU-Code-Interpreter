@@ -1,5 +1,7 @@
 #include "gui/gui_widgets.h"
 
+#include "core/vm_context.h"
+
 static GtkWidget *initControlBtns() {
   StepContext *step_ctx = &getGuiContext()->step_ctx;
 
@@ -85,7 +87,7 @@ void updateStep() {
   int upper = gtk_adjustment_get_upper(step_ctx->adj);
   char buf[64];
   snprintf(buf, sizeof(buf), "Step %02d of %02d", value + 1, upper + 1);
-  gtk_label_set_text(label, buf);
+  gtk_label_set_text(step_ctx->step_label, buf);
 
   step_ctx->current_step = value;
 

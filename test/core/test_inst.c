@@ -21,7 +21,6 @@ static void setSymbol(int index, int block, int addr) {
   VMContext *ctx = getVMContext();
   ctx->symbol_list.symbols[index].index = index;
   ctx->symbol_list.symbols[index].block = block;
-  ctx->symbol_list.symbols[index].addr = addr;
   if (block == GLOBAL_BLOCK)
     ctx->symbol_list.symbols[index].offset = addr - ctx->ds;
   else
