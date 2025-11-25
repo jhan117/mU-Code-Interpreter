@@ -1,8 +1,8 @@
-#include "core/inst.h"
 #include "core/instruction.h"
 #include "core/opcode.h"
 #include "core/vm_context.h"
 #include "io_utils/io_utils.h"
+#include "runner/inst.h"
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -17,13 +17,13 @@ static char *opcodes[] = {
     "gt",  "lt",  "ge",  "le",  "eq",   "ne",  "and", "or",   "add",
     "sub", "mul", "div", "mod", "not",  "neg"};
 
-int saveLst(const char *path, UCodeLines *lines) {
+int saveLst(const char *path, char **lines, int line_count) {
   int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
   if (fd < 0)
     return 0;
 
   int nbytes;
-  char buf[128];
+  char buf[LINE_BUFFER_LEN];
   VMContext *ctx = getVMContext();
   OutputBuffer *output = getOutputBuffer();
   printf("OUT: data=%p, len=%d\n", output->data, output->length);
@@ -34,14 +34,33 @@ int saveLst(const char *path, UCodeLines *lines) {
                     "Encoded", "Opcode", "Operand");
   write(fd, buf, nbytes);
 
-  for (int i = 0; i < lines->line_count; i++) {
-    int inst = lines->opcode[i];
-    int group;
-    int g_idx;
-    int operand;
+  // 역매핑
+  int rev[line_count];
+  memset(rev, 0xFF, sizeof(rev)); // -1로 초기화
+  for (int i = 0; i < ctx->code_len; i++) {
+    int src = ctx->source_map.line[i];
+    rev[src] = i;
+  }
+
+  for (int i = 0; i < line_count; i++) {
+    int asm_idx = rev[i];
+
+    if (asm_idx == -1) {
+      snprintf(buf, sizeof(buf), "[%04d] %-27s %-10s %-10s %-10s\n", i + 1,
+               lines[i], "", "", "");
+      write(fd, buf, nbytes);
+      continue;
+    }
+
+    int inst = ctx->memory[asm_idx];
+    int group = 0;
+    int g_idx = 0;
+    int operand = 0;
     decodeInst(inst, &group, &g_idx, &operand);
-    nbytes = snprintf(buf, sizeof(buf), "%-27s 0x%08X %8d %10d\n",
-                      lines->ucode_lines[i], inst, group * 10 + g_idx, operand);
+
+    snprintf(buf, sizeof(buf), "[%04d] %-27s 0x%08X %8d %10d\n", i + 1,
+             lines[i], inst, group * 10 + g_idx, operand);
+
     write(fd, buf, nbytes);
   }
 

@@ -2,4 +2,5 @@
 
 #include "assembler/assemble_error.h"
 
-AssembleError assemble(char **lines, int line_count, int *encoded);
+AssembleError assemble(char **lines, int line_count);
+char *printAssembleRes();

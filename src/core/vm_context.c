@@ -1,7 +1,7 @@
 #include "core/vm_context.h"
 
 #include "assembler/assemble_utils.h" // addSystemLabel()
-#include "core/inst.h"
+#include "runner/inst.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -16,6 +16,9 @@ void initVMContext() {
   ctx.code_len = 0;
   ctx.g_var_cnt = 0;
 
+  ctx.source_map.line = malloc(sizeof(int) * INIT_LINE_CAPACITY);
+  ctx.source_map.len = 0;
+  ctx.source_map.capacity = INIT_LINE_CAPACITY;
   ctx.label_list.labels = malloc(sizeof(Label) * INIT_LIST_CAPACITY);
   ctx.label_list.count = 0;
   ctx.label_list.capacity = INIT_LIST_CAPACITY;
@@ -66,6 +69,10 @@ void initVMContext() {
 
 // VMContext 해제
 void freeVMContext() {
+  if (ctx.source_map.line) {
+    free(ctx.source_map.line);
+    ctx.source_map.line = NULL;
+  }
   if (ctx.label_list.labels) {
     free(ctx.label_list.labels);
     ctx.label_list.labels = NULL;

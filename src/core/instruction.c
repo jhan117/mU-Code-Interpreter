@@ -90,5 +90,3 @@ void decodeInst(int old_inst, int *op_group, int *op_group_idx, int *operand) {
   }
   return;
 }
-
-int getOperand(int inst) { return inst & 0x03FFFFFF; }

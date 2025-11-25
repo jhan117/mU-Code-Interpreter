@@ -1,6 +1,5 @@
 #include "assembler/assemble_utils.h"
 
-#include "io_utils/io_constants.h" // LINE_BUFFER_LEN 불러옴
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>

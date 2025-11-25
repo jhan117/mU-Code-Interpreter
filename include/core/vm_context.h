@@ -19,6 +19,7 @@ typedef struct {
   SymbolList symbol_list;        // 변수 정보
   FuncList func_list;            // 함수 매개변수 정보
   CallPatchList call_patch_list; // 패치할 함수
+  SourceMap source_map;          // 원본 소스 라인 매핑
 
   int run_mode;
   unsigned int flags;

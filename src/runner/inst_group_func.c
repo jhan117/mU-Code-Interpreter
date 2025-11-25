@@ -1,8 +1,8 @@
-#include "core/inst.h"
 #include "core/instruction.h"
 #include "core/opcode.h"
 #include "core/vm_context.h"
-#include "runner.h"
+#include "runner/inst.h"
+#include "runner/runner.h"
 
 #include <stdio.h>
 

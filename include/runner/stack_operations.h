@@ -1,6 +1,6 @@
 #pragma once
 
-#include "types.h"
+#include "core/types.h"
 
 void initCPUStack(void);
 void freeCPUStack(void);

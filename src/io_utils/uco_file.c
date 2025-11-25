@@ -1,6 +1,6 @@
 #include "io_utils/io_utils.h"
 
-#include "io_utils/io_constants.h" // LINE_BUFFER_LEN
+#include "core/constants.h" // LINE_BUFFER_LEN
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
