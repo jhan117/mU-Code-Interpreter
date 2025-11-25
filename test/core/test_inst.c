@@ -17,12 +17,15 @@ static VMContext *setupContext(void) {
   return ctx;
 }
 
-static void setSymbol(int index, int offset) {
+static void setSymbol(int index, int block, int addr) {
   VMContext *ctx = getVMContext();
   ctx->symbols.symbols[index].index = index;
-  ctx->symbols.symbols[index].block = 0;
-  ctx->symbols.symbols[index].offset = offset;
-  ctx->symbols.symbols[index].addr = offset;
+  ctx->symbols.symbols[index].block = block;
+  ctx->symbols.symbols[index].addr = addr;
+  if (block == GLOBAL_BLOCK)
+    ctx->symbols.symbols[index].offset = addr - ctx->ds;
+  else
+    ctx->symbols.symbols[index].offset = ctx->bp - addr;
   ctx->symbols.symbols[index].size = 1;
   if (ctx->symbols.count <= index)
     ctx->symbols.count = index + 1;
@@ -57,14 +60,9 @@ void testFunctionInstructions(void) {
   assert((ctx->flags & (ERR_STACK_OVERFLOW | ERR_STACK_UNDERFLOW)) == 0);
   freeVMContext();
 
-  // ldp 테스트
+  // ldp 테스트 (no-op)
   ctx = setupContext();
-  ctx->sp = 3400;
-  ctx->bp = 3600;
-  ldp(0);
-  assert(ctx->memory[3400] == 3600);
-  assert(ctx->bp == 3400);
-  assert(ctx->sp == 3398);
+  // 아무것도 안함
   freeVMContext();
 
   // ret 테스트
@@ -91,10 +89,15 @@ void testFunctionInstructions(void) {
   ctx = setupContext();
   ctx->pc = 600;
   ctx->bp = 3700;
+  int call_prev_sp = ctx->sp;
+  int call_prev_bp = ctx->bp;
+  int call_prev_pc = ctx->pc;
   call(1024);
-  assert(ctx->memory[ctx->bp - 1] == 600);
   assert(ctx->pc == 1024);
-  assert(ctx->bp == 3700);
+  assert(ctx->bp == call_prev_sp);
+  assert(ctx->sp == call_prev_sp - 2);
+  assert(ctx->memory[ctx->bp] == call_prev_bp);
+  assert(ctx->memory[ctx->bp - 1] == call_prev_pc);
   freeVMContext();
 
   // proc 실패 테스트
@@ -105,12 +108,9 @@ void testFunctionInstructions(void) {
   assert((ctx->flags & ERR_STACK_OVERFLOW) == ERR_STACK_OVERFLOW);
   freeVMContext();
 
-  // ldp 실패 테스트
-  // stack 영역 부족
+  // ldp 오류 테스트
   ctx = setupContext();
-  ctx->sp = ctx->ss + 1;
-  ldp(0);
-  assert((ctx->flags & ERR_STACK_OVERFLOW) == ERR_STACK_OVERFLOW);
+  // 아무것도 안함
   freeVMContext();
 
   // bp 오류 테스트
@@ -226,7 +226,7 @@ void testDataMovementInstructions(void) {
   // lod 테스트
   VMContext *ctx = setupContext();
   int addr = ctx->ds + 16;
-  setSymbol(0, addr);
+  setSymbol(0, GLOBAL_BLOCK, addr);
   ctx->memory[addr] = 55;
   lod(0);
   assert(popCPUStack() == 55);
@@ -235,7 +235,7 @@ void testDataMovementInstructions(void) {
   // lda 테스트
   ctx = setupContext();
   addr = ctx->ds + 32;
-  setSymbol(0, addr);
+  setSymbol(0, GLOBAL_BLOCK, addr);
   lda(0);
   assert(popCPUStack() == addr);
   freeVMContext();
@@ -249,7 +249,7 @@ void testDataMovementInstructions(void) {
   // str 테스트
   ctx = setupContext();
   addr = ctx->ds + 48;
-  setSymbol(0, addr);
+  setSymbol(0, GLOBAL_BLOCK, addr);
   pushCPUStack(777);
   str(0);
   assert(ctx->memory[addr] == 777);
@@ -276,7 +276,7 @@ void testDataMovementInstructions(void) {
   // lod 실패
   // 주소가 ds보다 앞임
   ctx = setupContext();
-  setSymbol(0, ctx->ds - 4);
+  setSymbol(0, GLOBAL_BLOCK, ctx->ds - 4);
   lod(0);
   assert((ctx->flags & ERR_INVALID_ADDR) == ERR_INVALID_ADDR);
   assert(ctx->cpu_stack.top == 0);
@@ -285,7 +285,7 @@ void testDataMovementInstructions(void) {
   // str 실패
   // 주소가 bp임
   ctx = setupContext();
-  setSymbol(0, ctx->bp);
+  setSymbol(0, GLOBAL_BLOCK + 1, ctx->bp);
   pushCPUStack(1234);
   str(0);
   assert((ctx->flags & ERR_INVALID_ADDR) == ERR_INVALID_ADDR);

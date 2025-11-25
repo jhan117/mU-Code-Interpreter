@@ -65,7 +65,6 @@ int runner() {
   initSnapshot();
   initSnapshotList();
   readyToRun();
-  updateSymbols();
 
   while (1) {
     if (ctx->flags != 0 || ctx->bp == -1) {
