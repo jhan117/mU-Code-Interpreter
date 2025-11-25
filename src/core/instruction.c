@@ -11,7 +11,7 @@ static const OpInfo op_table[] = {
     {"nop", -1, 0, OPERAND_NONE},
     // 함수 정의 및 호출
     {"proc", OP_PROC, 1, OPERAND_NUMBER},
-    {"ret", OP_RET, 1, OPERAND_NUMBER},
+    {"ret", OP_RET, 0, OPERAND_NONE},
     {"ldp", OP_LDP, 0, OPERAND_NONE},
     {"push", OP_PUSH, 0, OPERAND_NONE},
     {"call", OP_CALL, 1, OPERAND_LABEL},
@@ -78,3 +78,5 @@ void decodeInst(int old_inst, int *op_group, int *op_group_idx, int *operand) {
 
   return;
 }
+
+int getOperand(int inst) { return inst & 0x03FFFFFF; }

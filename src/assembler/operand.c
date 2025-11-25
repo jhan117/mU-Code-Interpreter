@@ -17,7 +17,7 @@ int isNumber(const char *s) {
 }
 
 AssembleError validOperands(const OpInfo *info, char *operands[], int count,
-                            int *operand_val, int src_idx) {
+                            int *operand_val, int addr, int src_idx) {
   // 개수 확인
   if (count != info->operand_count)
     return ASSEMBLE_ERR_ARG_COUNT;
@@ -38,11 +38,11 @@ AssembleError validOperands(const OpInfo *info, char *operands[], int count,
     if (isNumber(operands[0]))
       return ASSEMBLE_ERR_ARG_TYPE;
 
-    int addr = findLabel(operands[0]);
-    if (addr == LABEL_NOT_FOUND) {
+    int label_addr = findLabel(operands[0]);
+    if (label_addr == LABEL_NOT_FOUND) {
       addPatch(addr, src_idx, operands[0]);
     } else {
-      *operand_val = addr;
+      *operand_val = label_addr;
     }
     break;
   }

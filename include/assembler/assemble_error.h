@@ -10,6 +10,8 @@ typedef enum {
   ASSEMBLE_ERR_ARG_COUNT,
   ASSEMBLE_ERR_ARG_TYPE,
   ASSEMBLE_ERR_MEMORY,
+  ASSEMBLE_ERR_RETURN,
+  ASSEMBLE_ERR_PROC,
 } AssembleError;
 
 typedef struct {

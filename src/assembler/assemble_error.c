@@ -11,6 +11,8 @@ static const ErrorMsg assemble_error_table[] = {
     {ASSEMBLE_ERR_ARG_COUNT, "wrong operand count"},
     {ASSEMBLE_ERR_ARG_TYPE, "invalid operand type"},
     {ASSEMBLE_ERR_MEMORY, "memory allocation failed"},
+    {ASSEMBLE_ERR_RETURN, "ret inst not found"},
+    {ASSEMBLE_ERR_PROC, "proc inst not found"},
 };
 
 static const int assemble_error_table_count =

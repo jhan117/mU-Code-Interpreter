@@ -25,6 +25,14 @@ void addSystemLabel() {
   }
 }
 
+int isSystemLabel(char *name) {
+  for (int i = 0; i < system_label_count; i++) {
+    if (strcmp(system_labels[i].name, name) == 0)
+      return 1;
+  }
+  return 0;
+}
+
 int findLabel(const char *name) {
   LabelList label_list = getVMContext()->label_list;
   Label *labels = label_list.labels;
@@ -40,6 +48,23 @@ int findLabel(const char *name) {
   }
 
   return LABEL_NOT_FOUND;
+}
+
+const char *findLabelByAddr(int addr) {
+  LabelList label_list = getVMContext()->label_list;
+  Label *labels = label_list.labels;
+
+  for (int i = 0; i < system_label_count; i++) {
+    if (system_labels[i].addr == addr)
+      return system_labels[i].name;
+  }
+
+  for (int i = 0; i < label_list.count; i++) {
+    if (labels[i].addr == addr)
+      return labels[i].name;
+  }
+
+  return NULL;
 }
 
 AssembleError addLabel(const char *name, int addr) {

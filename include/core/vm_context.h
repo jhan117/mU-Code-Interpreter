@@ -14,9 +14,11 @@ typedef struct {
   int code_len;  // 코드 영역 길이
   int g_var_cnt; // 전역변수 개수
 
-  LabelList label_list;   // 라벨
-  PatchList patch_list;   // 패치할 라벨
-  SymbolList symbol_list; // 변수 정보
+  LabelList label_list;          // 라벨
+  PatchList patch_list;          // 패치할 라벨
+  SymbolList symbol_list;        // 변수 정보
+  FuncList func_list;            // 함수 매개변수 정보
+  CallPatchList call_patch_list; // 패치할 함수
 
   int run_mode;
   unsigned int flags;

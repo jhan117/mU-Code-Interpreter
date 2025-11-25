@@ -23,10 +23,15 @@ void initVMContext() {
   ctx.patch_list.patches = malloc(sizeof(Patch) * INIT_LIST_CAPACITY);
   ctx.patch_list.count = 0;
   ctx.patch_list.capacity = INIT_LIST_CAPACITY;
-
   ctx.symbol_list.symbols = malloc(sizeof(Symbol) * INIT_LIST_CAPACITY);
   ctx.symbol_list.count = 0;
   ctx.symbol_list.capacity = INIT_LIST_CAPACITY;
+  ctx.func_list.items = malloc(sizeof(FuncInfo) * INIT_LIST_CAPACITY);
+  ctx.func_list.count = 0;
+  ctx.func_list.capacity = INIT_LIST_CAPACITY;
+  ctx.call_patch_list.patches = malloc(sizeof(CallPatch) * INIT_LIST_CAPACITY);
+  ctx.call_patch_list.count = 0;
+  ctx.call_patch_list.capacity = INIT_LIST_CAPACITY;
 
   // 실행 모드 초기화
   ctx.run_mode = CLI;
@@ -72,6 +77,14 @@ void freeVMContext() {
   if (ctx.symbol_list.symbols) {
     free(ctx.symbol_list.symbols);
     ctx.symbol_list.symbols = NULL;
+  }
+  if (ctx.func_list.items) {
+    free(ctx.func_list.items);
+    ctx.func_list.items = NULL;
+  }
+  if (ctx.call_patch_list.patches) {
+    free(ctx.call_patch_list.patches);
+    ctx.call_patch_list.patches = NULL;
   }
 
   if (ctx.changes.change_list) {

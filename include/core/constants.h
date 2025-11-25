@@ -4,6 +4,7 @@
 #define MAX_LABEL_LEN 11 // 널문자 포함
 #define MAX_OP_LEN 5     // 널문자 포함
 #define MAX_OPERANDS 3
+#define MAX_ARGS 10
 
 // 동적 배열
 #define INIT_LIST_CAPACITY 16

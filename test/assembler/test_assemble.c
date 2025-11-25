@@ -23,12 +23,12 @@ int testAssembleSuccess() {
       "           ldc 1",      "           add",        "           str 2 0",
       "           ujp $$0",    "$$1        nop",        "           ldp",
       "           lod 2 11",   "           push",       "           call write",
-      "           ret 0",      "sub        proc 3",     "           sym 3 0 1",
+      "           ret",        "sub        proc 3",     "           sym 3 0 1",
       "           sym 3 1 1",  "           sym 3 2 1",  "           ldp",
       "           lda 3 2",    "           push",       "           call read",
       "           lod 3 2",    "           lod 3 0",    "           lod 3 1",
       "           add",        "           ldi",        "           add",
-      "           str 3 2",    "           lod 3 2",    "           ret 2"};
+      "           str 3 2",    "           lod 3 2",    "           ret"};
 
   int line_count = sizeof(lines) / sizeof(lines[0]);
 
@@ -73,6 +73,13 @@ int testAssembleSuccess() {
            sym->offset, sym->size);
   }
 
+  printf("\n========= Func list =========\n");
+  for (int i = 0; i < ctx->func_list.count; i++) {
+    FuncInfo *func = &ctx->func_list.items[i];
+    printf("Func: name=%s, param cnt=%d, is start=%d func block=%d\n",
+           func->name, func->param_cnt, func->is_start, func->func_block);
+  }
+
   freeVMContext();
   return 0;
 }
@@ -80,52 +87,52 @@ int testAssembleSuccess() {
 static int checkAssemble(int idx, char **lines, int line_count, int expected) {
   initVMContext();
   int res = assemble(lines, line_count);
+
   if (res != expected) {
-    printf("[FAIL] assemble() fail test %d failed\n\n", idx);
+    printf("[FAIL] assemble() fail test %d failed (expected %d, got %d)\n\n",
+           idx, expected, res);
     freeVMContext();
     return 1;
-  } else {
-    printf("[PASS] assemble() fail test %d passed\n\n", idx);
-    freeVMContext();
-    return 0;
   }
+
+  printf("[PASS] assemble() fail test %d passed\n\n", idx);
+  freeVMContext();
+  return 0;
+}
+
+static int lineCount(char *lines[]) {
+  int count = 0;
+  while (lines[count] != NULL)
+    count++;
+  return count;
 }
 
 int testAssembleFailures() {
-  int failures = 0;
-
-  char *lines1[] = {"           badcmd 10"}; // ASSEMBLE_ERR_INVALID_FORMAT
-  char *lines2[] = {
-      "           sym 1 0 1",
-      "           sym 1 0 2",
-  }; // ASSEMBLE_ERR_VAR_DUP
-  char *lines3[] = {"           lod 1 0"}; // ASSEMBLE_ERR_VAR_UNDEF
-  char *lines4[] = {
-      "main       proc 1",
-      "main       proc 1",
-  }; // ASSEMBLE_ERR_LABEL_DUP
-  char *lines5[] = {"           call notexist"}; // ASSEMBLE_ERR_LABEL_UNDEF
-  char *lines6[] = {"           ldc"};           // ASSEMBLE_ERR_ARG_COUNT
-  char *lines7[] = {"           ldc abc"};       // ASSEMBLE_ERR_ARG_TYPE
-
-  char *lines8[INIT_MEMORY_SIZE + 1]; // ASSEMBLE_ERR_MEMORY
-  for (int j = 0; j < INIT_MEMORY_SIZE + 1; j++)
-    lines8[j] = "           ldc 0";
-
   TestCase tests[] = {
-      {1, lines1, 1, ASSEMBLE_ERR_INVALID_FORMAT},
-      {2, lines2, 2, ASSEMBLE_ERR_VAR_DUP},
-      {3, lines3, 1, ASSEMBLE_ERR_VAR_UNDEF},
-      {4, lines4, 2, ASSEMBLE_ERR_LABEL_DUP},
-      {5, lines5, 1, ASSEMBLE_ERR_LABEL_UNDEF},
-      {6, lines6, 1, ASSEMBLE_ERR_ARG_COUNT},
-      {7, lines7, 1, ASSEMBLE_ERR_ARG_TYPE},
-      {8, lines8, INIT_MEMORY_SIZE + 1, ASSEMBLE_ERR_MEMORY},
+      {ASSEMBLE_ERR_INVALID_FORMAT, {"           badcmd 10", NULL}},
+      {ASSEMBLE_ERR_VAR_DUP,
+       {"main       proc 1", "           sym 1 0 1", "           sym 1 0 2",
+        NULL}},
+      {ASSEMBLE_ERR_VAR_UNDEF, {"           lod 1 0", NULL}},
+      {ASSEMBLE_ERR_LABEL_DUP,
+       {"main       proc 1", "main       proc 1", "           ret", NULL}},
+      {ASSEMBLE_ERR_LABEL_UNDEF, {"           call notexist", NULL}},
+      {ASSEMBLE_ERR_ARG_COUNT, {"           ldc", NULL}},
+      {ASSEMBLE_ERR_ARG_TYPE, {"           ldc abc", NULL}},
+      {ASSEMBLE_ERR_RETURN, {"main       proc 1", NULL}},
+      {ASSEMBLE_ERR_PROC, {"           ret", NULL}},
+      {ASSEMBLE_ERR_MEMORY, {NULL}},
   };
 
-  for (int i = 0; i < 8; i++)
-    failures += checkAssemble(tests[i].id, tests[i].lines, tests[i].count,
-                              tests[i].expected);
+  for (int j = 0; j < INIT_MEMORY_SIZE + 1; j++)
+    tests[9].lines[j] = "           ldc 0";
+  tests[9].lines[INIT_MEMORY_SIZE + 1] = NULL;
 
+  int failures = 0;
+  int test_count = sizeof(tests) / sizeof(tests[0]);
+  for (int i = 0; i < test_count; i++) {
+    failures += checkAssemble(i + 1, tests[i].lines, lineCount(tests[i].lines),
+                              tests[i].expected);
+  }
   return failures;
 }

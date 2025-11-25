@@ -1,6 +1,7 @@
 #include "assembler/assemble.h"
 
 #include "assembler/assemble_utils.h"
+#include "core/opcode.h" // OP_* 필요
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -14,6 +15,8 @@ static void freeOperands(char *operands[], int count) {
 AssembleError assemble(char **lines, int line_count) {
   VMContext *ctx = getVMContext();
   int addr = 0;
+  FuncInfo *current_func = NULL;
+  int param_cnt = 0;
 
   for (int i = 0; i < line_count; i++) {
     char *line = lines[i];
@@ -24,6 +27,10 @@ AssembleError assemble(char **lines, int line_count) {
       line_ptr++;
     if (*line_ptr == '%' || !*line_ptr)
       continue;
+
+    // 메모리 경계 체크
+    if (addr < 0 || addr >= INIT_MEMORY_SIZE)
+      return returnError(ASSEMBLE_ERR_MEMORY, i + 1);
 
     // 코드 파싱
     char label[MAX_LABEL_LEN];
@@ -83,32 +90,111 @@ AssembleError assemble(char **lines, int line_count) {
           freeOperands(operands, operand_count);
           return returnError(symbol_res, i + 1);
         }
+        const char *name = findLabelByAddr(addr - 1);
+        if (name) {
+          FuncInfo *func = findFuncByName(name);
+          if (func) {
+            func->func_block = block;
+          }
+        }
       }
     }
 
     // operands 확인
     int operand_val = 0;
     AssembleError valid_operand_res =
-        validOperands(info, operands, operand_count, &operand_val, i + 1);
+        validOperands(info, operands, operand_count, &operand_val, addr, i + 1);
     if (valid_operand_res != ASSEMBLE_ERR_NONE) {
       freeOperands(operands, operand_count);
       return returnError(valid_operand_res, i + 1);
     }
 
-    // 메모리 경계 체크
-    if (addr < 0 || addr >= INIT_MEMORY_SIZE) {
-      freeOperands(operands, operand_count);
-      return returnError(ASSEMBLE_ERR_MEMORY, i + 1);
+    // 매개변수 확인
+    switch (info->opcode) {
+    case OP_PROC: {
+      if (current_func) {
+        return returnError(ASSEMBLE_ERR_RETURN, i + 1);
+      }
+
+      current_func = addFunc(label, addr);
+      if (!current_func) {
+        freeOperands(operands, operand_count);
+        return returnError(ASSEMBLE_ERR_MEMORY, i + 1);
+      }
+      break;
+    }
+    case OP_RET: {
+      if (!current_func) {
+        freeOperands(operands, operand_count);
+        return returnError(ASSEMBLE_ERR_PROC, i + 1);
+      }
+
+      current_func->end_addr = addr;
+      current_func->is_start = 0;
+
+      CallPatch *patch = findCallPatchByName(current_func->name);
+      if (patch) {
+        current_func->param_cnt = patch->param_cnt;
+        operand_val = patch->param_cnt;
+      }
+
+      param_cnt = 0;
+      current_func = NULL;
+      break;
+    }
+    case OP_LDP:
+      param_cnt = 0;
+      break;
+    case OP_PUSH:
+      if (current_func && param_cnt < MAX_ARGS) {
+        param_cnt++;
+      }
+      break;
+    case OP_CALL: {
+      if (isSystemLabel(operands[0])) {
+        param_cnt = 0;
+        break;
+      }
+
+      FuncInfo *func_info = findFuncByName(operands[0]);
+      if (func_info) {
+        func_info->param_cnt = param_cnt;
+      } else {
+        AssembleError patch_res = addCallPatch(operands[0], param_cnt);
+        if (patch_res != ASSEMBLE_ERR_NONE) {
+          freeOperands(operands, operand_count);
+          return returnError(patch_res, i + 1);
+        }
+      }
+
+      param_cnt = 0;
+      break;
+    }
+    default:
+      break;
     }
 
     ctx->memory[addr++] = encodeInst(info->opcode, operand_val);
     freeOperands(operands, operand_count);
   }
+
+  if (current_func) {
+    return returnError(ASSEMBLE_ERR_RETURN, line_count);
+  }
+
   ctx->code_len = addr;
 
   AssembleError patch_res = applyPatches();
   if (patch_res != ASSEMBLE_ERR_NONE) {
     return patch_res;
   }
+
+  AssembleError call_patch_res = applyCallPatch();
+  if (call_patch_res != ASSEMBLE_ERR_NONE) {
+    return call_patch_res;
+  }
+
+  applySymbolOffset();
+
   return ASSEMBLE_ERR_NONE;
 }
