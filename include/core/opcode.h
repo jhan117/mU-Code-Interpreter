@@ -40,4 +40,5 @@ typedef enum {
   // 단항 연산자 (2)
   OP_NOT = 45,
   OP_NEG = 46,
+  OP_DUP = 47,
 } Opcode;
