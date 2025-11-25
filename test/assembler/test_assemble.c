@@ -1,33 +1,8 @@
-#include "assemble.h"
 #include "test.h"
 
+#include "assembler/assemble.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-const char *assembleError(int code) {
-  switch (code) {
-  case ASSEMBLE_OK:
-    return "OK";
-  case ASSEMBLE_ERR_INVALID_FORMAT:
-    return "INVALID_FORMAT";
-  case ASSEMBLE_ERR_VAR_DUP:
-    return "VAR_DUP";
-  case ASSEMBLE_ERR_LABEL_DUP:
-    return "LABEL_DUP";
-  case ASSEMBLE_ERR_LABEL_MISSING:
-    return "LABEL_MISSING";
-  case ASSEMBLE_ERR_ARG_COUNT:
-    return "ARG_COUNT";
-  case ASSEMBLE_ERR_ARG_TYPE:
-    return "ARG_TYPE";
-  case ASSEMBLE_ERR_VAR_UNDEF:
-    return "VAR_UNDEF";
-  case ASSEMBLE_ERR_MEMORY:
-    return "MEMORY_ERROR";
-  default:
-    return "UNKNOWN_ERROR";
-  }
-}
 
 int testAssembleSuccess() {
   char *lines[] = {
@@ -58,106 +33,106 @@ int testAssembleSuccess() {
   int line_count = sizeof(lines) / sizeof(lines[0]);
 
   initVMContext();
+  VMContext *ctx = getVMContext();
 
-  int res = assemble(lines, line_count);
-
-  if (res != ASSEMBLE_OK) {
-    printf("[FAIL] assemble() returned %d (%s)\n", res, assembleError(res));
+  if (assemble(lines, line_count) != ASSEMBLE_ERR_NONE) {
+    printf("[FAIL] assemble() test failed\n");
     return 1;
   }
 
   printf("[PASS] assemble() test passed\n");
 
-  VMContext *ctx = getVMContext();
-
   printf("\n========= Assembled memory =========\n");
   for (int i = 0; i < ctx->code_len; i++) {
     int inst = ctx->memory[i];
-    int opGroup = (inst >> 29) & 0x7;
-    int opGroupIdx = (inst >> 26) & 0x7;
+    int op_group = (inst >> 29) & 0x7;
+    int op_group_idx = (inst >> 26) & 0x7;
     int operand = inst & 0x03FFFFFF;
 
-    // 26비트 signed 처리 ==> 음수 변환
-    if (operand & (1 << 25))
-      operand |= ~0x03FFFFFF;
+    decodeInst(inst, &op_group, &op_group_idx, &operand);
 
-    printf("%04d: opcode=%d%d operand=%d\n", i, opGroup, opGroupIdx, operand);
+    printf("%04d: opcode=%d%d operand=%d\n", i, op_group, op_group_idx,
+           operand);
   }
-  // 코드 영역 끝났는지 확인
+
+  // code_len 확인
   if (ctx->memory[ctx->code_len])
     printf("Code Not End\n");
 
   printf("\n========= Label list =========\n");
-  for (int i = 0; i < ctx->labels.count; i++) {
-    Label *lbl = &ctx->labels.labels[i];
-    printf("Label: %s, addr=%d\n", lbl->name, lbl->addr);
+  for (int i = 0; i < ctx->label_list.count; i++) {
+    Label *label = &ctx->label_list.labels[i];
+    printf("Label: %s, addr=%d\n", label->name, label->addr);
   }
 
   printf("\n========= Symbol list =========\n");
-  for (int i = 0; i < ctx->symbols.count; i++) {
-    Symbol *sym = &ctx->symbols.symbols[i];
+  printf("Global Symbol Count: %d\n", ctx->g_var_cnt);
+  for (int i = 0; i < ctx->symbol_list.count; i++) {
+    Symbol *sym = &ctx->symbol_list.symbols[i];
     printf("Symbol[%d]: block=%d, offset=%d, size=%d\n", sym->index, sym->block,
            sym->offset, sym->size);
   }
-  printf("Global Symbol Count: %d\n", ctx->g_var_cnt);
+
+  printf("\n========= Func list =========\n");
+  for (int i = 0; i < ctx->func_list.count; i++) {
+    FuncInfo *func = &ctx->func_list.items[i];
+    printf("Func: name=%s, param cnt=%d, is start=%d func block=%d\n",
+           func->name, func->param_cnt, func->is_start, func->func_block);
+  }
 
   freeVMContext();
-
   return 0;
 }
 
-static int checkAssemble(char **lines, int line_count, int expected,
-                         const char *desc) {
+static int checkAssemble(int idx, char **lines, int line_count, int expected) {
   initVMContext();
   int res = assemble(lines, line_count);
+
   if (res != expected) {
-    printf("[FAIL] %s: expected %s, got %s\n\n", desc, assembleError(expected),
-           assembleError(res));
+    printf("[FAIL] assemble() fail test %d failed (expected %d, got %d)\n\n",
+           idx, expected, res);
     freeVMContext();
     return 1;
-  } else {
-    printf("[PASS] %s\n\n", desc);
-    freeVMContext();
-    return 0;
   }
+
+  printf("[PASS] assemble() fail test %d passed\n\n", idx);
+  freeVMContext();
+  return 0;
+}
+
+static int lineCount(char *lines[]) {
+  int count = 0;
+  while (lines[count] != NULL)
+    count++;
+  return count;
 }
 
 int testAssembleFailures() {
-  int failures = 0;
-  char *lines1[] = {"           badcmd 10"};
-  failures +=
-      checkAssemble(lines1, 1, ASSEMBLE_ERR_INVALID_FORMAT, "Invalid command");
+  TestCase tests[] = {
+      {ASSEMBLE_ERR_INVALID_FORMAT, {"           badcmd 10", NULL}},
+      {ASSEMBLE_ERR_VAR_DUP,
+       {"main       proc 1", "           sym 1 0 1", "           sym 1 0 2",
+        NULL}},
+      {ASSEMBLE_ERR_VAR_UNDEF, {"           lod 1 0", NULL}},
+      {ASSEMBLE_ERR_LABEL_DUP,
+       {"main       proc 1", "main       proc 1", "           ret", NULL}},
+      {ASSEMBLE_ERR_LABEL_UNDEF, {"           call notexist", NULL}},
+      {ASSEMBLE_ERR_ARG_COUNT, {"           ldc", NULL}},
+      {ASSEMBLE_ERR_ARG_TYPE, {"           ldc abc", NULL}},
+      {ASSEMBLE_ERR_RETURN, {"main       proc 1", NULL}},
+      {ASSEMBLE_ERR_PROC, {"           ret", NULL}},
+      {ASSEMBLE_ERR_MEMORY, {NULL}},
+  };
 
-  char *lines2[] = {"           ldc abc"};
-  failures +=
-      checkAssemble(lines2, 1, ASSEMBLE_ERR_ARG_TYPE, "Invalid number operand");
-
-  char *lines3[] = {"main       proc 1", "main       proc 1"};
-  failures +=
-      checkAssemble(lines3, 2, ASSEMBLE_ERR_LABEL_DUP, "Duplicate label");
-
-  char *lines4[] = {"           ldc"};
-  failures += checkAssemble(lines4, 1, ASSEMBLE_ERR_ARG_COUNT,
-                            "Missing operand for ldc");
-
-  char *lines5[] = {"           call 123"};
-  failures += checkAssemble(lines5, 1, ASSEMBLE_ERR_ARG_TYPE,
-                            "Invalid operand type for call");
-
-  char *lines6[] = {"           bgn 1", "           sym 1 0 1",
-                    "           sym 1 0 2"};
-  failures +=
-      checkAssemble(lines6, 3, ASSEMBLE_ERR_VAR_DUP, "Duplicate symbol");
-
-  char *lines7[INIT_MEMORY_SIZE + 1];
   for (int j = 0; j < INIT_MEMORY_SIZE + 1; j++)
-    lines7[j] = "           ldc 0";
-  failures += checkAssemble(lines7, INIT_MEMORY_SIZE + 1, ASSEMBLE_ERR_MEMORY,
-                            "Memory overflow");
+    tests[9].lines[j] = "           ldc 0";
+  tests[9].lines[INIT_MEMORY_SIZE + 1] = NULL;
 
-  char *lines8[] = {"           ujp notexist"};
-  failures += checkAssemble(lines8, 1, ASSEMBLE_ERR_LABEL_MISSING,
-                            "Undefined label reference");
-
+  int failures = 0;
+  int test_count = sizeof(tests) / sizeof(tests[0]);
+  for (int i = 0; i < test_count; i++) {
+    failures += checkAssemble(i + 1, tests[i].lines, lineCount(tests[i].lines),
+                              tests[i].expected);
+  }
   return failures;
 }

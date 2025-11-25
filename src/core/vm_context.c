@@ -1,47 +1,37 @@
 #include "core/vm_context.h"
-#include "core/inst.h"
 
+#include "assembler/assemble_utils.h" // addSystemLabel()
+#include "core/inst.h"
 #include <stdlib.h>
 #include <string.h>
 
 static VMContext ctx;
-VMContext *getVMContext(void) { return &ctx; }
+VMContext *getVMContext() { return &ctx; }
 
-static void addSystemLabel(const char *name, int addr) {
-  LabelList *t = &getVMContext()->labels;
-
-  strncpy(t->labels[t->count].name, name, MAX_LABEL_NAME_LEN - 1);
-  t->labels[t->count].name[MAX_LABEL_NAME_LEN - 1] = '\0';
-  t->labels[t->count].addr = addr;
-  t->count++;
-}
-
-// VMContext 초기화/해제
-void initVMContext(void) {
-  // 기존 메모리 해제
+// VMContext 초기화
+void initVMContext() {
   freeVMContext();
 
-  // 레이블 리스트 초기화
-  ctx.labels.labels = malloc(sizeof(Label) * INIT_LIST_CAPACITY);
-  ctx.labels.count = 0;
-  ctx.labels.capacity = INIT_LIST_CAPACITY;
-
-  addSystemLabel("read", -1);
-  addSystemLabel("write", -2);
-  addSystemLabel("lf", -3);
-
-  // 패치 리스트 초기화
-  ctx.patches.patches = malloc(sizeof(Patch) * INIT_LIST_CAPACITY);
-  ctx.patches.count = 0;
-  ctx.patches.capacity = INIT_LIST_CAPACITY;
-
-  // 심볼 리스트 초기화
-  ctx.symbols.symbols = malloc(sizeof(Symbol) * INIT_LIST_CAPACITY);
-  ctx.symbols.count = 0;
-  ctx.symbols.capacity = INIT_LIST_CAPACITY;
-
-  // 레지스터 초기화
   ctx.cs = ctx.pc = ctx.ds = ctx.ss = ctx.sp = ctx.bp = 0;
+  ctx.code_len = 0;
+  ctx.g_var_cnt = 0;
+
+  ctx.label_list.labels = malloc(sizeof(Label) * INIT_LIST_CAPACITY);
+  ctx.label_list.count = 0;
+  ctx.label_list.capacity = INIT_LIST_CAPACITY;
+  addSystemLabel();
+  ctx.patch_list.patches = malloc(sizeof(Patch) * INIT_LIST_CAPACITY);
+  ctx.patch_list.count = 0;
+  ctx.patch_list.capacity = INIT_LIST_CAPACITY;
+  ctx.symbol_list.symbols = malloc(sizeof(Symbol) * INIT_LIST_CAPACITY);
+  ctx.symbol_list.count = 0;
+  ctx.symbol_list.capacity = INIT_LIST_CAPACITY;
+  ctx.func_list.items = malloc(sizeof(FuncInfo) * INIT_LIST_CAPACITY);
+  ctx.func_list.count = 0;
+  ctx.func_list.capacity = INIT_LIST_CAPACITY;
+  ctx.call_patch_list.patches = malloc(sizeof(CallPatch) * INIT_LIST_CAPACITY);
+  ctx.call_patch_list.count = 0;
+  ctx.call_patch_list.capacity = INIT_LIST_CAPACITY;
 
   // 실행 모드 초기화
   ctx.run_mode = CLI;
@@ -75,18 +65,26 @@ void initVMContext(void) {
 }
 
 // VMContext 해제
-void freeVMContext(void) {
-  if (ctx.labels.labels) {
-    free(ctx.labels.labels);
-    ctx.labels.labels = NULL;
+void freeVMContext() {
+  if (ctx.label_list.labels) {
+    free(ctx.label_list.labels);
+    ctx.label_list.labels = NULL;
   }
-  if (ctx.patches.patches) {
-    free(ctx.patches.patches);
-    ctx.patches.patches = NULL;
+  if (ctx.patch_list.patches) {
+    free(ctx.patch_list.patches);
+    ctx.patch_list.patches = NULL;
   }
-  if (ctx.symbols.symbols) {
-    free(ctx.symbols.symbols);
-    ctx.symbols.symbols = NULL;
+  if (ctx.symbol_list.symbols) {
+    free(ctx.symbol_list.symbols);
+    ctx.symbol_list.symbols = NULL;
+  }
+  if (ctx.func_list.items) {
+    free(ctx.func_list.items);
+    ctx.func_list.items = NULL;
+  }
+  if (ctx.call_patch_list.patches) {
+    free(ctx.call_patch_list.patches);
+    ctx.call_patch_list.patches = NULL;
   }
 
   if (ctx.changes.change_list) {

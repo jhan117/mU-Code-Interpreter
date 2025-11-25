@@ -3,7 +3,7 @@
 #include "constants.h"
 
 typedef struct {
-  char name[MAX_LABEL_NAME_LEN];
+  char name[MAX_LABEL_LEN];
   int addr;
 } Label;
 
@@ -14,8 +14,9 @@ typedef struct {
 } LabelList;
 
 typedef struct {
-  int core_idx;
-  char label_name[MAX_LABEL_NAME_LEN];
+  int code_idx;
+  int src_idx;
+  char label_name[MAX_LABEL_LEN];
 } Patch;
 
 typedef struct {
@@ -37,6 +38,32 @@ typedef struct {
   int count;
   int capacity;
 } SymbolList;
+
+typedef struct {
+  int func_block;
+  int start_addr;
+  int end_addr;
+  char name[MAX_LABEL_LEN];
+  int param_cnt;
+  int is_start;
+} FuncInfo;
+
+typedef struct {
+  FuncInfo *items;
+  int count;
+  int capacity;
+} FuncList;
+
+typedef struct {
+  char func_name[MAX_LABEL_LEN];
+  int param_cnt;
+} CallPatch;
+
+typedef struct {
+  CallPatch *patches;
+  int count;
+  int capacity;
+} CallPatchList;
 
 typedef struct Change {
   int hdware_num;

@@ -1,10 +1,12 @@
 #pragma once
 
-// 어셈블 관련 상수들
-#define MAX_LABEL_NAME_LEN 32
-#define MAX_LABEL_LEN 11
-#define MAX_CMD_LEN 5
-#define MAX_OPERANDS 5
+// 명령어 형식
+#define MAX_LABEL_LEN 11 // 널문자 포함
+#define MAX_OP_LEN 5     // 널문자 포함
+#define MAX_OPERANDS 3
+#define MAX_ARGS 10
+
+// 동적 배열
 #define INIT_LIST_CAPACITY 16
 
 // 실행 관련 상수들

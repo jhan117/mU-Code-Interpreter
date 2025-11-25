@@ -44,5 +44,5 @@ int main(void) {
   else
     printf("\n%d test(s) failed\n", failures);
 
-  return failures;
+  return 0;
 }

@@ -88,10 +88,10 @@ void fjp(int arg) {
 
 // 아래 데이터 이동 연산자에서만 사용
 static inline int resolveAddress(VMContext *ctx, int index) {
-  if (ctx->symbols.symbols[index].block == GLOBAL_BLOCK)
-    return ctx->ds + ctx->symbols.symbols[index].offset;
+  if (ctx->symbol_list.symbols[index].block == GLOBAL_BLOCK)
+    return ctx->ds + ctx->symbol_list.symbols[index].offset;
   else
-    return ctx->bp - ctx->symbols.symbols[index].offset;
+    return ctx->bp - ctx->symbol_list.symbols[index].offset;
 }
 
 void lod(int arg) {

@@ -1,164 +1,201 @@
-#include "assemble.h"
+#include "assembler/assemble.h"
 
+#include "assembler/assemble_utils.h"
+#include "core/opcode.h" // OP_* 필요
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-static int isNumber(const char *s) {
-  if (!s || !*s)
-    return 0;
-  if (*s == '+' || *s == '-')
-    s++;
-  while (*s) {
-    if (!isdigit((unsigned char)*s))
-      return 0;
-    s++;
-  }
-  return 1;
-}
-
 static void freeOperands(char *operands[], int count) {
-  for (int j = 0; j < count; j++)
-    free(operands[j]);
+  for (int i = 0; i < count; i++)
+    free(operands[i]);
 }
 
-static int returnError(int code, char *operands[], int count, int line,
-                       const char *msg) {
-  if (msg)
-    printf("[ERROR] Line %d: %s\n", line, msg);
-  freeOperands(operands, count);
-  return code;
-}
-
-static inline int encodeInst(int opcode, int operand_val) {
-  int opGroup = opcode / 10;
-  int opGroupIdx = opcode % 10;
-
-  return ((opGroup & 0x7) << 29) | ((opGroupIdx & 0x7) << 26) |
-         (operand_val & 0x03FFFFFF);
-}
-
-int assemble(char **lines, int line_count) {
+AssembleError assemble(char **lines, int line_count) {
   VMContext *ctx = getVMContext();
   int addr = 0;
+  FuncInfo *current_func = NULL;
+  int param_cnt = 0;
 
   for (int i = 0; i < line_count; i++) {
     char *line = lines[i];
-    if (line[0] == '%' || line[0] == '\0')
+
+    // 주석, 빈줄 제외
+    char *line_ptr = line;
+    while (isspace(*line_ptr))
+      line_ptr++;
+    if (*line_ptr == '%' || !*line_ptr)
       continue;
-
-    char label[MAX_LABEL_LEN];
-    char cmd[MAX_CMD_LEN];
-    char *operands[MAX_OPERANDS];
-    int operand_count = 0;
-
-    int r = parseLine(line, label, cmd, operands, &operand_count);
-    if (r != ASSEMBLE_OK)
-      return returnError(r, operands, operand_count, i + 1, "parse error");
-
-    if (label[0]) {
-      if (findLabel(label) != -1)
-        return returnError(ASSEMBLE_ERR_LABEL_DUP, operands, operand_count,
-                           i + 1, "duplicate label");
-      addLabel(label, addr);
-    }
-
-    if (!cmd[0]) {
-      freeOperands(operands, operand_count);
-      continue;
-    }
-
-    // 명령어 조회
-    const OpInfo *info = findOpInfo(cmd);
-    if (!info)
-      return returnError(ASSEMBLE_ERR_INVALID_FORMAT, operands, operand_count,
-                         i + 1, "unknown command");
-
-    // 피연산자 개수 검증
-    if (operand_count != info->operand_count)
-      return returnError(ASSEMBLE_ERR_ARG_COUNT, operands, operand_count, i + 1,
-                         "wrong operand count");
-
-    if (info->opcode < 0) {
-      if (strcmp(cmd, "bgn") == 0) {
-        ctx->symbols.count = 0;
-        if (!isNumber(operands[0]))
-          return returnError(ASSEMBLE_ERR_ARG_TYPE, operands, operand_count,
-                             i + 1, "invalid operand type");
-        ctx->g_var_cnt = atoi(operands[0]);
-      } else if (strcmp(cmd, "sym") == 0) {
-        if (!isNumber(operands[0]) || !isNumber(operands[1]) ||
-            !isNumber(operands[2]))
-          return returnError(ASSEMBLE_ERR_ARG_TYPE, operands, operand_count,
-                             i + 1, "invalid operand type");
-        int block = atoi(operands[0]);
-        int offset = atoi(operands[1]);
-        int size = atoi(operands[2]);
-        if (findSymbol(block, offset) != -1)
-          return returnError(ASSEMBLE_ERR_VAR_DUP, operands, operand_count,
-                             i + 1, "duplicate symbol");
-        addSymbol(block, offset, size);
-      } else if (strcmp(cmd, "end") == 0 || strcmp(cmd, "nop") == 0) {
-        // 나중에 필요하면 추가
-      }
-      freeOperands(operands, operand_count);
-      continue;
-    }
-
-    int operand_val = 0;
-    switch (info->operand_type) {
-    case OPERAND_NONE:
-      operand_val = 0;
-      break;
-
-    case OPERAND_NUMBER:
-      if (!isNumber(operands[0]))
-        return returnError(ASSEMBLE_ERR_ARG_TYPE, operands, operand_count,
-                           i + 1, "invalid operand type");
-      operand_val = atoi(operands[0]);
-      break;
-
-    case OPERAND_LABEL: {
-      if (isNumber(operands[0]))
-        return returnError(ASSEMBLE_ERR_ARG_TYPE, operands, operand_count,
-                           i + 1, "invalid operand type");
-      int la = findLabel(operands[0]);
-      if (la < 0 && !isSystemLabel(operands[0])) {
-        addPatch(addr, operands[0]);
-        operand_val = 0;
-      } else {
-        operand_val = la;
-      }
-      break;
-    }
-
-    case OPERAND_BLOCK_OFFSET: {
-      if (!isNumber(operands[0]) || !isNumber(operands[1]))
-        return returnError(ASSEMBLE_ERR_ARG_TYPE, operands, operand_count,
-                           i + 1, "invalid operand type");
-      int block = atoi(operands[0]);
-      int offset = atoi(operands[1]);
-
-      int idx = findSymbol(block, offset);
-      if (idx < 0) {
-        return returnError(ASSEMBLE_ERR_VAR_UNDEF, operands, operand_count,
-                           i + 1, "symbol not found");
-      }
-      operand_val = idx;
-      break;
-    }
-    }
 
     // 메모리 경계 체크
     if (addr < 0 || addr >= INIT_MEMORY_SIZE)
-      return returnError(ASSEMBLE_ERR_MEMORY, operands, operand_count, i + 1,
-                         "memory address out of range");
+      return returnError(ASSEMBLE_ERR_MEMORY, i + 1);
+
+    // 코드 파싱
+    char label[MAX_LABEL_LEN];
+    char opcode[MAX_OP_LEN];
+    char *operands[MAX_OPERANDS];
+    int operand_count = 0;
+
+    AssembleError parse_res =
+        parseLine(line, label, opcode, operands, &operand_count);
+    if (parse_res != ASSEMBLE_ERR_NONE) {
+      freeOperands(operands, operand_count);
+      return returnError(parse_res, i + 1);
+    }
+
+    // 라벨 확인
+    if (label[0]) {
+      if (findLabel(label) != LABEL_NOT_FOUND) {
+        freeOperands(operands, operand_count);
+        return returnError(ASSEMBLE_ERR_LABEL_DUP, i + 1);
+      }
+      AssembleError label_res = addLabel(label, addr);
+      if (label_res != ASSEMBLE_ERR_NONE) {
+        freeOperands(operands, operand_count);
+        return returnError(label_res, i + 1);
+      }
+    }
+
+    // opcode 확인
+    const OpInfo *info = findOpInfoByName(opcode);
+    if (!info) {
+      freeOperands(operands, operand_count);
+      return returnError(ASSEMBLE_ERR_INVALID_FORMAT, i + 1);
+    }
+    // 어셈블러 전용 opcode 처리
+    if (info->opcode < 0) {
+      if (strcmp(info->name, "bgn") == 0) {
+        if (!isNumber(operands[0])) {
+          freeOperands(operands, operand_count);
+          return returnError(ASSEMBLE_ERR_ARG_TYPE, i + 1);
+        }
+        ctx->g_var_cnt = atoi(operands[0]);
+      } else if (strcmp(info->name, "sym") == 0) {
+        if (!isNumber(operands[0]) || !isNumber(operands[1]) ||
+            !isNumber(operands[2])) {
+          freeOperands(operands, operand_count);
+          return returnError(ASSEMBLE_ERR_ARG_TYPE, i + 1);
+        }
+        int block = atoi(operands[0]);
+        int offset = atoi(operands[1]);
+        int size = atoi(operands[2]);
+        if (findSymbol(block, offset) != SYMBOL_NOT_FOUND) {
+          freeOperands(operands, operand_count);
+          return returnError(ASSEMBLE_ERR_VAR_DUP, i + 1);
+        }
+        AssembleError symbol_res = addSymbol(block, offset, size);
+        if (symbol_res != ASSEMBLE_ERR_NONE) {
+          freeOperands(operands, operand_count);
+          return returnError(symbol_res, i + 1);
+        }
+        const char *name = findLabelByAddr(addr - 1);
+        if (name) {
+          FuncInfo *func = findFuncByName(name);
+          if (func) {
+            func->func_block = block;
+          }
+        }
+      }
+    }
+
+    // operands 확인
+    int operand_val = 0;
+    AssembleError valid_operand_res =
+        validOperands(info, operands, operand_count, &operand_val, addr, i + 1);
+    if (valid_operand_res != ASSEMBLE_ERR_NONE) {
+      freeOperands(operands, operand_count);
+      return returnError(valid_operand_res, i + 1);
+    }
+
+    // 매개변수 확인
+    switch (info->opcode) {
+    case OP_PROC: {
+      if (current_func) {
+        return returnError(ASSEMBLE_ERR_RETURN, i + 1);
+      }
+
+      current_func = addFunc(label, addr);
+      if (!current_func) {
+        freeOperands(operands, operand_count);
+        return returnError(ASSEMBLE_ERR_MEMORY, i + 1);
+      }
+      break;
+    }
+    case OP_RET: {
+      if (!current_func) {
+        freeOperands(operands, operand_count);
+        return returnError(ASSEMBLE_ERR_PROC, i + 1);
+      }
+
+      current_func->end_addr = addr;
+      current_func->is_start = 0;
+
+      CallPatch *patch = findCallPatchByName(current_func->name);
+      if (patch) {
+        current_func->param_cnt = patch->param_cnt;
+        operand_val = patch->param_cnt;
+      }
+
+      param_cnt = 0;
+      current_func = NULL;
+      break;
+    }
+    case OP_LDP:
+      param_cnt = 0;
+      break;
+    case OP_PUSH:
+      if (current_func && param_cnt < MAX_ARGS) {
+        param_cnt++;
+      }
+      break;
+    case OP_CALL: {
+      if (isSystemLabel(operands[0])) {
+        param_cnt = 0;
+        break;
+      }
+
+      FuncInfo *func_info = findFuncByName(operands[0]);
+      if (func_info) {
+        func_info->param_cnt = param_cnt;
+      } else {
+        AssembleError patch_res = addCallPatch(operands[0], param_cnt);
+        if (patch_res != ASSEMBLE_ERR_NONE) {
+          freeOperands(operands, operand_count);
+          return returnError(patch_res, i + 1);
+        }
+      }
+
+      param_cnt = 0;
+      break;
+    }
+    default:
+      break;
+    }
 
     ctx->stat.inst_use_count[info->opcode]++;
     ctx->memory[addr++] = encodeInst(info->opcode, operand_val);
     freeOperands(operands, operand_count);
   }
+
+  if (current_func) {
+    return returnError(ASSEMBLE_ERR_RETURN, line_count);
+  }
+
   ctx->code_len = addr;
-  return applyPatches();
+
+  AssembleError patch_res = applyPatches();
+  if (patch_res != ASSEMBLE_ERR_NONE) {
+    return patch_res;
+  }
+
+  AssembleError call_patch_res = applyCallPatch();
+  if (call_patch_res != ASSEMBLE_ERR_NONE) {
+    return call_patch_res;
+  }
+
+  applySymbolOffset();
+
+  return ASSEMBLE_ERR_NONE;
 }
