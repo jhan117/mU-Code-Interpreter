@@ -45,14 +45,14 @@ AssembleError parseLine(const char *line, char *label, char *opcode,
   strcopy(label, trim(label), MAX_LABEL_LEN);
 
   // 첫 토큰: opcode
-  char *tok = strtok(ptr, " \t");
+  char *tok = strtok(ptr, " \t\r\n");
   if (!tok)
     return ASSEMBLE_ERR_INVALID_FORMAT;
   strcpy(opcode, tok);
 
   *operand_count = 0;
   // 나머지 토큰: operands
-  while ((tok = strtok(NULL, " \t")) != NULL) {
+  while ((tok = strtok(NULL, " \t\r\n")) != NULL) {
     if (*operand_count >= MAX_OPERANDS)
       return ASSEMBLE_ERR_ARG_COUNT;
 

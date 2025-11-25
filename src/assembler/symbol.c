@@ -56,6 +56,8 @@ void applySymbolOffset() {
 
   for (int i = 0; i < func_list->count; i++) {
     FuncInfo *func = &func_list->items[i];
+    if (func->func_block == 1)
+      continue;
     int param_cnt = func->param_cnt;
 
     for (int s = 0; s < symbol_list->count; s++) {

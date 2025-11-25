@@ -7,7 +7,7 @@ static const OpInfo op_table[] = {
     // 프로그램 구성 명령
     {"bgn", -1, 1, OPERAND_NUMBER},
     {"sym", -1, 3, OPERAND_NUMBER},
-    {"end", -1, 0, OPERAND_NONE},
+    {"end", OP_RET, 0, OPERAND_NONE}, // return으로 취급
     {"nop", -1, 0, OPERAND_NONE},
     // 함수 정의 및 호출
     {"proc", OP_PROC, 1, OPERAND_NUMBER},
@@ -43,6 +43,7 @@ static const OpInfo op_table[] = {
     // 단항 연산자
     {"not", OP_NOT, 0, OPERAND_NONE},
     {"neg", OP_NEG, 0, OPERAND_NONE},
+    {"dup", OP_DUP, 0, OPERAND_NONE},
 };
 
 static const int op_table_count = sizeof(op_table) / sizeof(op_table[0]);
@@ -56,7 +57,7 @@ const OpInfo *findOpInfoByName(const char *name) {
 }
 
 const OpInfo *findOpInfoByOpcode(int opcode) {
-  for (size_t i = 0; i < sizeof(op_table) / sizeof(op_table[0]); i++) {
+  for (int i = 0; i < op_table_count; i++) {
     if (opcode == op_table[i].opcode)
       return &op_table[i];
   }
