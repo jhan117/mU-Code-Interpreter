@@ -52,3 +52,11 @@ const OpInfo *findOpInfo(const char *name) {
   }
   return NULL;
 }
+
+const OpInfo *findOpInfoByOpcode(int opcode) {
+  for (size_t i = 0; i < sizeof(op_table) / sizeof(op_table[0]); i++) {
+    if (opcode == op_table->opcode)
+      return &op_table[i];
+  }
+  return NULL;
+}
