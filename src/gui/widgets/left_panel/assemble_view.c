@@ -1,6 +1,6 @@
 #include "gui/gui.h"
 
-#include "assemble.h"
+#include "core/instruction.h" // OpInfo 불러오기
 #include "core/vm_context.h"
 
 void setAssembleView();
@@ -32,16 +32,14 @@ void setAssembleView() {
   char line[128];
   for (int i = 0; i < ctx->code_len; i++) {
     int inst = ctx->memory[i];
-    int opGroup = (inst >> 29) & 0x7;
-    int opGroupIdx = (inst >> 26) & 0x7;
-    int opcode = opGroup * 10 + opGroupIdx;
-    int operand = inst & 0x03FFFFFF;
+    int opGroup = 0;
+    int opGroupIdx = 0;
+    int operand = 0;
 
-    if (operand & (1 << 25))
-      operand |= ~0x03FFFFFF;
+    decodeInst(inst, &opGroup, &opGroupIdx, &operand);
+    int opcode = opGroup * 10 + opGroupIdx;
 
     const OpInfo *info = findOpInfoByOpcode(opcode);
-
     if (info->operand_count == 0) {
       if (i == ctx->code_len - 1) {
         snprintf(line, sizeof(line), "%04d: operator=%d%d", i + 1, opGroup,

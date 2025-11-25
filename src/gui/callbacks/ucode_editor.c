@@ -1,6 +1,6 @@
 #include "gui/gui.h"
 
-#include "assemble.h"
+#include "assembler/assemble_error.h"
 #include "io_utils/io_utils.h"
 
 // 키로 행 추가/삭제
@@ -87,7 +87,7 @@ void loadUcoToTable(const char *filename) {
     int operand_count = 0;
 
     int err = parseLine(lines[i], label, opcode, operands, &operand_count);
-    if (err != ASSEMBLE_OK)
+    if (err != ASSEMBLE_ERR_NONE)
       continue;
 
     char operand_str[256] = "";

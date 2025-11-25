@@ -1,6 +1,6 @@
 #pragma once
 
-#include "gui/types.h"
+#include "gui_types.h"
 #include <gtk/gtk.h>
 
 typedef struct {

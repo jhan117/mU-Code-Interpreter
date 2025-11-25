@@ -1,6 +1,6 @@
 #include "gui/gui.h"
 
-#include "gui/callbacks.h"
+#include "gui/gui_callbacks.h"
 #include "io_utils/io_utils.h"
 
 char *joinLines(char **lines, int line_count) {

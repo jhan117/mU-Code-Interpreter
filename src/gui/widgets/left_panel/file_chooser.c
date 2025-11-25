@@ -1,6 +1,6 @@
-#include "gui/widgets.h"
+#include "gui/gui_widgets.h"
 
-#include "gui/callbacks.h"
+#include "gui/gui_callbacks.h"
 
 GtkWidget *initFileChooser() {
   GtkWidget *button =

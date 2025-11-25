@@ -1,8 +1,8 @@
-#include "gui/callbacks.h"
+#include "gui/gui_callbacks.h"
 
-#include "assemble.h"
+#include "assembler/assemble.h"
+#include "core/constants.h"
 #include "gui/gui_context.h"
-#include "gui/runner_dummy.h"
 
 int find_nearest_snapshot_index(int step) {
   int lower = (step / SNAPSHOT_INTERVAL) * SNAPSHOT_INTERVAL;
@@ -15,74 +15,72 @@ int find_nearest_snapshot_index(int step) {
 }
 
 void updateVM(int step) {
-  SnapshotList *snap_list = getSnapshotList();
-  int snap_index = find_nearest_snapshot_index(step);
+  // SnapshotList *snap_list = getSnapshotList();
+  // int snap_index = find_nearest_snapshot_index(step);
 
-  if (snap_index >= SNAPSHOT_COUNT)
-    snap_index = SNAPSHOT_COUNT - 1;
+  // if (snap_index >= SNAPSHOT_COUNT)
+  //   snap_index = SNAPSHOT_COUNT - 1;
 
-  Snapshot snap = snap_list->snapshot_list[snap_index]; // 기준 snapshot 복사
+  // Snapshot snap = snap_list->snapshot_list[snap_index]; // 기준 snapshot 복사
 
-  int steps_since_snapshot = step - snap_index * SNAPSHOT_INTERVAL;
-  Change *head = NULL;
-#ifdef USE_DUMMY
-  head = dummy_changes.change_list[snap_index];
-#endif // USE_DUMMY
-  int applied = 0;
+  // int steps_since_snapshot = step - snap_index * SNAPSHOT_INTERVAL;
+  // Change *head = NULL;
 
-  printf("snap_idx = %d %d\n", snap_index, steps_since_snapshot);
+  // int applied = 0;
 
-  while (head && applied < steps_since_snapshot) {
-    switch (head->hdware_num) {
-    case HD_NUM_MEMORY:
-      if (snap.memory[head->addr] != head->new_value) {
-        snap.memory[head->addr] = head->new_value;
-      }
-      break;
-    case HD_NUM_CPU_STACK:
-      if (snap.cpu_stack[head->addr] != head->new_value) {
-        snap.cpu_stack[head->addr] = head->new_value;
-      }
-      break;
-    case HD_NUM_CS:
-      if (snap.cs != head->new_value) {
-        printf("%d, %d\n", snap.cs, head->new_value);
-        snap.cs = head->new_value;
-      }
-      break;
-    case HD_NUM_PC:
-      if (snap.pc != head->new_value) {
-        snap.pc = head->new_value;
-      }
-      break;
-    case HD_NUM_DS:
-      if (snap.ds != head->new_value) {
-        snap.ds = head->new_value;
-      }
-      break;
-    case HD_NUM_SS:
-      if (snap.ss != head->new_value) {
-        snap.ss = head->new_value;
-      }
-      break;
-    case HD_NUM_SP:
-      if (snap.sp != head->new_value) {
-        snap.sp = head->new_value;
-      }
-      break;
-    case HD_NUM_BP:
-      if (snap.bp != head->new_value) {
-        snap.bp = head->new_value;
-      }
-      break;
-    }
-    head = head->next;
-    applied++;
-  }
+  // printf("snap_idx = %d %d\n", snap_index, steps_since_snapshot);
 
-  updateRegTable(&snap);
-  updateCPUStackView(&snap);
-  updateMemoryView(&snap);
+  // while (head && applied < steps_since_snapshot) {
+  //   switch (head->hdware_num) {
+  //   case HD_NUM_MEMORY:
+  //     if (snap.memory[head->addr] != head->new_value) {
+  //       snap.memory[head->addr] = head->new_value;
+  //     }
+  //     break;
+  //   case HD_NUM_CPU_STACK:
+  //     if (snap.cpu_stack[head->addr] != head->new_value) {
+  //       snap.cpu_stack[head->addr] = head->new_value;
+  //     }
+  //     break;
+  //   case HD_NUM_CS:
+  //     if (snap.cs != head->new_value) {
+  //       printf("%d, %d\n", snap.cs, head->new_value);
+  //       snap.cs = head->new_value;
+  //     }
+  //     break;
+  //   case HD_NUM_PC:
+  //     if (snap.pc != head->new_value) {
+  //       snap.pc = head->new_value;
+  //     }
+  //     break;
+  //   case HD_NUM_DS:
+  //     if (snap.ds != head->new_value) {
+  //       snap.ds = head->new_value;
+  //     }
+  //     break;
+  //   case HD_NUM_SS:
+  //     if (snap.ss != head->new_value) {
+  //       snap.ss = head->new_value;
+  //     }
+  //     break;
+  //   case HD_NUM_SP:
+  //     if (snap.sp != head->new_value) {
+  //       snap.sp = head->new_value;
+  //     }
+  //     break;
+  //   case HD_NUM_BP:
+  //     if (snap.bp != head->new_value) {
+  //       snap.bp = head->new_value;
+  //     }
+  //     break;
+  //   }
+  //   head = head->next;
+  //   applied++;
+  // }
+
+  // updateRegTable(&snap);
+  // updateCPUStackView(&snap);
+  // updateMemoryView(&snap);
 }
 
 void freeLines(char **lines, int line_count) {
@@ -108,7 +106,7 @@ void onRun(GtkButton *button) {
   }
 
   int asm_res = assemble(lines, line_count);
-  if (asm_res != ASSEMBLE_OK) {
+  if (asm_res != ASSEMBLE_ERR_NONE) {
     // 경고창
     freeLines(lines, line_count);
     return;
@@ -117,31 +115,19 @@ void onRun(GtkButton *button) {
   freeLines(lines, line_count);
   setAssembleView();
 
-#ifdef USE_DUMMY
-  initDummyVM();
-
   updateStep();
-  updateVM(ctx->current_step);
+  // updateVM(ctx->current_step);
   updateLabelsView();
   updateSymbolsView();
   updateStatisticsBox();
 
-  // 입출력 테스트
-  guiIoWrite(1);
-  int read2 = guiIoRead();
-  guiIoWrite(read2);
-  guiIoRead();
-  guiIoWrite(3);
-  guiIoLf();
-#endif
-
   // run은 나중에
-  // int run_res = runner();
-  // if (run_res == -1) {
-  //   // 경고창
-  // initVMContext();
-  //   return;
-  // }
+  int run_res = runner();
+  if (run_res == -1) {
+    // 경고창
+    initVMContext();
+    return;
+  }
 
   ctx->is_run_done = 1;
 }

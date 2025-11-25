@@ -1,6 +1,5 @@
 #include "gui/gui.h"
 
-#include "assemble.h"
 #include "core/vm_context.h"
 #include "runner.h"
 
@@ -293,13 +292,13 @@ GtkWidget *initStatisticsBox() {
                                   "Use Count", renderer, "text", 1, NULL));
 
   GtkTreeIter iter;
-  for (int i = 0; i < OPCODE_MAX; i++) {
-    const OpInfo *op = findOpInfoByOpcode(i);
-    if (!op)
-      continue;
-    gtk_list_store_append(use_store, &iter);
-    gtk_list_store_set(use_store, &iter, 0, op->name, 1, 0, -1);
-  }
+  // for (int i = 0; i < OPCODE_MAX; i++) {
+  //   const OpInfo *op = findOpInfoByOpcode(i);
+  //   if (!op)
+  //     continue;
+  //   gtk_list_store_append(use_store, &iter);
+  //   gtk_list_store_set(use_store, &iter, 0, op->name, 1, 0, -1);
+  // }
 
   GtkWidget *use_scrolled = gtk_scrolled_window_new(NULL, NULL);
   gtk_container_add(GTK_CONTAINER(use_scrolled), use_tree);
@@ -320,13 +319,14 @@ GtkWidget *initStatisticsBox() {
                               gtk_tree_view_column_new_with_attributes(
                                   "Run Count", renderer, "text", 1, NULL));
 
-  for (int i = 0; i < OPCODE_MAX; i++) {
-    const OpInfo *op = findOpInfoByOpcode(i);
-    if (!op)
-      continue;
-    gtk_list_store_append(run_store, &iter);
-    gtk_list_store_set(run_store, &iter, 0, op->name, 1, 0, -1); // 0으로 초기화
-  }
+  // for (int i = 0; i < OPCODE_MAX; i++) {
+  //   const OpInfo *op = findOpInfoByOpcode(i);
+  //   if (!op)
+  //     continue;
+  //   gtk_list_store_append(run_store, &iter);
+  //   gtk_list_store_set(run_store, &iter, 0, op->name, 1, 0, -1); // 0으로
+  //   초기화
+  // }
 
   GtkWidget *run_scrolled = gtk_scrolled_window_new(NULL, NULL);
   gtk_container_add(GTK_CONTAINER(run_scrolled), run_tree);
@@ -367,13 +367,13 @@ void updateStatisticsBox() {
   if (has_use) {
     gtk_list_store_clear(ctx->stat_use_store);
     for (int i = 0; i < OPCODE_MAX; i++) {
-      if (stats->inst_use_count[i] > 0) {
-        const OpInfo *op = findOpInfoByOpcode(i);
-        GtkTreeIter use_iter;
-        gtk_list_store_append(ctx->stat_use_store, &use_iter);
-        gtk_list_store_set(ctx->stat_use_store, &use_iter, 0, op->name, 1,
-                           stats->inst_use_count[i], -1);
-      }
+      // if (stats->inst_use_count[i] > 0) {
+      //   const OpInfo *op = findOpInfoByOpcode(i);
+      //   GtkTreeIter use_iter;
+      //   gtk_list_store_append(ctx->stat_use_store, &use_iter);
+      //   gtk_list_store_set(ctx->stat_use_store, &use_iter, 0, op->name, 1,
+      //                      stats->inst_use_count[i], -1);
+      // }
     }
   }
 
@@ -388,13 +388,13 @@ void updateStatisticsBox() {
   if (has_run) {
     gtk_list_store_clear(ctx->stat_run_store);
     for (int i = 0; i < OPCODE_MAX; i++) {
-      if (stats->inst_run_count[i] > 0) {
-        const OpInfo *op = findOpInfoByOpcode(i);
-        GtkTreeIter run_iter;
-        gtk_list_store_append(ctx->stat_run_store, &run_iter);
-        gtk_list_store_set(ctx->stat_run_store, &run_iter, 0, op->name, 1,
-                           stats->inst_run_count[i], -1);
-      }
+      // if (stats->inst_run_count[i] > 0) {
+      //   const OpInfo *op = findOpInfoByOpcode(i);
+      //   GtkTreeIter run_iter;
+      //   gtk_list_store_append(ctx->stat_run_store, &run_iter);
+      //   gtk_list_store_set(ctx->stat_run_store, &run_iter, 0, op->name, 1,
+      //                      stats->inst_run_count[i], -1);
+      // }
     }
   }
 }

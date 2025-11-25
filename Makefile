@@ -27,12 +27,6 @@ all: $(TARGET)
 run: $(TARGET)
 	./$(TARGET)
 
-# 더미 빌드용 타겟
-dummy: CFLAGS += -DUSE_DUMMY
-dummy: clean-dummy $(TARGET)
-dummy-run: dummy
-	./$(TARGET)
-
 test:
 	$(MAKE) -C test test
 

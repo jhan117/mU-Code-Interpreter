@@ -1,7 +1,7 @@
 #include "gui/gui.h"
 
-#include "gui/callbacks.h"
-#include "gui/widgets.h"
+#include "gui/gui_callbacks.h"
+#include "gui/gui_widgets.h"
 
 GtkWidget *createLeftPanel() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16);

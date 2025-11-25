@@ -1,8 +1,7 @@
 #include "gui/gui.h"
 
-#include "assemble.h"
 #include "core/vm_context.h"
-#include "gui/callbacks.h"
+#include "gui/gui_callbacks.h"
 #include "io_utils/io_utils.h"
 
 static void addColumn(GtkWidget *tree_view, GtkListStore *store,
