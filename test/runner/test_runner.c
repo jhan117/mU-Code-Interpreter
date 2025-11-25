@@ -1,6 +1,6 @@
 #include "core/instruction.h"
 #include "core/opcode.h"
-#include "runner.h"
+#include "runner/runner.h"
 #include "test.h"
 
 #include <assert.h>

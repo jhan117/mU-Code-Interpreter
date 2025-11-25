@@ -1,7 +1,7 @@
 #include "core/vm_context.h"
 
 #include "assembler/assemble_utils.h" // addSystemLabel()
-#include "core/inst.h"
+#include "runner/inst.h"
 #include <stdlib.h>
 #include <string.h>
 
