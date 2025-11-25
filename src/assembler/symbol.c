@@ -64,9 +64,9 @@ void applySymbolOffset() {
         continue;
 
       if (sym->offset < param_cnt) // 파라미터 (sym 정의 순)
-        sym->offset += 1;
+        sym->offset = -(sym->offset + 1);
       else // 지역변수
-        sym->offset = param_cnt - sym->offset - 2;
+        sym->offset = -(param_cnt - sym->offset - 2);
     }
   }
 
