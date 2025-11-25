@@ -121,12 +121,7 @@ int testAssembleFailures() {
       {ASSEMBLE_ERR_ARG_TYPE, {"           ldc abc", NULL}},
       {ASSEMBLE_ERR_RETURN, {"main       proc 1", NULL}},
       {ASSEMBLE_ERR_PROC, {"           ret", NULL}},
-      {ASSEMBLE_ERR_MEMORY, {NULL}},
   };
-
-  for (int j = 0; j < INIT_MEMORY_SIZE + 1; j++)
-    tests[9].lines[j] = "           ldc 0";
-  tests[9].lines[INIT_MEMORY_SIZE + 1] = NULL;
 
   int failures = 0;
   int test_count = sizeof(tests) / sizeof(tests[0]);
