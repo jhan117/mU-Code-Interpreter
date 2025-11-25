@@ -10,25 +10,26 @@ int testAssembleSuccess() {
       "           str  1 0",   "           ldp",        "           call main",
       "           end",        "main       proc 12",    "           sym 2 0 1",
       "           sym 2 1 10", "           sym 2 11 1", "           ldc 0",
-      "           str 2 11",   "           str 2 0",    "$$0        nop",
-      "           lod 2 0",    "           lod 1 0",    "           lt",
-      "           fjp $$1",    "           lod 2 0",    "           lda 2 1",
-      "           add",        "           lod 2 11",   "           sti",
+      "           dup",        "           str 2 11",   "           str 2 0",
+      "$$0        nop",        "           lod 2 0",    "           lod 1 0",
+      "           lt",         "           fjp $$1",    "           lod 2 0",
+      "           lda 2 1",    "           add",        "           lod 2 11",
+      "           sti",        "           lod 2 0",    "           lda 2 1",
+      "           add",        "           ldp",        "           lod 2 0",
+      "           push",       "           lda 2 1",    "           push",
+      "           call sub",   "           sti",        "           lod 2 11",
       "           lod 2 0",    "           lda 2 1",    "           add",
-      "           ldp",        "           lod 2 0",    "           push",
-      "           lda 2 1",    "           push",       "           call sub",
-      "           sti",        "           lod 2 11",   "           lod 2 0",
-      "           lda 2 1",    "           add",        "           ldi",
-      "           add",        "           str 2 11",   "           lod 2 0",
-      "           ldc 1",      "           add",        "           str 2 0",
-      "           ujp $$0",    "$$1        nop",        "           ldp",
-      "           lod 2 11",   "           push",       "           call write",
-      "           ret",        "sub        proc 3",     "           sym 3 0 1",
-      "           sym 3 1 1",  "           sym 3 2 1",  "           ldp",
-      "           lda 3 2",    "           push",       "           call read",
-      "           lod 3 2",    "           lod 3 0",    "           lod 3 1",
-      "           add",        "           ldi",        "           add",
-      "           str 3 2",    "           lod 3 2",    "           ret"};
+      "           ldi",        "           add",        "           str 2 11",
+      "           lod 2 0",    "           ldc 1",      "           add",
+      "           str 2 0",    "           ujp $$0",    "$$1        nop",
+      "           ldp",        "           lod 2 11",   "           push",
+      "           call write", "           ret",        "sub        proc 3",
+      "           sym 3 0 1",  "           sym 3 1 1",  "           sym 3 2 1",
+      "           ldp",        "           lda 3 2",    "           push",
+      "           call read",  "           lod 3 2",    "           lod 3 0",
+      "           lod 3 1",    "           add",        "           ldi",
+      "           add",        "           str 3 2",    "           lod 3 2",
+      "           ret"};
 
   int line_count = sizeof(lines) / sizeof(lines[0]);
 
@@ -76,8 +77,10 @@ int testAssembleSuccess() {
   printf("\n========= Func list =========\n");
   for (int i = 0; i < ctx->func_list.count; i++) {
     FuncInfo *func = &ctx->func_list.items[i];
-    printf("Func: name=%s, param cnt=%d, is start=%d func block=%d\n",
-           func->name, func->param_cnt, func->is_start, func->func_block);
+    printf("Func: name=%s, param cnt=%d, is start=%d, func block=%d, "
+           "start_addr=%d, end_addr=%d\n",
+           func->name, func->param_cnt, func->is_start, func->func_block,
+           func->start_addr, func->end_addr);
   }
 
   freeVMContext();
