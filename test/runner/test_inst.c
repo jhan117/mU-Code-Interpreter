@@ -1,5 +1,5 @@
-#include "runner/inst.h"
-#include "test.h"
+#include "test/test.h"
+#include "u_code_instructions/u_code.h"
 
 #include <assert.h>
 #include <stdio.h>

@@ -26,6 +26,8 @@ typedef struct {
   int memory[INIT_MEMORY_SIZE];
   InstructionGroup inst_group[TOTAL_OPCODE_GROUPS];
   ChangeList changes;
+  SnapshotList snapshot_list;
+  OutputBuffer output_buffer;
   Statistics stat;
   Stack cpu_stack;
 } VMContext;
