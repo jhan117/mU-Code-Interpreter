@@ -21,4 +21,3 @@ const OpInfo *findOpInfoByOpcode(int opcode);
 int encodeInst(int opcode, int operand_val);
 int patchInst(int old_opcode, int new_addr);
 void decodeInst(int old_inst, int *op_group, int *op_group_idx, int *operand);
-int getOperand(int inst);

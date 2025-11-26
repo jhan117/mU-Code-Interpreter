@@ -21,7 +21,6 @@ int main(void) {
   testArithmeticInstructions();
   testComparisonInstructions();
   testLogicalInstructions();
-  testDecodeArgSignExtension();
   printf("All inst tests passed successfully!\n\n");
 
   printf("=====runner 테스트=====\n");

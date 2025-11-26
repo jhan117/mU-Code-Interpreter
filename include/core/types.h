@@ -78,6 +78,25 @@ typedef struct {
 } ChangeList;
 
 typedef struct {
+  int memory[INIT_MEMORY_SIZE];
+  int cpu_stack[INIT_CPU_STACK_CAPACITY];
+  int cpu_top;
+  int cs;
+  int pc;
+  int ds;
+  int ss;
+  int sp;
+  int bp;
+  int flags;
+} Snapshot;
+
+typedef struct {
+  Snapshot *snapshot_list;
+  int snapshot_count;
+  int snapshot_capacity;
+} SnapshotList;
+
+typedef struct {
   int group_id;
   void (*execInst)(int);
 } InstructionGroup;

@@ -1,9 +1,8 @@
-#include "runner.h"
-#include "assemble.h"
-#include "core/inst.h"
+#include "runner/runner.h"
+#include "core/instruction.h"
 #include "core/opcode.h"
-#include "core/opcode_utils.h"
 #include "core/vm_context.h"
+#include "runner/inst.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,8 +14,10 @@ static const int mem_access[OPCODE_MAX] = {
 void step() {
   VMContext *ctx = getVMContext();
   int inst = ctx->memory[ctx->pc++];
-  int group_code = decodeGroup(inst);
-  int opcode = getOpcodeFromInst(inst);
+  int group_code;
+  int g_idx;
+  decodeInst(inst, &group_code, &g_idx, NULL);
+  int opcode = group_code * 10 + g_idx;
   ctx->stat.inst_run_count[opcode]++;
   ctx->stat.memory_access_count += mem_access[opcode];
   ctx->inst_group[group_code].execInst(inst);
@@ -49,11 +50,11 @@ void printError(int prev_pc) {
   if (prev_pc >= 0 && prev_pc < ctx->code_len) {
     char inst[32];
     int inst_val = ctx->memory[prev_pc];
-    int opcode = getOpcodeFromInst(inst_val);
-    int operand = decodeArg(inst_val);
-    const char *opcode_name = getOpcodeName(opcode);
-    if (!opcode_name)
-      opcode_name = "";
+    int group;
+    int g_idx;
+    int operand;
+    decodeInst(inst_val, &group, &g_idx, &operand);
+    const char *opcode_name = findOpInfoByOpcode(group * 10 + g_idx)->name;
     snprintf(inst, sizeof(inst), "%s %d", opcode_name, operand);
     printf("[DEBUG] instruction : %s | pc : %d | bp : %d | sp : %d\n", inst,
            ctx->pc, ctx->bp, ctx->sp);

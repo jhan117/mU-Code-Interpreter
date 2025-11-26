@@ -1,7 +1,7 @@
-#include "core/inst.h"
-#include "core/stack_operations.h"
 #include "core/vm_context.h"
-#include "runner.h"
+#include "runner/inst.h"
+#include "runner/runner.h"
+#include "runner/stack_operations.h"
 #include <stdio.h>
 
 void proc(int arg) {
@@ -106,6 +106,8 @@ void lod(int arg) {
 void lda(int arg) {
   VMContext *ctx = getVMContext();
   int addr = resolveAddress(ctx, arg);
+  if (checkError(ctx, &addr, NULL, NULL, NULL))
+    return;
   pushCPUStack(addr);
   return;
 }

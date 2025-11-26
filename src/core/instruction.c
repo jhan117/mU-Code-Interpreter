@@ -77,15 +77,16 @@ int patchInst(int old_inst, int new_addr) {
 }
 
 void decodeInst(int old_inst, int *op_group, int *op_group_idx, int *operand) {
-  *op_group = (old_inst >> 29) & 0x7;
-  *op_group_idx = (old_inst >> 26) & 0x7;
-  *operand = old_inst & 0x03FFFFFF;
+  if (op_group)
+    *op_group = (old_inst >> 29) & 0x7;
+  if (op_group_idx)
+    *op_group_idx = (old_inst >> 26) & 0x7;
+  if (operand) {
+    *operand = old_inst & 0x03FFFFFF;
 
-  // 음수 변환
-  if (*operand & (1 << 25))
-    *operand |= ~0x03FFFFFF;
-
+    // 음수 변환
+    if (*operand & (1 << 25))
+      *operand |= ~0x03FFFFFF;
+  }
   return;
 }
-
-int getOperand(int inst) { return inst & 0x03FFFFFF; }
