@@ -1,6 +1,8 @@
 #include "core/vm_context.h"
 #include "record/record.h"
 
+#include <stdio.h>
+
 int reqWrite(const char *s) {
   VMContext *ctx = getVMContext();
   if (ctx->run_mode == CLI) {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "vm_context.h"
+#include "core/vm_context.h"
 
 int checkError(VMContext *ctx, const int *addr, const int *pc, const int *bp,
                const int *sp);
@@ -44,3 +44,7 @@ void sti(int arg);
 void Write();
 void Read();
 void lf();
+
+int reqWrite(const char *s);
+int reqRead();
+void reqLf();

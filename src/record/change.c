@@ -1,6 +1,7 @@
 #include "core/vm_context.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 static Snapshot state_snapshot;
 

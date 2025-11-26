@@ -2,7 +2,8 @@
 
 #include "assembler/assemble_error.h"
 #include "core/vm_context.h"
-#include "runner/stack_operations.h"
+#include "record/record.h"
+#include "u_code_instructions/u_code.h"
 
 // 어셈블러 테스트
 typedef struct {

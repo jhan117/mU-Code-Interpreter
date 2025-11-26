@@ -2,12 +2,12 @@
 #include "core/instruction.h"
 #include "core/opcode.h"
 #include "core/vm_context.h"
-#include "runner/inst.h"
+#include "record/record.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 
-void step(const OpInfo *op_table) {
+void step(void) {
   VMContext *ctx = getVMContext();
   int inst = ctx->memory[ctx->pc++];
   int group_code;
@@ -15,8 +15,9 @@ void step(const OpInfo *op_table) {
   decodeInst(inst, &group_code, &g_idx, NULL);
   int opcode = group_code * 10 + g_idx;
   ctx->stat.inst_run_count[opcode]++;
-  OpInfo *op = findOpInfoByOpcode(opcode);
-  ctx->stat.memory_access_count += op->mem_access;
+  const OpInfo *op = findOpInfoByOpcode(opcode);
+  if (op)
+    ctx->stat.memory_access_count += op->mem_access;
   ctx->inst_group[group_code].execInst(inst);
   return;
 }
@@ -72,13 +73,10 @@ void readyToRun() {
 
 int runner() {
   VMContext *ctx = getVMContext();
-  initOutBuffer();
-  initSnapshot();
-  initSnapshotList();
   readyToRun();
+  initSnapshot();
 
   int prev_pc = 0;
-  const OpInfo *op_table;
   while (1) {
     if (ctx->bp == -1) {
       printf("[INFO] runner stopped\n");
@@ -89,7 +87,7 @@ int runner() {
       return -1;
     }
     prev_pc = ctx->pc;
-    step(op_table);
+    step();
     saveChanges();
   }
 }

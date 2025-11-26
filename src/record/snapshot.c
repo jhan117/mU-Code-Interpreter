@@ -1,12 +1,14 @@
 #include "core/vm_context.h"
 
+#include <stdlib.h>
 #include <string.h>
 
 void expandSnapshotList() {
   VMContext *ctx = getVMContext();
   ctx->snapshot_list.snapshot_capacity *= 2;
-  ctx->snapshot_list.snapshot_list = realloc(
-      ctx->snapshot_list.snapshot_list, ctx->snapshot_list.snapshot_capacity);
+  ctx->snapshot_list.snapshot_list =
+      realloc(ctx->snapshot_list.snapshot_list,
+              sizeof(Snapshot) * ctx->snapshot_list.snapshot_capacity);
   return;
 }
 
