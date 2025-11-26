@@ -12,10 +12,10 @@ int runAsGUI(int argc, char **argv);
 void onActivate(GtkApplication *app, gpointer user_data);
 
 // left_panel.c
-GtkWidget *initLeftPanel();
+GtkWidget *createLeftPanel();
 
 // right_panel.c
-GtkWidget *initRightPanel();
+GtkWidget *createRightPanel();
 
 // menubar.c
-GtkWidget *initMenubar();
+GtkWidget *createMenubar();

@@ -1,12 +1,12 @@
 #include "gui/gui.h"
 
-static GtkWidget *initMenuItem(const Menu *menu) {
+static GtkWidget *createMenuItem(const Menu *menu) {
   GtkWidget *menu_item = gtk_menu_item_new_with_label(menu->label);
 
   if (menu->child_count > 0) {
     GtkWidget *submenu = gtk_menu_new();
     for (int i = 0; i < menu->child_count; i++) {
-      GtkWidget *child_item = initMenuItem(&menu->child[i]);
+      GtkWidget *child_item = createMenuItem(&menu->child[i]);
       gtk_menu_shell_append(GTK_MENU_SHELL(submenu), child_item);
     }
     gtk_menu_item_set_submenu(GTK_MENU_ITEM(menu_item), submenu);
@@ -18,7 +18,7 @@ static GtkWidget *initMenuItem(const Menu *menu) {
   return menu_item;
 }
 
-GtkWidget *initMenubar() {
+GtkWidget *createMenubar() {
   const Menu file_open_child[] = {
       {"Open .uco", NULL, 0, onOpenUco},
       {"Open .lst", NULL, 0, onOpenLst},
@@ -58,7 +58,7 @@ GtkWidget *initMenubar() {
   GtkWidget *menubar = gtk_menu_bar_new();
 
   for (int i = 0; i < menu_count; i++) {
-    GtkWidget *item = initMenuItem(&menus[i]);
+    GtkWidget *item = createMenuItem(&menus[i]);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), item);
   }
 

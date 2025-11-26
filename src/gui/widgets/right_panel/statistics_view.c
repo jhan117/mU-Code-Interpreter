@@ -3,7 +3,7 @@
 #include "core/instruction.h" // getOpInfo()
 #include "core/vm_context.h"
 
-GtkWidget *initStatisticsView() {
+GtkWidget *createStatisticsView() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
 
   // === 메모리 접근 횟수 === //

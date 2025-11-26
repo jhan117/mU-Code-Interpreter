@@ -2,7 +2,7 @@
 
 #include "core/vm_context.h"
 
-GtkWidget *initUcodeView() {
+GtkWidget *createUcodeView() {
   GtkListStore *store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING,
                                            G_TYPE_STRING, G_TYPE_STRING);
 
@@ -131,7 +131,8 @@ void highlightRow() {
   GuiContext *ctx = getGuiContext();
   GtkListStore *store = ctx->code_ctx.ucode_table.list_data;
   int prev = ctx->code_ctx.uco_prev_line;
-  int cur_line = getVMContext()->source_map.line[ctx->step_ctx.current_step];
+  VMContext *vm_ctx = getVMContext();
+  int cur_line = vm_ctx->source_map.line[vm_ctx->pc];
 
   GtkTreeIter iter;
   if (prev >= 0 &&

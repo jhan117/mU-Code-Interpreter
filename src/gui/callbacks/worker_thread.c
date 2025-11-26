@@ -12,13 +12,6 @@ static gboolean finish(gpointer data) {
   return FALSE;
 }
 
-static gboolean updateStatus(gpointer data) {
-  updateLabelsView();
-  updateSymbolsView();
-  updateStatisticsView();
-  return FALSE;
-}
-
 static gboolean updateAssemble(gpointer data) {
   updateAssembleView();
   return FALSE;
@@ -28,7 +21,13 @@ static gboolean markRunDone(gpointer data) {
   GuiContext *ctx = getGuiContext();
   ctx->is_run_done = 1;
   ctx->step_ctx.current_step = 0;
-  return FALSE;
+  updateLabelsView();
+  updateSymbolsView();
+  updateStatisticsView();
+  updateStatusView();
+  initStep();
+
+  return G_SOURCE_REMOVE;
 }
 
 static gpointer runWorkerThread(gpointer arg) {
@@ -55,7 +54,6 @@ static gpointer runWorkerThread(gpointer arg) {
     return NULL;
   }
 
-  g_idle_add(updateStatus, NULL);
   g_idle_add(markRunDone, NULL);
   g_idle_add(finish, wd);
 

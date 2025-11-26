@@ -1,6 +1,8 @@
 #include "gui/gui_widgets.h"
 
-GtkWidget *initRegView() {
+#include "core/vm_context.h"
+
+GtkWidget *createRegView() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
   gtk_widget_set_halign(box, GTK_ALIGN_START);
 
@@ -44,15 +46,13 @@ GtkWidget *initRegView() {
   return box;
 }
 
-void updateRegView(Snapshot *snap) {
-  if (!snap)
-    return;
-
+void updateRegView() {
   GtkListStore *store = getGuiContext()->status_ctx.reg_store;
   gtk_list_store_clear(store);
 
   GtkTreeIter iter;
+  VMContext *ctx = getVMContext();
   gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, snap->cs, 1, snap->pc, 2, snap->ds, 3,
-                     snap->ss, 4, snap->sp, 5, snap->bp, -1);
+  gtk_list_store_set(store, &iter, 0, ctx->cs, 1, ctx->pc, 2, ctx->ds, 3,
+                     ctx->ss, 4, ctx->sp, 5, ctx->bp, -1);
 }

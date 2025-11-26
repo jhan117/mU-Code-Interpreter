@@ -1,15 +1,15 @@
 #include "gui/gui.h"
 
-GtkWidget *initLeftPanel() {
+GtkWidget *createLeftPanel() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16);
 
   // 파일 선택 버튼
-  GtkWidget *chooserBtn = initFileChooser();
+  GtkWidget *chooserBtn = createFileChooser();
   g_signal_connect(chooserBtn, "file-set", G_CALLBACK(onFileChosen), NULL);
 
   // 탭: ucode 에디터 + 어셈블 뷰(편집 불가)
-  GtkWidget *ucode_scroll = initUcodeView();
-  TextScrollInfo assemble_info = initAssembleView();
+  GtkWidget *ucode_scroll = createUcodeView();
+  TextScrollInfo assemble_info = createAssembleView();
 
   NotebookPageInfo pages[] = {
       {"uCode", ucode_scroll},
@@ -24,8 +24,8 @@ GtkWidget *initLeftPanel() {
   g_signal_connect(run_btn, "clicked", G_CALLBACK(onRun), NULL);
 
   gtk_box_pack_start(GTK_BOX(box), chooserBtn, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), initNotebookTab(pages, 2), TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(box), initStepControl(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), createNotebookTab(pages, 2), TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(box), createStepControl(), FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(box), run_btn, FALSE, FALSE, 0);
 
   GuiContext *ctx = getGuiContext();

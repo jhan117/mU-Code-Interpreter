@@ -1,6 +1,6 @@
 #include "gui/gui_widgets.h"
 
-GtkWidget *initIOView() {
+GtkWidget *createIOView() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
   GtkWidget *io_label = gtk_label_new("입출력");
   gtk_widget_set_halign(io_label, GTK_ALIGN_START);

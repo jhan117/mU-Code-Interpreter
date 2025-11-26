@@ -6,60 +6,60 @@
 #include <gtk/gtk.h>
 
 // file_chooser.c
-GtkWidget *initFileChooser();
+GtkWidget *createFileChooser();
 
 // ucode_view.c
-GtkWidget *initUcodeView();
+GtkWidget *createUcodeView();
 void updateUcodeView(char ***lines, int *line_count);
 int getUcodeView(char ***lines, int *line_count);
 void highlightRow();
 
 // assemble_view.c (callback x)
-TextScrollInfo initAssembleView();
+TextScrollInfo createAssembleView();
 void updateAssembleView();
 void highlightLine();
 
 // step_control.c
-GtkWidget *initStepControl();
+GtkWidget *createStepControl();
 void initStep();
 void updateStep();
 
 // notebook_tab.c
-GtkWidget *initNotebookTab(NotebookPageInfo *pages, int page_count);
+GtkWidget *createNotebookTab(NotebookPageInfo *pages, int page_count);
 
 // runner_dialog.c
-GtkWidget *initWorkerData(const char *title, const char *initial_text);
+GtkWidget *createWorkerData(const char *title, const char *createial_text);
 
 // status_view.c (callback x)
-GtkWidget *initStatusView();
-void updateStatusView(int step);
+GtkWidget *createStatusView();
+void updateStatusView();
 
 // reg_view.c (callback x)
-GtkWidget *initRegView();
-void updateRegView(Snapshot *snap);
+GtkWidget *createRegView();
+void updateRegView();
 
 // cpu_view.c (callback x)
-GtkWidget *initCPUView();
-void updateCPUView(Snapshot *snap);
+GtkWidget *createCPUView();
+void updateCPUView();
 
 // memory_view.c (callback x)
-GtkWidget *initMemoryView();
-void updateMemoryView(Snapshot *snap);
+GtkWidget *createMemoryView();
+void updateMemoryView();
 
 // labels_view.c (callback x)
-GtkWidget *initLabelsView();
+GtkWidget *createLabelsView();
 void updateLabelsView();
 
 // symbols_view.c (callback x)
-GtkWidget *initSymbolsView();
+GtkWidget *createSymbolsView();
 void updateSymbolsView();
 
 // statistics_view.c (callback x)
-GtkWidget *initStatisticsView();
+GtkWidget *createStatisticsView();
 void updateStatisticsView();
 
 // io_view.c
-GtkWidget *initIOView();
+GtkWidget *createIOView();
 
 // utils.c
 void toggleWidgetsVisible(int is_true);

@@ -1,6 +1,8 @@
 #include "gui/gui_widgets.h"
 
-GtkWidget *initMemoryView() {
+#include "core/vm_context.h"
+
+GtkWidget *createMemoryView() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
 
   GtkWidget *label = gtk_label_new("Memory");
@@ -37,17 +39,14 @@ GtkWidget *initMemoryView() {
   return box;
 }
 
-void updateMemoryView(Snapshot *snap) {
-  if (!snap)
-    return;
-
+void updateMemoryView(const Snapshot *snap) {
   GtkListStore *store = getGuiContext()->status_ctx.memory_store;
   gtk_list_store_clear(store);
 
-  // 전체 메모리 출력 (범위 어디까지 할지는 고민 중)
   GtkTreeIter iter;
-  for (int i = 0; i < INIT_MEMORY_SIZE; i++) {
-    gtk_list_store_prepend(store, &iter);
-    gtk_list_store_set(store, &iter, 0, snap->memory[i], -1);
+  VMContext *ctx = getVMContext();
+  for (int i = ctx->sp; i < INIT_MEMORY_SIZE; i++) {
+    gtk_list_store_append(store, &iter);
+    gtk_list_store_set(store, &iter, 0, ctx->memory[i], -1);
   }
 }

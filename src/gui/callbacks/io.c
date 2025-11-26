@@ -13,6 +13,8 @@ void onInsertText(GtkTextBuffer *buffer, GtkTextIter *location, gchar *text,
   gtk_text_iter_forward_to_line_end(&end);
 
   gchar *line_text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+  if (!line_text)
+    return;
 
   if (strncmp(line_text, ">> ", 3) != 0) {
     g_signal_stop_emission_by_name(buffer, "insert-text");
@@ -24,8 +26,7 @@ void onInsertText(GtkTextBuffer *buffer, GtkTextIter *location, gchar *text,
     const char *num_str = line_text + 3;
     if (isNumber(num_str) && strlen(num_str) > 0) {
       int val = atoi(num_str);
-      g_async_queue_push(io_ctx->input_queue,
-                         GINT_TO_POINTER(val)); // 워커 스레드 깨어남
+      g_async_queue_push(io_ctx->input_queue, GINT_TO_POINTER(val));
     }
   }
 

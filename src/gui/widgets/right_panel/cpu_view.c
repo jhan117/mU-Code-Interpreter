@@ -1,6 +1,8 @@
 #include "gui/gui_widgets.h"
 
-GtkWidget *initCPUView() {
+#include "core/vm_context.h"
+
+GtkWidget *createCPUView() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
 
   GtkWidget *label = gtk_label_new("CPU Stack");
@@ -36,16 +38,14 @@ GtkWidget *initCPUView() {
   return box;
 }
 
-void updateCPUView(Snapshot *snap) {
-  if (!snap)
-    return;
-
+void updateCPUView(const Snapshot *snap) {
   GtkListStore *store = getGuiContext()->status_ctx.cpu_store;
   gtk_list_store_clear(store);
 
   GtkTreeIter iter;
-  for (int i = 0; i < snap->cpu_top; i++) {
+  VMContext *ctx = getVMContext();
+  for (int i = 0; i < ctx->cpu_stack.top; i++) {
     gtk_list_store_prepend(store, &iter);
-    gtk_list_store_set(store, &iter, 0, snap->cpu_stack[i], -1);
+    gtk_list_store_set(store, &iter, 0, ctx->cpu_stack.items[i], -1);
   }
 }

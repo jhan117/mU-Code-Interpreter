@@ -1,6 +1,6 @@
 #include "gui/gui_widgets.h"
 
-GtkWidget *initNotebookTab(NotebookPageInfo *pages, int page_count) {
+GtkWidget *createNotebookTab(NotebookPageInfo *pages, int page_count) {
   GtkWidget *notebook = gtk_notebook_new();
   gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_TOP);
 

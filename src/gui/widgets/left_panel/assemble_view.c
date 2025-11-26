@@ -1,8 +1,9 @@
 #include "gui/gui_widgets.h"
 
 #include "assembler/assemble.h" // printAssembleRes()
+#include "core/vm_context.h"
 
-TextScrollInfo initAssembleView() {
+TextScrollInfo createAssembleView() {
   GtkWidget *text_view = gtk_text_view_new();
   gtk_text_view_set_left_margin(GTK_TEXT_VIEW(text_view), 12);
   gtk_text_view_set_right_margin(GTK_TEXT_VIEW(text_view), 12);
@@ -47,7 +48,7 @@ void highlightLine() {
   gtk_text_buffer_remove_tag(buffer, tag, &start, &end);
 
   GtkTextIter iter;
-  gtk_text_buffer_get_iter_at_line(buffer, &iter, ctx->step_ctx.current_step);
+  gtk_text_buffer_get_iter_at_line(buffer, &iter, getVMContext()->pc);
 
   GtkTextIter line_end = iter;
   gtk_text_iter_forward_to_line_end(&line_end);

@@ -2,7 +2,7 @@
 
 #include "core/vm_context.h"
 
-static GtkWidget *initControlBtns() {
+static GtkWidget *createControlBtns() {
   StepContext *step_ctx = &getGuiContext()->step_ctx;
 
   GtkWidget *button_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
@@ -42,7 +42,7 @@ static GtkWidget *initControlBtns() {
   return button_box;
 }
 
-GtkWidget *initStepControl() {
+GtkWidget *createStepControl() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
 
   GtkAdjustment *adjustment = gtk_adjustment_new(0, 0, 0, 1, 10, 0);
@@ -56,7 +56,7 @@ GtkWidget *initStepControl() {
   g_signal_connect(scale, "value-changed", G_CALLBACK(onScaleChanged), NULL);
 
   gtk_box_pack_start(GTK_BOX(box), scale, TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(box), initControlBtns(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(box), createControlBtns(), FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(box), label, FALSE, FALSE, 0);
 
   StepContext *step_ctx = &getGuiContext()->step_ctx;
@@ -69,11 +69,11 @@ void initStep() {
   VMContext *vm_ctx = getVMContext();
   StepContext *step_ctx = &getGuiContext()->step_ctx;
 
-  gtk_adjustment_set_upper(step_ctx->adj, vm_ctx->code_len - 1);
+  gtk_adjustment_set_upper(step_ctx->adj, vm_ctx->changes.list_count - 1);
   gtk_adjustment_set_value(step_ctx->adj, 0);
 
   char buf[64];
-  sprintf(buf, "Step 01 of %02d", vm_ctx->code_len);
+  sprintf(buf, "Step 01 of %02d", vm_ctx->changes.list_count);
   gtk_label_set_text(step_ctx->step_label, buf);
 
   highlightLine();

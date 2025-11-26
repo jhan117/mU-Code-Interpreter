@@ -42,5 +42,6 @@ void insertAtEnd(GtkWidget *text_view, const char *text) {
   gtk_text_buffer_get_end_iter(buf, &end);
   g_signal_handlers_block_by_func(buf, onInsertText, NULL);
   gtk_text_buffer_insert(buf, &end, text, -1);
+  gtk_text_buffer_get_end_iter(buf, &end);
   g_signal_handlers_unblock_by_func(buf, onInsertText, NULL);
 }

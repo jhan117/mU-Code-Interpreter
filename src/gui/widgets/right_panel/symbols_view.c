@@ -2,7 +2,7 @@
 
 #include "core/vm_context.h"
 
-GtkWidget *initSymbolsView() {
+GtkWidget *createSymbolsView() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
 
   GtkWidget *label = gtk_label_new("Symbols");

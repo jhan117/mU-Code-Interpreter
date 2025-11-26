@@ -36,7 +36,10 @@ void onPlayToggled(GtkToggleButton *button) {
 }
 
 // Scale 값 변경 시 호출되는 콜백
-void onScaleChanged(GtkRange *range) { updateStep(); }
+void onScaleChanged(GtkRange *range) {
+  updateStep();
+  updateStatusView();
+}
 
 // 버튼 콜백들
 void onFirstClicked(GtkButton *button) {

@@ -13,10 +13,10 @@ void onActivate(GtkApplication *app, gpointer user_data) {
   gtk_widget_set_margin_end(content_box, 16);
   gtk_widget_set_margin_bottom(content_box, 24);
 
-  gtk_box_pack_start(GTK_BOX(content_box), initLeftPanel(), FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(content_box), initRightPanel(), TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(content_box), createLeftPanel(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(content_box), createRightPanel(), TRUE, TRUE, 0);
 
-  gtk_box_pack_start(GTK_BOX(main_box), initMenubar(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(main_box), createMenubar(), FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(main_box), content_box, TRUE, TRUE, 0);
 
   gtk_container_add(GTK_CONTAINER(main_window), main_box);
