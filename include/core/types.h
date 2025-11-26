@@ -103,6 +103,12 @@ typedef struct {
 } SnapshotList;
 
 typedef struct {
+  char *data;
+  int capacity;
+  int length;
+} OutputBuffer;
+
+typedef struct {
   int group_id;
   void (*execInst)(int);
 } InstructionGroup;

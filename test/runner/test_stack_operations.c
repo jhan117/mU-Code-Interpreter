@@ -1,4 +1,3 @@
-#include "runner/stack_operations.h"
 #include "test.h"
 
 #include <assert.h>

@@ -1,6 +1,6 @@
 #include "core/vm_context.h"
-#include "runner/inst.h"
 #include "runner/runner.h"
+#include "u_code_instructions/u_code.h"
 #include <stdio.h>
 
 int checkError(VMContext *ctx, const int *addr, const int *pc, const int *bp,
@@ -9,7 +9,7 @@ int checkError(VMContext *ctx, const int *addr, const int *pc, const int *bp,
   if (addr != NULL) {
     // 주소는 DS ~ MEM_END 범위 내에서
     int value = *addr;
-    if ((ctx->ds > value) || (value > INIT_MEMORY_SIZE)) {
+    if ((ctx->ds > value) || (value >= INIT_MEMORY_SIZE)) {
       ctx->flags |= ERR_INVALID_ADDR;
       result = 1;
     }

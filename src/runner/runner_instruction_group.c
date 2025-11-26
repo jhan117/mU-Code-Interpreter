@@ -1,8 +1,7 @@
 #include "core/instruction.h"
-#include "core/opcode.h"
 #include "core/vm_context.h"
-#include "runner/inst.h"
 #include "runner/runner.h"
+#include "u_code_instructions/u_code.h"
 
 #include <stdio.h>
 
@@ -139,6 +138,9 @@ void execInstGroup4(int inst) {
     break;
   case 6:
     neg(arg);
+    break;
+  case 7:
+    dup(arg);
     break;
   }
   return;

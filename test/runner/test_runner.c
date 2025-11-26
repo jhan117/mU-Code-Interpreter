@@ -110,17 +110,16 @@ void testRunnerSaveChanges(void) {
 
 void testRunnerSnapshotListInit(void) {
   initVMContext();
+  VMContext *ctx = getVMContext();
   initSnapshot();
-  initSnapshotList();
 
   // 스냅샷 리스트 초기화 테스트
-  SnapshotList *list = getSnapshotList();
+  SnapshotList *list = &ctx->snapshot_list;
   assert(list != NULL);
   assert(list->snapshot_list != NULL);
   assert(list->snapshot_capacity == INIT_SNAPSHOT_LIST_CAPACITY);
   assert(list->snapshot_count == 0);
 
-  freeSnapshotList();
   freeVMContext();
 
   printf("test : SnapshotList init pass\n");
@@ -130,10 +129,9 @@ void testRunnerSnapshotAfterStep(void) {
   initVMContext();
   VMContext *ctx = getVMContext();
   initSnapshot();
-  initSnapshotList();
 
   // step 이후 스냅샷 생성되는지 테스트
-  SnapshotList *list = getSnapshotList();
+  SnapshotList *list = &ctx->snapshot_list;
   assert(list->snapshot_count == 0);
 
   int initial_pc = 0;
@@ -151,7 +149,6 @@ void testRunnerSnapshotAfterStep(void) {
   assert(list->snapshot_list != NULL);
 
   ctx->inst_group[0].execInst = originalExec;
-  freeSnapshotList();
   freeVMContext();
 
   printf("test : SnapshotList after step pass\n");

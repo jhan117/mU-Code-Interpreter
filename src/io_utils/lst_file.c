@@ -2,7 +2,7 @@
 #include "core/opcode.h"
 #include "core/vm_context.h"
 #include "io_utils/io_utils.h"
-#include "runner/inst.h"
+#include "record/record.h"
 
 #include <fcntl.h>
 #include <stdio.h>
@@ -18,7 +18,7 @@ int saveLst(const char *path, char **lines, int line_count) {
   int nbytes;
   char buf[LINE_BUFFER_LEN];
   VMContext *ctx = getVMContext();
-  OutputBuffer *output = getOutputBuffer();
+  OutputBuffer *output = &ctx->output_buffer;
   int op_count;
   const OpInfo *op = getOpInfo(&op_count);
 
@@ -95,7 +95,6 @@ int saveLst(const char *path, char **lines, int line_count) {
   write(fd, buf, nbytes);
 
   close(fd);
-  freeOutBuffer();
 
   return 1;
 }
