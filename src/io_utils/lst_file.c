@@ -65,11 +65,12 @@ int saveLst(const char *path, char **lines, int line_count) {
   // 명령어 사용 횟수
   nbytes = snprintf(buf, sizeof(buf), "\n========명령어 사용 횟수======\n");
   write(fd, buf, nbytes);
-  for (int i = 0; i < op_count; i++) {
+  for (int i = 4; i < op_count; i++) {
+
     nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op[i].name,
                       ctx->stat.inst_use_count[op[i].opcode]);
     write(fd, buf, nbytes);
-    if ((i + 1) % 3 == 0)
+    if (i % 3 == 0)
       write(fd, "\n", sizeof(char));
     else
       write(fd, "  ", sizeof(char));
@@ -78,11 +79,11 @@ int saveLst(const char *path, char **lines, int line_count) {
   // 명령어 실행 횟수
   nbytes = snprintf(buf, sizeof(buf), "\n======명령어 실행 횟수======\n");
   write(fd, buf, nbytes);
-  for (int i = 0; i < op_count; i++) {
+  for (int i = 4; i < op_count; i++) {
     nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op[i].name,
                       ctx->stat.inst_run_count[op[i].opcode]);
     write(fd, buf, nbytes);
-    if ((i + 1) % 3 == 0)
+    if (i % 3 == 0)
       write(fd, "\n", sizeof(char));
     else
       write(fd, "  ", sizeof(char));
