@@ -24,6 +24,7 @@ void andI(int arg);
 void orI(int arg);
 void not(int arg);
 void neg(int arg);
+void dup(int arg);
 
 // cu 연산
 void proc(int arg);

@@ -99,3 +99,10 @@ void neg(int arg) {
   int item = popCPUStack();
   pushCPUStack(-1 * item);
 }
+
+void dup(int arg) {
+  (void)arg;
+  int item = popCPUStack();
+  pushCPUStack(item);
+  pushCPUStack(item);
+}

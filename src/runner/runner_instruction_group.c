@@ -139,6 +139,9 @@ void execInstGroup4(int inst) {
   case 6:
     neg(arg);
     break;
+  case 7:
+    dup(arg);
+    break;
   }
   return;
 }
