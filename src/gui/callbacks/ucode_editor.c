@@ -1,5 +1,7 @@
 #include "gui/gui_callbacks.h"
 
+#include "core/constants.h" // MAX_LABEL_LEN, MAX_OP_LEN
+
 GtkCellRenderer *addColumn(GtkWidget *tree_view, GtkListStore *store,
                            const char *title, int col_idx,
                            void (*onEdited)(GtkCellRendererText *, gchar *path,

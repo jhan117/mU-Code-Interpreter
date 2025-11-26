@@ -4,7 +4,13 @@
 #include <gtk/gtk.h>
 
 // file_io.c
+// menu의 open, save 추가
 void onFileChosen(GtkFileChooserButton *chooser);
+void onOpenUco();
+void onSaveUco();
+void onSaveAsUco();
+void onOpenLst();
+void onSaveLst();
 
 // ucode editor.c
 GtkCellRenderer *addColumn(GtkWidget *tree_view, GtkListStore *store,
@@ -27,11 +33,18 @@ void onFirstClicked(GtkButton *button);
 void onPrevClicked(GtkButton *button);
 void onNextClicked(GtkButton *button);
 void onLastClicked(GtkButton *button);
-void onIconToggled(GtkToggleButton *button);
+void onIconToggled(GtkToggleButton *button, gpointer user_data);
 
-// 실행
+// vm_runner.c
 void onRun(GtkButton *button);
-void updateVM(int step);
+
+// status_visible.c
+void onToggleRegisters(GtkWidget *widget, gpointer user_data);
+void onToggleCPU(GtkWidget *widget, gpointer user_data);
+void onToggleMemory(GtkWidget *widget, gpointer user_data);
+void onToggleLabels(GtkWidget *widget, gpointer user_data);
+void onToggleSymbols(GtkWidget *widget, gpointer user_data);
+void onToggleStatistics(GtkWidget *widget, gpointer user_data);
 
 // io.c
 void onInsertText(GtkTextBuffer *buffer, GtkTextIter *location, gchar *text,

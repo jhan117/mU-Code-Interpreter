@@ -25,39 +25,18 @@ void onPlayToggled(GtkToggleButton *button) {
       step_ctx->timeout_id =
           g_timeout_add(500, onPlayStep, step_ctx->adj); // 0.5초마다 Step 증가
     }
-
-    // step 버튼 + run 버튼 비활성화
-    gtk_widget_set_sensitive(step_ctx->btn_first, FALSE);
-    gtk_widget_set_sensitive(step_ctx->btn_prev, FALSE);
-    gtk_widget_set_sensitive(step_ctx->btn_next, FALSE);
-    gtk_widget_set_sensitive(step_ctx->btn_last, FALSE);
-    gtk_widget_set_sensitive(step_ctx->run_btn, FALSE);
-    // ucode table editable 비활성화
-    for (int i = 0; i < 3; i++) {
-      g_object_set(tbl->renderer[i], "editable", FALSE, NULL);
-    }
+    toggleWidgetsStatus(0);
   } else {
     if (step_ctx->timeout_id != 0) {
       g_source_remove(step_ctx->timeout_id);
       step_ctx->timeout_id = 0;
     }
-
-    gtk_widget_set_sensitive(step_ctx->btn_first, TRUE);
-    gtk_widget_set_sensitive(step_ctx->btn_prev, TRUE);
-    gtk_widget_set_sensitive(step_ctx->btn_next, TRUE);
-    gtk_widget_set_sensitive(step_ctx->btn_last, TRUE);
-    gtk_widget_set_sensitive(step_ctx->run_btn, TRUE);
-    for (int i = 0; i < 3; i++) {
-      g_object_set(tbl->renderer[i], "editable", TRUE, NULL);
-    }
+    toggleWidgetsStatus(1);
   }
 }
 
 // Scale 값 변경 시 호출되는 콜백
-void onScaleChanged(GtkRange *range) {
-  updateStep();
-  updateVM();
-}
+void onScaleChanged(GtkRange *range) { updateStep(); }
 
 // 버튼 콜백들
 void onFirstClicked(GtkButton *button) {

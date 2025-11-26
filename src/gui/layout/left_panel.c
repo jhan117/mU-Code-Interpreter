@@ -1,6 +1,6 @@
 #include "gui/gui.h"
 
-GtkWidget *createLeftPanel() {
+GtkWidget *initLeftPanel() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 16);
 
   // 파일 선택 버튼
@@ -24,7 +24,7 @@ GtkWidget *createLeftPanel() {
   g_signal_connect(run_btn, "clicked", G_CALLBACK(onRun), NULL);
 
   gtk_box_pack_start(GTK_BOX(box), chooserBtn, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), createNotebookView(pages, 2), TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(box), initNotebookTab(pages, 2), TRUE, TRUE, 0);
   gtk_box_pack_start(GTK_BOX(box), initStepControl(), FALSE, FALSE, 0);
   gtk_box_pack_start(GTK_BOX(box), run_btn, FALSE, FALSE, 0);
 

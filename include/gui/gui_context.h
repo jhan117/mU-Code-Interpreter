@@ -7,6 +7,7 @@ typedef struct {
   GtkWidget *main_window;
 
   int is_run_done;
+  RunDialog run_dialog;
 
   // 왼쪽 패널
   FileContext file_ctx;
@@ -15,7 +16,7 @@ typedef struct {
   GtkWidget *run_btn;
 
   // 오른쪽 상중단 패널
-  CurStatusContext cur_status_ctx;
+  StatusContext status_ctx;
   StatContext stat_ctx;
 
   // 오른쪽 하단 패널

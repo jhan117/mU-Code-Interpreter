@@ -1,9 +1,10 @@
 #include "gui/gui_callbacks.h"
 
-#include "assembler/aseemble_utils.h" // isNumber()
+#include "assembler/assemble_utils.h" // isNumber()
 
 void onInsertText(GtkTextBuffer *buffer, GtkTextIter *location, gchar *text,
                   gint len, gpointer user_data) {
+  IOContext *io_ctx = &getGuiContext()->io_ctx;
   GtkTextIter start = *location;
   GtkTextIter end = *location;
 
@@ -45,7 +46,8 @@ void guiIoWrite(int data) {
 }
 
 int guiIoRead() {
-  GtkWidget *io_view = getGuiContext()->io_ctx.io_view;
+  IOContext *io_ctx = &getGuiContext()->io_ctx;
+  GtkWidget *io_view = io_ctx->io_view;
 
   GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(io_view));
 

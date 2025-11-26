@@ -2,6 +2,15 @@
 
 #include <gtk/gtk.h>
 
+typedef void (*MenuCallback)(GtkWidget *, gpointer);
+
+typedef struct Menu {
+  const char *label;     // 메뉴 이름
+  struct Menu *child;    // 하위 메뉴 배열
+  int child_count;       // 하위 메뉴 개수
+  MenuCallback callback; // 콜백 함수 포인터
+} Menu;
+
 typedef struct {
   const char *tab_title; // 탭 이름
   GtkWidget *child;      // 페이지에 들어갈 위젯
@@ -44,12 +53,29 @@ typedef struct {
 } StepContext;
 
 typedef struct {
+  GtkWidget *dialog;
+  GtkWidget *label;
+  GtkWidget *spinner;
+} RunDialog;
+
+typedef struct {
   GtkListStore *reg_store;
-  GtkListStore *cpu_stack_store;
+  GtkListStore *cpu_store;
   GtkListStore *memory_store;
   GtkListStore *labels_store;
   GtkListStore *symbols_store;
-} CurStatusContext;
+
+  GtkWidget *status_box;
+  GtkWidget *reg_view;
+  GtkWidget *cpu_view;
+  GtkWidget *memory_view;
+  GtkWidget *labels_view;
+  GtkWidget *symbols_view;
+
+  GtkWidget *sep1;
+  GtkWidget *sep2;
+  GtkWidget *sep3;
+} StatusContext;
 
 typedef struct {
   GtkWidget *stat_mem_label;

@@ -5,6 +5,17 @@
 #include "gui/gui_widgets.h"
 #include <gtk/gtk.h>
 
+// main_window.c
+int runAsGUI(int argc, char **argv);
+
+// layout.c
 void onActivate(GtkApplication *app, gpointer user_data);
-GtkWidget *createLeftPanel();
-GtkWidget *createRightPanel();
+
+// left_panel.c
+GtkWidget *initLeftPanel();
+
+// right_panel.c
+GtkWidget *initRightPanel();
+
+// menubar.c
+GtkWidget *initMenubar();
