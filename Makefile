@@ -63,7 +63,7 @@ $(BUILD_DIR)/src/%.o: $(SRC_DIR)/%.c
 
 # CLI 실행
 cli-run: $(CLI_TARGET)
-	./$(CLI_TARGET)
+	./$(CLI_TARGET) test.uco result.lst
 
 # GUI 실행
 gui-run: $(GUI_TARGET)
@@ -71,7 +71,7 @@ gui-run: $(GUI_TARGET)
 
 # CLI 빌드 후 실행
 cli: cli-build
-	./$(CLI_TARGET)
+	./$(CLI_TARGET)  test.uco result.lst
 
 # GUI 빌드 후 실행
 gui: gui-build

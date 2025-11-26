@@ -43,7 +43,8 @@ void freeSnapshotList() {
 void expandSnapshotList() {
   snapshot_list.snapshot_capacity *= 2;
   snapshot_list.snapshot_list =
-      realloc(snapshot_list.snapshot_list, snapshot_list.snapshot_capacity);
+      realloc(snapshot_list.snapshot_list,
+              sizeof(Snapshot) * snapshot_list.snapshot_capacity);
   return;
 }
 
@@ -52,13 +53,13 @@ void makeSnapshot() {
 
   if (snapshot_list.snapshot_count >= snapshot_list.snapshot_capacity)
     expandSnapshotList();
-  snapshot_list.snapshot_count++;
-  memcpy(snapshot_list.snapshot_list->memory, ctx->memory,
-         sizeof(int) * INIT_MEMORY_SIZE);
-  memcpy(snapshot_list.snapshot_list->cpu_stack, ctx->cpu_stack.items,
-         sizeof(int) * INIT_CPU_STACK_CAPACITY);
 
   int idx = snapshot_list.snapshot_count;
+  memcpy(snapshot_list.snapshot_list[idx].memory, ctx->memory,
+         sizeof(int) * INIT_MEMORY_SIZE);
+  memcpy(snapshot_list.snapshot_list[idx].cpu_stack, ctx->cpu_stack.items,
+         sizeof(int) * INIT_CPU_STACK_CAPACITY);
+
   snapshot_list.snapshot_list[idx].cpu_top = ctx->cpu_stack.top;
   snapshot_list.snapshot_list[idx].cs = ctx->cs;
   snapshot_list.snapshot_list[idx].pc = ctx->pc;
@@ -67,6 +68,8 @@ void makeSnapshot() {
   snapshot_list.snapshot_list[idx].sp = ctx->sp;
   snapshot_list.snapshot_list[idx].bp = ctx->bp;
   snapshot_list.snapshot_list[idx].flags = ctx->flags;
+
+  snapshot_list.snapshot_count++;
 }
 
 void expandChangeList() {
