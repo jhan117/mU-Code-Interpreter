@@ -71,7 +71,7 @@ gui-run: $(GUI_TARGET)
 
 # CLI 빌드 후 실행
 cli: cli-build
-	./$(CLI_TARGET)  test.uco result.lst
+	./$(CLI_TARGET) test.uco result.lst
 
 # GUI 빌드 후 실행
 gui: gui-build
