@@ -22,9 +22,9 @@ int saveLst(const char *path, char **lines, int line_count) {
   int op_count;
   const OpInfo *op = getOpInfo(&op_count);
 
-  const char *src_header = "======= 원본 코드 =======";
-  nbytes = snprintf(buf, sizeof(buf), "%-35s %-12s %-10s %7s\n", src_header,
-                    "Encoded", "Opcode", "Operand");
+  const char *src_header = "==== 원본 코드 ====";
+  nbytes = snprintf(buf, sizeof(buf), "%-6s %-29s %-10s %-6s %-8s\n", "",
+                    src_header, "Encoded", "Opcode", "Operand");
   write(fd, buf, nbytes);
 
   // 역매핑
@@ -39,8 +39,7 @@ int saveLst(const char *path, char **lines, int line_count) {
     int asm_idx = rev[i];
 
     if (asm_idx == -1) {
-      snprintf(buf, sizeof(buf), "[%04d] %-27s %-10s %-10s %-10s\n", i + 1,
-               lines[i], "", "", "");
+      nbytes = snprintf(buf, sizeof(buf), "[%04d] %-24s\n", i + 1, lines[i]);
       write(fd, buf, nbytes);
       continue;
     }
@@ -51,19 +50,19 @@ int saveLst(const char *path, char **lines, int line_count) {
     int operand = 0;
     decodeInst(inst, &group, &g_idx, &operand);
 
-    snprintf(buf, sizeof(buf), "[%04d] %-27s 0x%08X %8d %10d\n", i + 1,
-             lines[i], inst, group * 10 + g_idx, operand);
+    nbytes = snprintf(buf, sizeof(buf), "[%04d] %-24s 0x%08X %-6d %-9d\n",
+                      i + 1, lines[i], inst, group * 10 + g_idx, operand);
 
     write(fd, buf, nbytes);
   }
 
   // 실행 결과
-  nbytes = snprintf(buf, sizeof(buf), "===========실행 결과=========\n");
+  nbytes = snprintf(buf, sizeof(buf), "\n===========실행 결과=========\n");
   write(fd, buf, nbytes);
   write(fd, output->data, output->length);
 
   // 명령어 사용 횟수
-  nbytes = snprintf(buf, sizeof(buf), "\n========명령어 사용 횟수======\n");
+  nbytes = snprintf(buf, sizeof(buf), "\n\n========명령어 사용 횟수======\n");
   write(fd, buf, nbytes);
   for (int i = 4; i < op_count; i++) {
     nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op[i].name,
