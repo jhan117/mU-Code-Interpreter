@@ -66,7 +66,6 @@ int saveLst(const char *path, char **lines, int line_count) {
   nbytes = snprintf(buf, sizeof(buf), "\n========명령어 사용 횟수======\n");
   write(fd, buf, nbytes);
   for (int i = 4; i < op_count; i++) {
-
     nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op[i].name,
                       ctx->stat.inst_use_count[op[i].opcode]);
     write(fd, buf, nbytes);

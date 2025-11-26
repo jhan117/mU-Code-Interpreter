@@ -12,8 +12,7 @@ void step(const OpInfo *op_table) {
   int inst = ctx->memory[ctx->pc++];
   int group_code;
   int g_idx;
-  int operand;
-  decodeInst(inst, &group_code, &g_idx, &operand);
+  decodeInst(inst, &group_code, &g_idx, NULL);
   int opcode = group_code * 10 + g_idx;
   ctx->stat.inst_run_count[opcode]++;
   OpInfo *op = findOpInfoByOpcode(opcode);
