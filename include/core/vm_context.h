@@ -23,13 +23,13 @@ typedef struct {
 
   int run_mode;
   unsigned int flags;
-  int memory[INIT_MEMORY_SIZE];
-  InstructionGroup inst_group[TOTAL_OPCODE_GROUPS];
-  ChangeList changes;
-  SnapshotList snapshot_list;
-  OutputBuffer output_buffer;
-  Statistics stat;
-  Stack cpu_stack;
+  int memory[INIT_MEMORY_SIZE];                     // memory stack
+  Stack cpu_stack;                                  // cpu stack
+  InstructionGroup inst_group[TOTAL_OPCODE_GROUPS]; // 함수 포인터 매핑
+  ChangeList changes;                               // 변경점 기록
+  SnapshotList snapshot_list;                       // N단계 스냅샷 기록
+  OutputBuffer output_buffer;                       // 출력
+  Statistics stat;                                  // 통계
 } VMContext;
 
 VMContext *getVMContext();
