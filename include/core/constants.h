@@ -1,13 +1,15 @@
 #pragma once
 
 // 명령어 형식
-#define MAX_LABEL_LEN 11 // 널문자 포함
-#define MAX_OP_LEN 5     // 널문자 포함
+#define LINE_BUFFER_LEN 256 // 널문자 포함 한 줄당 길이
+#define MAX_LABEL_LEN 11    // 널문자 포함
+#define MAX_OP_LEN 5        // 널문자 포함
 #define MAX_OPERANDS 3
 #define MAX_ARGS 10
 
 // 동적 배열
 #define INIT_LIST_CAPACITY 16
+#define INIT_LINE_CAPACITY 100
 
 // 실행 관련 상수들
 #define ERR_INVALID_ADDR 0x1
@@ -27,7 +29,7 @@
 #define HD_NUM_SP 6
 #define HD_NUM_BP 7
 
-#define OPCODE_MAX 47
+#define OPCODE_MAX 48
 #define TOTAL_OPCODE_GROUPS 5
 #define INIT_CPU_STACK_CAPACITY 100
 #define INIT_MEMORY_SIZE 65536

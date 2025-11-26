@@ -7,11 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static const int mem_access[OPCODE_MAX] = {
-    [OP_RET] = 2, [OP_PUSH] = 1, [OP_CALL] = 2, [OP_LOD] = 1,
-    [OP_LDA] = 1, [OP_STR] = 1,  [OP_LDI] = 1,  [OP_STI] = 1};
-
-void step() {
+void step(const OpInfo *op_table) {
   VMContext *ctx = getVMContext();
   int inst = ctx->memory[ctx->pc++];
   int group_code;
@@ -19,15 +15,14 @@ void step() {
   decodeInst(inst, &group_code, &g_idx, NULL);
   int opcode = group_code * 10 + g_idx;
   ctx->stat.inst_run_count[opcode]++;
-  ctx->stat.memory_access_count += mem_access[opcode];
+  OpInfo *op = findOpInfoByOpcode(opcode);
+  ctx->stat.memory_access_count += op->mem_access;
   ctx->inst_group[group_code].execInst(inst);
   return;
 }
 
 void printError(int prev_pc) {
   VMContext *ctx = getVMContext();
-  if (ctx->bp == -1)
-    printf("[INFO] runner stopped (bp == -1)\n");
 
   if (ctx->flags == 0)
     return;
@@ -83,14 +78,18 @@ int runner() {
   readyToRun();
 
   int prev_pc = 0;
-
+  const OpInfo *op_table;
   while (1) {
-    if (ctx->flags != 0 || ctx->bp == -1) {
+    if (ctx->bp == -1) {
+      printf("[INFO] runner stopped\n");
+      return 0;
+    }
+    if (ctx->flags != 0) {
       printError(prev_pc);
       return -1;
     }
     prev_pc = ctx->pc;
-    step();
+    step(op_table);
     saveChanges();
   }
 }

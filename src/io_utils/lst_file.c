@@ -10,54 +10,65 @@
 #include <string.h>
 #include <unistd.h>
 
-static char *opcodes[] = {
-    // 프로그램 구성 명령
-    "bgn", "sym", "end", "nop", "proc", "ret", "ldp", "push", "call",
-    "ujp", "tjp", "fjp", "lod", "lda",  "ldc", "str", "ldi",  "sti",
-    "gt",  "lt",  "ge",  "le",  "eq",   "ne",  "and", "or",   "add",
-    "sub", "mul", "div", "mod", "not",  "neg"};
-
-int saveLst(const char *path, UCodeLines *lines) {
+int saveLst(const char *path, char **lines, int line_count) {
   int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
   if (fd < 0)
     return 0;
 
   int nbytes;
-  char buf[128];
+  char buf[LINE_BUFFER_LEN];
   VMContext *ctx = getVMContext();
   OutputBuffer *output = getOutputBuffer();
-  OpInfo *op;
+  int op_count;
+  const OpInfo *op = getOpInfo(&op_count);
 
-  const char *src_header = "======= 원본 코드 =======";
-  nbytes = snprintf(buf, sizeof(buf), "%-35s %-12s %-10s %7s\n", src_header,
-                    "Encoded", "Opcode", "Operand");
+  const char *src_header = "==== 원본 코드 ====";
+  nbytes = snprintf(buf, sizeof(buf), "%-6s %-29s %-10s %-6s %-8s\n", "",
+                    src_header, "Encoded", "Opcode", "Operand");
   write(fd, buf, nbytes);
 
-  for (int i = 0; i < lines->line_count; i++) {
-    int inst = lines->opcode[i];
-    int group;
-    int g_idx;
-    int operand;
+  // 역매핑
+  int rev[line_count];
+  memset(rev, 0xFF, sizeof(rev)); // -1로 초기화
+  for (int i = 0; i < ctx->code_len; i++) {
+    int src = ctx->source_map.line[i];
+    rev[src] = i;
+  }
+
+  for (int i = 0; i < line_count; i++) {
+    int asm_idx = rev[i];
+
+    if (asm_idx == -1) {
+      nbytes = snprintf(buf, sizeof(buf), "[%04d] %-24s\n", i + 1, lines[i]);
+      write(fd, buf, nbytes);
+      continue;
+    }
+
+    int inst = ctx->memory[asm_idx];
+    int group = 0;
+    int g_idx = 0;
+    int operand = 0;
     decodeInst(inst, &group, &g_idx, &operand);
-    nbytes = snprintf(buf, sizeof(buf), "%-27s 0x%08X %8d %10d\n",
-                      lines->ucode_lines[i], inst, group * 10 + g_idx, operand);
+
+    nbytes = snprintf(buf, sizeof(buf), "[%04d] %-24s 0x%08X %-6d %-9d\n",
+                      i + 1, lines[i], inst, group * 10 + g_idx, operand);
+
     write(fd, buf, nbytes);
   }
 
   // 실행 결과
-  nbytes = snprintf(buf, sizeof(buf), "===========실행 결과=========\n");
+  nbytes = snprintf(buf, sizeof(buf), "\n===========실행 결과=========\n");
   write(fd, buf, nbytes);
   write(fd, output->data, output->length);
 
   // 명령어 사용 횟수
-  nbytes = snprintf(buf, sizeof(buf), "\n========명령어 사용 횟수======\n");
+  nbytes = snprintf(buf, sizeof(buf), "\n\n========명령어 사용 횟수======\n");
   write(fd, buf, nbytes);
-  for (int i = 0; i < OPCODE_MAX; i++) {
-    op = findOpInfoByName(opcodes[i]);
-    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op->name,
-                      ctx->stat.inst_use_count[op->opcode]);
+  for (int i = 4; i < op_count; i++) {
+    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op[i].name,
+                      ctx->stat.inst_use_count[op[i].opcode]);
     write(fd, buf, nbytes);
-    if ((i + 1) % 3 == 0)
+    if (i % 3 == 0)
       write(fd, "\n", sizeof(char));
     else
       write(fd, "  ", sizeof(char));
@@ -66,12 +77,11 @@ int saveLst(const char *path, UCodeLines *lines) {
   // 명령어 실행 횟수
   nbytes = snprintf(buf, sizeof(buf), "\n======명령어 실행 횟수======\n");
   write(fd, buf, nbytes);
-  for (int i = 0; i < OPCODE_MAX; i++) {
-    op = findOpInfoByName(opcodes[i]);
-    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op->name,
-                      ctx->stat.inst_run_count[op->opcode]);
+  for (int i = 4; i < op_count; i++) {
+    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op[i].name,
+                      ctx->stat.inst_run_count[op[i].opcode]);
     write(fd, buf, nbytes);
-    if ((i + 1) % 3 == 0)
+    if (i % 3 == 0)
       write(fd, "\n", sizeof(char));
     else
       write(fd, "  ", sizeof(char));

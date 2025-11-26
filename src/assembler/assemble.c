@@ -12,6 +12,17 @@ static void freeOperands(char *operands[], int count) {
     free(operands[i]);
 }
 
+static void pushSrcLine(int line) {
+  SourceMap *source_map = &getVMContext()->source_map;
+
+  if (source_map->len >= source_map->capacity) {
+    source_map->capacity *= 2;
+    source_map->line =
+        realloc(source_map->line, sizeof(int) * source_map->capacity);
+  }
+  source_map->line[source_map->len++] = line;
+}
+
 AssembleError assemble(char **lines, int line_count) {
   VMContext *ctx = getVMContext();
   int addr = 0;
@@ -64,6 +75,7 @@ AssembleError assemble(char **lines, int line_count) {
       freeOperands(operands, operand_count);
       return returnError(ASSEMBLE_ERR_INVALID_FORMAT, i + 1);
     }
+
     // 어셈블러 전용 opcode 처리
     if (info->opcode < 0) {
       if (strcmp(info->name, "bgn") == 0) {
@@ -187,6 +199,7 @@ AssembleError assemble(char **lines, int line_count) {
 
     ctx->stat.inst_use_count[info->opcode]++;
     ctx->memory[addr++] = encodeInst(info->opcode, operand_val);
+    pushSrcLine(i);
     freeOperands(operands, operand_count);
   }
 
@@ -209,4 +222,36 @@ AssembleError assemble(char **lines, int line_count) {
   applySymbolOffset();
 
   return ASSEMBLE_ERR_NONE;
+}
+
+char *printAssembleRes() {
+  VMContext *ctx = getVMContext();
+
+  int buf_size = ctx->code_len * LINE_BUFFER_LEN;
+  char *result = malloc(buf_size);
+  if (!result)
+    return NULL;
+  result[0] = '\0';
+
+  for (int i = 0; i < ctx->code_len; i++) {
+    int op_group = 0;
+    int op_group_idx = 0;
+    int operand = 0;
+
+    decodeInst(ctx->memory[i], &op_group, &op_group_idx, &operand);
+
+    int opcode = op_group * 10 + op_group_idx;
+
+    char line[LINE_BUFFER_LEN];
+    const OpInfo *info = findOpInfoByOpcode(opcode);
+    if (info->operand_count == 0)
+      snprintf(line, LINE_BUFFER_LEN, "%04d: opcode=%d\n", i, opcode);
+    else
+      snprintf(line, LINE_BUFFER_LEN, "%04d: opcode=%d operand=%d\n", i, opcode,
+               operand);
+
+    strncat(result, line, buf_size - strlen(result) - 1);
+  }
+
+  return result;
 }
