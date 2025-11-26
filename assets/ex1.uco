@@ -1,7 +1,7 @@
            bgn 1
-           sym  1 0 1
-           ldc  10
-           str  1 0
+           sym 1 0 1
+           ldc 10
+           str 1 0
            ldp
            call main
            end
@@ -10,7 +10,7 @@ main       proc 12
            sym 2 1 10
            sym 2 11 1
            ldc 0
-           dup
+           ldc 0
            str 2 11
            str 2 0
 $$0        nop
@@ -18,14 +18,14 @@ $$0        nop
            lod 1 0
            lt
            fjp $$1
-           lod 2 0
            lda 2 1
-           add
+           lod 2 0
+           sub
            lod 2 11
            sti
-           lod 2 0
            lda 2 1
-           add
+           lod 2 0
+           sub
            ldp
            lod 2 0
            push
@@ -34,9 +34,9 @@ $$0        nop
            call sub
            sti
            lod 2 11
-           lod 2 0
            lda 2 1
-           add
+           lod 2 0
+           sub
            ldi
            add
            str 2 11
@@ -60,9 +60,9 @@ sub        proc 3
            push
            call read
            lod 3 2
-           lod 3 0
            lod 3 1
-           add
+           lod 3 0
+           sub
            ldi
            add
            str 3 2

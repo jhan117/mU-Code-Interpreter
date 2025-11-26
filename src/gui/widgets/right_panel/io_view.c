@@ -8,11 +8,16 @@ GtkWidget *initIOView() {
   GtkWidget *io_view = gtk_text_view_new();
   GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(io_view));
 
+  GtkWidget *scrolled = gtk_scrolled_window_new(NULL, NULL);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled),
+                                 GTK_POLICY_NEVER, GTK_POLICY_AUTOMATIC);
+  gtk_container_add(GTK_CONTAINER(scrolled), io_view);
+
   // 입력 시 이벤트 조절
   g_signal_connect(buf, "insert-text", G_CALLBACK(onInsertText), NULL);
 
   gtk_box_pack_start(GTK_BOX(box), io_label, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), io_view, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(box), scrolled, TRUE, TRUE, 0);
 
   IOContext *io_ctx = &getGuiContext()->io_ctx;
   io_ctx->io_view = io_view;

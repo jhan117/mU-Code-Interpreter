@@ -14,7 +14,9 @@ void onFileChosen(GtkFileChooserButton *chooser) {
 
   char **lines = NULL;
   int line_count = 0;
-  loadUco(filename, &lines, &line_count);
+  if (!loadUco(filename, &lines, &line_count))
+    return;
+
   updateUcodeView(&lines, &line_count);
 
   g_free(filename);

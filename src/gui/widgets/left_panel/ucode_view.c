@@ -44,12 +44,12 @@ void updateUcodeView(char ***lines, int *line_count) {
   GtkListStore *store = ctx->code_ctx.ucode_table.list_data;
   gtk_list_store_clear(store);
 
-  for (int i = 0; i < line_count; i++) {
+  for (int i = 0; i < *line_count; i++) {
     char label[MAX_LABEL_LEN] = "";
     char opcode[MAX_OP_LEN] = "";
-    char operands[LINE_BUFFER_LEN - MAX_OP_LEN - MAX_LABEL_LEN] = "";
+    char operands[LINE_BUFFER_LEN] = "";
 
-    if (parseTable(lines, label, opcode, operands)) {
+    if (!parseTable((*lines)[i], label, opcode, operands)) {
       printf("gui parsing 오류!\n");
       return;
     }
@@ -59,7 +59,7 @@ void updateUcodeView(char ***lines, int *line_count) {
     gtk_list_store_set(store, &iter, 0, label, 1, opcode, 2, operands, -1);
   }
 
-  freeUco(lines, line_count);
+  freeUco(*lines, *line_count);
   ctx->step_ctx.current_step = 0;
 }
 
@@ -82,6 +82,14 @@ int getUcodeView(char ***lines, int *line_count) {
     char *op = NULL;
     char *oper = NULL;
     gtk_tree_model_get(model, &iter, 0, &label, 1, &op, 2, &oper, -1);
+
+    if ((!label || label[0] == '\0') && (!op || op[0] == '\0') &&
+        (!oper || oper[0] == '\0')) {
+      g_free(label);
+      g_free(op);
+      g_free(oper);
+      continue;
+    }
 
     char *line = g_strdup_printf("%-10.10s %s %s\n", label ? label : "",
                                  op ? op : "", oper ? oper : "");

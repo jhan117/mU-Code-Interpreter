@@ -1,6 +1,6 @@
 #include "gui/gui_widgets.h"
 
-void toggleWidgetsStatus(int is_true) {
+void toggleWidgetsVisible(int is_true) {
   GuiContext *ctx = getGuiContext();
 
   if (is_true) {
@@ -40,5 +40,7 @@ void insertAtEnd(GtkWidget *text_view, const char *text) {
 
   GtkTextIter end;
   gtk_text_buffer_get_end_iter(buf, &end);
+  g_signal_handlers_block_by_func(buf, onInsertText, NULL);
   gtk_text_buffer_insert(buf, &end, text, -1);
+  g_signal_handlers_unblock_by_func(buf, onInsertText, NULL);
 }

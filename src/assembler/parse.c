@@ -66,6 +66,7 @@ AssembleError parseLine(const char *line, char *label, char *opcode,
   return ASSEMBLE_ERR_NONE;
 }
 
+// 주석 처리 안되어있음...
 int parseTable(const char *line, char *label, char *opcode, char *operands) {
   char buf[LINE_BUFFER_LEN];
   strcopy(buf, line, LINE_BUFFER_LEN);
@@ -83,18 +84,22 @@ int parseTable(const char *line, char *label, char *opcode, char *operands) {
   strcopy(label, buf, MAX_LABEL_LEN);
   strcopy(label, trim(label), MAX_LABEL_LEN);
 
-  // 첫 토큰: opcode
-  char *tok = strtok(ptr, " \t\r\n");
-  if (!tok) {
-    opcode[0] = '\0';
-    operands[0] = '\0';
-    return 1; // 어셈블 아니니까 오류 x
-  }
-  strcpy(opcode, tok);
+  // 끝 찾기
+  char *end = ptr;
+  while (*end && !isspace(*end))
+    end++;
 
-  // 이후 전부: operands
-  char *op_start = tok + strlen(tok);
-  while (isspace(*op_start))
-    op_start++;
-  strcopy(operands, trim(op_start), LINE_BUFFER_LEN);
+  // opcode
+  int op_len = end - ptr;
+  if (op_len >= MAX_OP_LEN)
+    op_len = MAX_OP_LEN - 1;
+
+  strcopy(opcode, trim(ptr), op_len + 1);
+
+  // operands
+  while (isspace(*end))
+    end++;
+  strcopy(operands, trim(end), LINE_BUFFER_LEN);
+
+  return 1;
 }

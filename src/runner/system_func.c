@@ -55,6 +55,7 @@ int reqWrite(const char *s) {
   }
   if (ctx->run_mode == GUI) {
     // gui에 쓰기 요청
+    guiIoWrite(s);
   }
   catString(s);
 
@@ -82,6 +83,7 @@ int reqRead() {
   }
   if (ctx->run_mode == GUI) {
     // data = gui에 읽기 요청
+    data = guiIoRead();
   }
   return data;
 }
@@ -106,6 +108,7 @@ void reqLf() {
   }
   if (ctx->run_mode == GUI) {
     // gui에 줄바꿈 요청
+    guiIoLf();
   }
   catString("\n");
 }

@@ -25,13 +25,13 @@ void onPlayToggled(GtkToggleButton *button) {
       step_ctx->timeout_id =
           g_timeout_add(500, onPlayStep, step_ctx->adj); // 0.5초마다 Step 증가
     }
-    toggleWidgetsStatus(0);
+    toggleWidgetsVisible(0);
   } else {
     if (step_ctx->timeout_id != 0) {
       g_source_remove(step_ctx->timeout_id);
       step_ctx->timeout_id = 0;
     }
-    toggleWidgetsStatus(1);
+    toggleWidgetsVisible(1);
   }
 }
 

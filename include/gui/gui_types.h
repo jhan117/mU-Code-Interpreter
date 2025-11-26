@@ -53,12 +53,6 @@ typedef struct {
 } StepContext;
 
 typedef struct {
-  GtkWidget *dialog;
-  GtkWidget *label;
-  GtkWidget *spinner;
-} RunDialog;
-
-typedef struct {
   GtkListStore *reg_store;
   GtkListStore *cpu_store;
   GtkListStore *memory_store;
@@ -85,7 +79,5 @@ typedef struct {
 
 typedef struct {
   GtkWidget *io_view;
-
-  int is_input;
-  int input_value;
+  GAsyncQueue *input_queue;
 } IOContext;

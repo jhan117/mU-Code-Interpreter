@@ -28,9 +28,7 @@ void updateStep();
 GtkWidget *initNotebookTab(NotebookPageInfo *pages, int page_count);
 
 // runner_dialog.c
-void initRunDialog(RunDialog *rd, GtkWindow *parent, const char *title,
-                   const char *initial_text);
-void destroyRunDialog(RunDialog *rd);
+GtkWidget *initWorkerData(const char *title, const char *initial_text);
 
 // status_view.c (callback x)
 GtkWidget *initStatusView();
@@ -64,6 +62,6 @@ void updateStatisticsView();
 GtkWidget *initIOView();
 
 // utils.c
-void toggleWidgetsStatus(int is_true);
+void toggleWidgetsVisible(int is_true);
 void resetAllText(GtkWidget *text_view);
 void insertAtEnd(GtkWidget *text_view, const char *text);

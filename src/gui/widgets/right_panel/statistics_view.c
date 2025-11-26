@@ -84,15 +84,21 @@ GtkWidget *initStatisticsView() {
   gtk_container_add(GTK_CONTAINER(run_scrolled), run_tree);
 
   gtk_box_pack_start(GTK_BOX(box), mem_label, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), use_label, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), use_scrolled, TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(box), run_label, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), run_scrolled, TRUE, TRUE, 0);
+  GtkWidget *count_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 8);
+  GtkWidget *use_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+  GtkWidget *run_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);
+  gtk_box_pack_start(GTK_BOX(use_box), use_label, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(use_box), use_scrolled, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(run_box), run_label, FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(run_box), run_scrolled, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(count_box), use_box, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(count_box), run_box, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(box), count_box, TRUE, TRUE, 0);
 
-  StatContext stat_ctx = getGuiContext()->stat_ctx;
-  stat_ctx.stat_mem_label = mem_label;
-  stat_ctx.stat_use_store = use_store;
-  stat_ctx.stat_run_store = run_store;
+  StatContext *stat_ctx = &getGuiContext()->stat_ctx;
+  stat_ctx->stat_mem_label = mem_label;
+  stat_ctx->stat_use_store = use_store;
+  stat_ctx->stat_run_store = run_store;
 
   return box;
 }

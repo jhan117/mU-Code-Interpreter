@@ -47,8 +47,9 @@ void highlightLine() {
   gtk_text_buffer_remove_tag(buffer, tag, &start, &end);
 
   GtkTextIter iter;
-  GtkTextIter line_end = iter;
   gtk_text_buffer_get_iter_at_line(buffer, &iter, ctx->step_ctx.current_step);
+
+  GtkTextIter line_end = iter;
   gtk_text_iter_forward_to_line_end(&line_end);
   gtk_text_buffer_apply_tag(buffer, tag, &iter, &line_end);
 }
