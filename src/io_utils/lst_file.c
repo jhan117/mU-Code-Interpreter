@@ -10,13 +10,6 @@
 #include <string.h>
 #include <unistd.h>
 
-static char *opcodes[] = {
-    // 프로그램 구성 명령
-    "bgn", "sym", "end", "nop", "proc", "ret", "ldp", "push", "call",
-    "ujp", "tjp", "fjp", "lod", "lda",  "ldc", "str", "ldi",  "sti",
-    "gt",  "lt",  "ge",  "le",  "eq",   "ne",  "and", "or",   "add",
-    "sub", "mul", "div", "mod", "not",  "neg"};
-
 int saveLst(const char *path, char **lines, int line_count) {
   int fd = open(path, O_WRONLY | O_CREAT | O_TRUNC, 0644);
   if (fd < 0)
@@ -26,8 +19,8 @@ int saveLst(const char *path, char **lines, int line_count) {
   char buf[LINE_BUFFER_LEN];
   VMContext *ctx = getVMContext();
   OutputBuffer *output = getOutputBuffer();
-  printf("OUT: data=%p, len=%d\n", output->data, output->length);
-  OpInfo *op;
+  int op_count;
+  const OpInfo *op = getOpInfo(&op_count);
 
   const char *src_header = "======= 원본 코드 =======";
   nbytes = snprintf(buf, sizeof(buf), "%-35s %-12s %-10s %7s\n", src_header,
@@ -72,10 +65,9 @@ int saveLst(const char *path, char **lines, int line_count) {
   // 명령어 사용 횟수
   nbytes = snprintf(buf, sizeof(buf), "\n========명령어 사용 횟수======\n");
   write(fd, buf, nbytes);
-  for (int i = 0; i < OPCODE_MAX; i++) {
-    op = findOpInfoByName(opcodes[i]);
-    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op->name,
-                      ctx->stat.inst_use_count[op->opcode]);
+  for (int i = 0; i < op_count; i++) {
+    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op[i].name,
+                      ctx->stat.inst_use_count[op[i].opcode]);
     write(fd, buf, nbytes);
     if ((i + 1) % 3 == 0)
       write(fd, "\n", sizeof(char));
@@ -86,10 +78,9 @@ int saveLst(const char *path, char **lines, int line_count) {
   // 명령어 실행 횟수
   nbytes = snprintf(buf, sizeof(buf), "\n======명령어 실행 횟수======\n");
   write(fd, buf, nbytes);
-  for (int i = 0; i < OPCODE_MAX; i++) {
-    op = findOpInfoByName(opcodes[i]);
-    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op->name,
-                      ctx->stat.inst_run_count[op->opcode]);
+  for (int i = 0; i < op_count; i++) {
+    nbytes = snprintf(buf, sizeof(buf), "%-5s = %3d    ", op[i].name,
+                      ctx->stat.inst_run_count[op[i].opcode]);
     write(fd, buf, nbytes);
     if ((i + 1) % 3 == 0)
       write(fd, "\n", sizeof(char));

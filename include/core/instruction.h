@@ -14,8 +14,10 @@ typedef struct {
   int opcode;
   int operand_count;
   OperandType operand_type;
+  int mem_access;
 } OpInfo;
 
+const OpInfo *getOpInfo(int *count);
 const OpInfo *findOpInfoByName(const char *name);
 const OpInfo *findOpInfoByOpcode(int opcode);
 int encodeInst(int opcode, int operand_val);

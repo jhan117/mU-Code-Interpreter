@@ -4,7 +4,7 @@
            str 1 0
            ldp
            call main
-           ret
+           end
 main       proc 12
            sym 2 0 1
            sym 2 1 10
