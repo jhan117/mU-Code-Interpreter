@@ -1,8 +1,8 @@
 #pragma once
 
 #include "assembler/assemble_error.h"
-#include "core/stack_operations.h"
 #include "core/vm_context.h"
+#include "runner/stack_operations.h"
 
 // 어셈블러 테스트
 typedef struct {
@@ -31,4 +31,3 @@ void testDataMovementInstructions(void);
 void testArithmeticInstructions(void);
 void testComparisonInstructions(void);
 void testLogicalInstructions(void);
-void testDecodeArgSignExtension(void);

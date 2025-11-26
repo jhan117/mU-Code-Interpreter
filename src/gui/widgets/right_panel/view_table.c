@@ -1,7 +1,7 @@
 #include "gui/gui.h"
 
 #include "core/vm_context.h"
-#include "runner.h"
+#include "runner/runner.h"
 
 GtkWidget *createRegTable() {
   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 8);

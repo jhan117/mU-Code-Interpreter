@@ -29,7 +29,7 @@
 #define HD_NUM_SP 6
 #define HD_NUM_BP 7
 
-#define OPCODE_MAX 47
+#define OPCODE_MAX 48
 #define TOTAL_OPCODE_GROUPS 5
 #define INIT_CPU_STACK_CAPACITY 100
 #define INIT_MEMORY_SIZE 65536

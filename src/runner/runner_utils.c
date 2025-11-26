@@ -1,5 +1,5 @@
 #include "core/vm_context.h"
-#include "runner.h"
+#include "runner/runner.h"
 
 #include <math.h>
 #include <stdio.h>

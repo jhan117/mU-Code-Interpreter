@@ -1,7 +1,7 @@
 #include "core/vm_context.h"
 
 #include "assembler/assemble_utils.h" // addSystemLabel()
-#include "core/inst.h"
+#include "runner/inst.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -73,7 +73,6 @@ void freeVMContext() {
     free(ctx.source_map.line);
     ctx.source_map.line = NULL;
   }
-
   if (ctx.label_list.labels) {
     free(ctx.label_list.labels);
     ctx.label_list.labels = NULL;

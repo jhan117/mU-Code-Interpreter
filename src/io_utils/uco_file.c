@@ -6,9 +6,44 @@
 #include <string.h>
 #include <unistd.h>
 
+int ensureCapacity(char ***lines, int *capacity, int line_count) {
+  if (line_count < *capacity)
+    return 1;
+
+  int new_cap = (*capacity) * 2;
+  char **tmp = realloc(**lines ? **lines : *lines, sizeof(char *) * new_cap);
+  if (!tmp)
+    return 0;
+
+  *lines = tmp;
+  *capacity = new_cap;
+  return 1;
+}
+
+int appendLine(char ***lines, int *line_count, int *capacity,
+               const char *buffer, int len) {
+  if (len <= 0)
+    return 1;
+
+  if (!ensureCapacity(lines, capacity, *line_count))
+    return 0;
+
+  char *dst = malloc(len + 1);
+  if (!dst)
+    return 0;
+
+  memcpy(dst, buffer, len);
+  dst[len] = '\0';
+
+  (*lines)[*line_count] = dst;
+  (*line_count)++;
+  return 1;
+}
+
 // .uco 파일에서 라인 단위로 읽어오기
 int loadUco(const char *path, char ***lines, int *line_count) {
   int fd = open(path, O_RDONLY);
+
   if (fd < 0)
     return 0;
 
@@ -19,39 +54,35 @@ int loadUco(const char *path, char ***lines, int *line_count) {
     close(fd);
     return 0;
   }
+
   *line_count = 0;
 
   char buffer[LINE_BUFFER_LEN];
-  ssize_t n;
   int pos = 0;
+
+  ssize_t n;
   char c;
+
   while ((n = read(fd, &c, 1)) > 0) {
     if (c == '\n') {
-      buffer[pos] = '\0';
-      if (*line_count >= capacity) {
-        capacity *= 2;
-        char **tmp = realloc(*lines, sizeof(char *) * capacity);
-        if (!tmp) {
-          freeUco(*lines, *line_count);
-          close(fd);
-          return 0;
-        }
-        *lines = tmp;
+      if (!appendLine(lines, line_count, &capacity, buffer, pos)) {
+        freeUco(*lines, *line_count);
+        close(fd);
+        return 0;
       }
-      (*lines)[*line_count] = malloc(pos + 1);
-      memcpy((*lines)[*line_count], buffer, pos + 1);
-      (*line_count)++;
       pos = 0;
-    } else if (pos < sizeof(buffer) - 1) {
-      buffer[pos++] = c;
+    } else if (c != '\r') { // CR 제거
+      if (pos < (int)sizeof(buffer) - 1)
+        buffer[pos++] = c;
     }
   }
 
   if (pos > 0) {
-    buffer[pos] = '\0';
-    (*lines)[*line_count] = malloc(pos + 1);
-    memcpy((*lines)[*line_count], buffer, pos + 1);
-    (*line_count)++;
+    if (!appendLine(lines, line_count, &capacity, buffer, pos)) {
+      freeUco(*lines, *line_count);
+      close(fd);
+      return 0;
+    }
   }
 
   close(fd);

@@ -5,11 +5,6 @@
 // 명령어 그룹 초기화
 void initInstGroup();
 
-// 명령어 디코딩
-int decodeGroup(int inst);
-int decodeOpcode(int inst);
-int decodeArg(int inst);
-
 // 명령어 오류 검사
 int checkError(VMContext *ctx, const int *addr, const int *pc, const int *bp,
                const int *sp);

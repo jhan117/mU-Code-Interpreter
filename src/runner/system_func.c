@@ -1,7 +1,7 @@
-#include "core/inst.h"
-#include "core/stack_operations.h"
 #include "core/vm_context.h"
-#include "runner.h"
+#include "runner/inst.h"
+#include "runner/runner.h"
+#include "runner/stack_operations.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,7 +51,7 @@ void expandOutBuffer() {
 int reqWrite(const char *s) {
   VMContext *ctx = getVMContext();
   if (ctx->run_mode == CLI) {
-    printf("%s", s);
+    printf("%s\n", s);
   }
   if (ctx->run_mode == GUI) {
     // gui에 쓰기 요청
@@ -62,11 +62,15 @@ int reqWrite(const char *s) {
 }
 
 void Write() {
-  int data = popCPUStack();
+  VMContext *ctx = getVMContext();
+  int data = ctx->memory[ctx->sp + 1];
+  ctx->sp--;
+  if (checkError(ctx, NULL, NULL, NULL, &ctx->sp)) {
+    return;
+  }
   char data_s[33];
   sprintf(data_s, "%d", data);
   reqWrite(data_s);
-  ret(0);
   return;
 }
 
@@ -84,14 +88,14 @@ int reqRead() {
 
 void Read() {
   VMContext *ctx = getVMContext();
-  int addr = popCPUStack();
-  if (checkError(ctx, &addr, NULL, NULL, NULL)) {
-    ret(0);
+  int addr = ctx->sp + 1;
+  ctx->sp--;
+  if (checkError(ctx, &addr, NULL, NULL, &ctx->sp)) {
     return;
   }
+  addr = ctx->memory[addr];
   int data = reqRead();
   ctx->memory[addr] = data;
-  ret(0);
   return;
 }
 

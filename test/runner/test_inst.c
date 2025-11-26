@@ -1,4 +1,4 @@
-#include "core/inst.h"
+#include "runner/inst.h"
 #include "test.h"
 
 #include <assert.h>
@@ -17,14 +17,11 @@ static VMContext *setupContext(void) {
   return ctx;
 }
 
-static void setSymbol(int index, int block, int addr) {
+static void setSymbol(int index, int block, int offset) {
   VMContext *ctx = getVMContext();
   ctx->symbol_list.symbols[index].index = index;
   ctx->symbol_list.symbols[index].block = block;
-  if (block == GLOBAL_BLOCK)
-    ctx->symbol_list.symbols[index].offset = addr - ctx->ds;
-  else
-    ctx->symbol_list.symbols[index].offset = ctx->bp - addr;
+  ctx->symbol_list.symbols[index].offset = offset;
   ctx->symbol_list.symbols[index].size = 1;
   if (ctx->symbol_list.count <= index)
     ctx->symbol_list.count = index + 1;
@@ -139,7 +136,7 @@ void testFunctionInstructions(void) {
   freeVMContext();
 
   // ret 실패 테스트
-  // 복귀할 BP는 Stack 영역 내부지만 그 위에 return address를 넣을 공간이 없음
+  // 복귀할 BP는 Stack 영역 내부지만 그 위에 return offsetess를 넣을 공간이 없음
   ctx = setupContext();
   ctx->memory[ctx->bp - 1] = ctx->cs + 10;
   ctx->memory[ctx->bp] = ctx->ss + 1;
@@ -225,16 +222,34 @@ void testDataMovementInstructions(void) {
   // lod 테스트
   VMContext *ctx = setupContext();
   int addr = ctx->ds + 16;
-  setSymbol(0, GLOBAL_BLOCK, addr);
+  setSymbol(0, GLOBAL_BLOCK, 16);
   ctx->memory[addr] = 55;
   lod(0);
   assert(popCPUStack() == 55);
   freeVMContext();
 
+  // lod 지역 변수 테스트 (양수 오프셋)
+  ctx = setupContext();
+  addr = ctx->bp - 12;
+  setSymbol(0, GLOBAL_BLOCK + 1, 12);
+  ctx->memory[addr] = 444;
+  lod(0);
+  assert(popCPUStack() == 444);
+  freeVMContext();
+
+  // lod 매개변수 테스트 (음수 오프셋)
+  ctx = setupContext();
+  addr = ctx->bp + 1;
+  setSymbol(0, GLOBAL_BLOCK + 1, -1);
+  ctx->memory[addr] = 222;
+  lod(0);
+  assert(popCPUStack() == 222);
+  freeVMContext();
+
   // lda 테스트
   ctx = setupContext();
   addr = ctx->ds + 32;
-  setSymbol(0, GLOBAL_BLOCK, addr);
+  setSymbol(0, GLOBAL_BLOCK, 32);
   lda(0);
   assert(popCPUStack() == addr);
   freeVMContext();
@@ -248,7 +263,7 @@ void testDataMovementInstructions(void) {
   // str 테스트
   ctx = setupContext();
   addr = ctx->ds + 48;
-  setSymbol(0, GLOBAL_BLOCK, addr);
+  setSymbol(0, GLOBAL_BLOCK, 48);
   pushCPUStack(777);
   str(0);
   assert(ctx->memory[addr] == 777);
@@ -266,25 +281,25 @@ void testDataMovementInstructions(void) {
   // sti 테스트
   ctx = setupContext();
   addr = ctx->ds + 80;
-  pushCPUStack(333);
   pushCPUStack(addr);
+  pushCPUStack(333);
   sti(0);
   assert(ctx->memory[addr] == 333);
   freeVMContext();
 
   // lod 실패
-  // 주소가 ds보다 앞임
+  // 전역인데 주소가 -임
   ctx = setupContext();
-  setSymbol(0, GLOBAL_BLOCK, ctx->ds - 4);
+  setSymbol(0, GLOBAL_BLOCK, -4);
   lod(0);
   assert((ctx->flags & ERR_INVALID_ADDR) == ERR_INVALID_ADDR);
   assert(ctx->cpu_stack.top == 0);
   freeVMContext();
 
   // str 실패
-  // 주소가 bp임
+  // 이상한 주소를 가리킴
   ctx = setupContext();
-  setSymbol(0, GLOBAL_BLOCK + 1, ctx->bp);
+  setSymbol(0, GLOBAL_BLOCK + 1, INIT_MEMORY_SIZE - ctx->bp);
   pushCPUStack(1234);
   str(0);
   assert((ctx->flags & ERR_INVALID_ADDR) == ERR_INVALID_ADDR);
@@ -349,14 +364,4 @@ void testLogicalInstructions(void) {
   assert(runUnaryInst(not, 5) == 0);
 
   printf("test : logical instructions pass\n");
-}
-
-void testDecodeArgSignExtension(void) {
-  int inst = (-2) & 0x03FFFFFF;
-  assert(decodeArg(inst) == -2);
-
-  inst = 123456 & 0x03FFFFFF;
-  assert(decodeArg(inst) == 123456);
-
-  printf("test : decodeArg sign extension pass\n");
 }
