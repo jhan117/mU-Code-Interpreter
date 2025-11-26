@@ -18,11 +18,6 @@ void runAsCLI(const char *input_path, const char *output_path) {
     return;
   }
 
-  // UCodeLines ucode;
-  // ucode.ucode_lines = lines;
-  // ucode.opcode = malloc(sizeof(int) * line_count);
-  // ucode.line_count = line_count;
-
   printf("====== 어셈블 시작 ======\n");
   AssembleError result = assemble(lines, line_count);
   if (result != ASSEMBLE_ERR_NONE) {
