@@ -1,4 +1,4 @@
-#include "runner/inst.h"
+#include "runner/runner.h"
 #include "test.h"
 
 #include <assert.h>

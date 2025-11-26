@@ -3,22 +3,13 @@
 #include "core/constants.h"
 #include "core/types.h"
 
-#define INIT_OUTPUT_BUF_CAPACITY 50
-
-typedef struct {
-  char *out_buf;
-  int buf_capacity;
-  int buf_len;
-} Output;
-
-SnapshotList *getSnapshotList();
-
-void saveChanges();
-void initSnapshot();
-void initSnapshotList();
-void freeSnapshotList();
-void expandSnapshotList();
-void makeSnapshot();
-void readyToRun();
-void step();
+// 명령어 그룹 초기화
+void initInstGroup();
+void step(void);
 int runner();
+
+void execInstGroup0(int inst);
+void execInstGroup1(int inst);
+void execInstGroup2(int inst);
+void execInstGroup3(int inst);
+void execInstGroup4(int inst);

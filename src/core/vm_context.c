@@ -1,7 +1,7 @@
 #include "core/vm_context.h"
 
 #include "assembler/assemble_utils.h" // addSystemLabel()
-#include "runner/inst.h"
+#include "runner/runner.h"            //initInstGroup()
 #include <stdlib.h>
 #include <string.h>
 
@@ -48,6 +48,17 @@ void initVMContext() {
   ctx.changes.change_list = malloc(sizeof(Change *) * INIT_LIST_CAPACITY);
   ctx.changes.list_count = 0;
   ctx.changes.list_size = INIT_LIST_CAPACITY;
+
+  ctx.snapshot_list.snapshot_list =
+      malloc(sizeof(Snapshot) * INIT_SNAPSHOT_LIST_CAPACITY);
+  ctx.snapshot_list.snapshot_count = 0;
+  ctx.snapshot_list.snapshot_capacity = INIT_SNAPSHOT_LIST_CAPACITY;
+
+  ctx.output_buffer.data = malloc(sizeof(char) * INIT_OUTPUT_BUF_CAPACITY);
+  ctx.output_buffer.capacity = INIT_OUTPUT_BUF_CAPACITY;
+  ctx.output_buffer.length = 0;
+  if (ctx.output_buffer.data)
+    ctx.output_buffer.data[0] = '\0';
 
   // 통계 정보 초기화
   for (int i = 0; i < OPCODE_MAX; i++) {
@@ -97,6 +108,14 @@ void freeVMContext() {
   if (ctx.changes.change_list) {
     free(ctx.changes.change_list);
     ctx.changes.change_list = NULL;
+  }
+  if (ctx.snapshot_list.snapshot_list) {
+    free(ctx.snapshot_list.snapshot_list);
+    ctx.snapshot_list.snapshot_list = NULL;
+  }
+  if (ctx.output_buffer.data) {
+    free(ctx.output_buffer.data);
+    ctx.output_buffer.data = NULL;
   }
   if (ctx.cpu_stack.items) {
     free(ctx.cpu_stack.items);

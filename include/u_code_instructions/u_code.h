@@ -2,33 +2,11 @@
 
 #include "core/vm_context.h"
 
-// 명령어 그룹 초기화
-void initInstGroup();
-
-// 명령어 오류 검사
 int checkError(VMContext *ctx, const int *addr, const int *pc, const int *bp,
                const int *sp);
 
-typedef struct {
-  char *data;
-  int capacity;
-  int length;
-} OutputBuffer;
-
-OutputBuffer *getOutputBuffer();
-
-// 출력 버퍼 초기화
-void initOutBuffer();
-void freeOutBuffer();
-void catString(const char *s);
-void expandOutBuffer();
-
-// 명령어 그룹
-void execInstGroup0(int inst);
-void execInstGroup1(int inst);
-void execInstGroup2(int inst);
-void execInstGroup3(int inst);
-void execInstGroup4(int inst);
+int pushCPUStack(int);
+int popCPUStack(void);
 
 // alu 연산
 void add(int arg);
@@ -66,3 +44,7 @@ void sti(int arg);
 void Write();
 void Read();
 void lf();
+
+int reqWrite(const char *s);
+int reqRead();
+void reqLf();

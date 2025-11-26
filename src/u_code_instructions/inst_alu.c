@@ -1,6 +1,5 @@
-#include "core/vm_context.h"
-#include "runner/inst.h"
-#include "runner/stack_operations.h"
+#include "u_code_instructions/u_code.h"
+
 #include <stdio.h>
 
 void add(int arg) {

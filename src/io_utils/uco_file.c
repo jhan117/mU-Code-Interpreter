@@ -11,7 +11,7 @@ int ensureCapacity(char ***lines, int *capacity, int line_count) {
     return 1;
 
   int new_cap = (*capacity) * 2;
-  char **tmp = realloc(**lines ? **lines : *lines, sizeof(char *) * new_cap);
+  char **tmp = realloc(*lines, sizeof(char *) * new_cap);
   if (!tmp)
     return 0;
 

@@ -1,6 +1,7 @@
 #include "core/vm_context.h"
+#include "u_code_instructions/u_code.h"
+
 #include <stdlib.h>
-#include <string.h>
 
 static inline int isFull(void) {
   VMContext *ctx = getVMContext();
