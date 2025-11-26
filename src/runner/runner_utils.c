@@ -43,7 +43,8 @@ void freeSnapshotList() {
 void expandSnapshotList() {
   snapshot_list.snapshot_capacity *= 2;
   snapshot_list.snapshot_list =
-      realloc(snapshot_list.snapshot_list, snapshot_list.snapshot_capacity);
+      realloc(snapshot_list.snapshot_list,
+              sizeof(Snapshot) * snapshot_list.snapshot_capacity);
   return;
 }
 
