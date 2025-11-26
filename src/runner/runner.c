@@ -79,7 +79,7 @@ int runner() {
   int prev_pc = 0;
   while (1) {
     if (ctx->bp == -1) {
-      printf("[INFO] runner stopped\n");
+      printf("\n[INFO] runner stopped\n");
       return 0;
     }
     if (ctx->flags != 0) {

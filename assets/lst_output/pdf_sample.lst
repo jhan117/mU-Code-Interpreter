@@ -11,7 +11,7 @@
 [0010]            sym 2 1 10   
 [0011]            sym 2 11 1   
 [0012]            ldc 0         0x48000000 22     0        
-[0013]            ldc 0         0x48000000 22     0        
+[0013]            dup           0x9C000000 47     0        
 [0014]            str 2 11      0x4C000003 23     3        
 [0015]            str 2 0       0x4C000001 23     1        
 [0016] $$0        nop          
@@ -77,25 +77,25 @@
 proc  =   2     ret   =   3     ldp   =   4    
 push  =   4     call  =   4     ujp   =   1    
 tjp   =   0     fjp   =   1     lod   =  14    
-lda   =   5     ldc   =   4     str   =   6    
+lda   =   5     ldc   =   3     str   =   6    
 ldi   =   2     sti   =   2     gt    =   0    
 lt    =   1     ge    =   0     le    =   0    
 eq    =   0     ne    =   0     and   =   0    
 or    =   0     add   =   3     sub   =   4    
 mult  =   0     div   =   0     mod   =   0    
-not   =   0     neg   =   0     dup   =   0    
+not   =   0     neg   =   0     dup   =   1    
 
 ======명령어 실행 횟수======
 proc  =  11     ret   =  12     ldp   =  22    
 push  =  31     call  =  22     ujp   =  10    
 tjp   =   0     fjp   =  11     lod   = 133    
-lda   =  50     ldc   =  13     str   =  33    
+lda   =  50     ldc   =  12     str   =  33    
 ldi   =  20     sti   =  20     gt    =   0    
 lt    =  11     ge    =   0     le    =   0    
 eq    =   0     ne    =   0     and   =   0    
 or    =   0     add   =  30     sub   =  40    
 mult  =   0     div   =   0     mod   =   0    
-not   =   0     neg   =   0     dup   =   0    
+not   =   0     neg   =   0     dup   =   1    
 
 ======기타 통계======
 메모리 접근 횟수 = 355
