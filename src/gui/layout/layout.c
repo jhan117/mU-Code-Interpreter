@@ -1,7 +1,6 @@
 #include "gui/gui.h"
 
 void onActivate(GtkApplication *app, gpointer user_data) {
-
   GtkWidget *main_window = gtk_application_window_new(app);
   gtk_window_set_title(GTK_WINDOW(main_window), "mU-Code interpreter");
   gtk_window_set_default_size(GTK_WINDOW(main_window), 800, 600);

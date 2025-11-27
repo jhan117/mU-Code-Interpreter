@@ -63,3 +63,8 @@ void onInsertText(GtkTextBuffer *buffer, GtkTextIter *location, gchar *text,
 void guiIoWrite(const char *data);
 int guiIoRead();
 void guiIoLf();
+
+// help_dialog.c
+void onHelpUsage(GtkWidget *widget, gpointer user_data);
+void onHelpAbout(GtkWidget *widget, gpointer user_data);
+void onHelpInstruction(GtkWidget *widget, gpointer user_data);

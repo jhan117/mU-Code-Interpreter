@@ -61,14 +61,15 @@ GtkWidget *createMenubar() {
       {"Symbols", NULL, 0, onToggleSymbols},
   };
   const Menu help_child[] = {
-      {"GUI 사용법", NULL, 0, NULL},
-      {"About Team", NULL, 0, NULL},
+      {"GUI 사용법", NULL, 0, onHelpUsage},
+      {"명령어 사용법", NULL, 0, onHelpInstruction},
+      {"About Team", NULL, 0, onHelpAbout},
   };
   const Menu menus[] = {
       {"File", file_child, 2, NULL},
       {"Run", run_child, 1, NULL},
       {"View", view_child, 5, NULL},
-      {"Help", help_child, 2, NULL},
+      {"Help", help_child, 3, NULL},
   };
   const int menu_count = sizeof(menus) / sizeof(menus[0]);
 
