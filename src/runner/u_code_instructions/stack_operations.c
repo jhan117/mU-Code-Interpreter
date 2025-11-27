@@ -1,5 +1,5 @@
 #include "core/vm_context.h"
-#include "u_code_instructions/u_code.h"
+#include "runner/u_code_instructions/u_code.h"
 
 #include <stdlib.h>
 

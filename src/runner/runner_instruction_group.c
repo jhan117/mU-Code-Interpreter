@@ -1,7 +1,7 @@
 #include "core/instruction.h"
 #include "core/vm_context.h"
 #include "runner/runner.h"
-#include "u_code_instructions/u_code.h"
+#include "runner/u_code_instructions/u_code.h"
 
 #include <stdio.h>
 
