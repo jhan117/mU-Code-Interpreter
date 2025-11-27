@@ -171,17 +171,8 @@ void onSaveLst() {
   if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
     if (filename) {
-      char **out_lines = NULL;
-      int out_count = 0;
 
-      if (!makeLst(ctx->io_ctx.lines, ctx->io_ctx.line_count, &out_lines,
-                   &out_count)) {
-        g_warning("Failed to save LST file: %s", filename);
-        return 1;
-      }
-
-      if (!saveLst(filename, out_lines, out_count)) {
-        freeLst(out_lines, out_count);
+      if (!saveLst(filename, ctx->io_ctx.lines, ctx->io_ctx.line_count)) {
         g_warning("Failed to save LST file: %s", filename);
         return 1;
       } else {

@@ -91,7 +91,7 @@ int getUcodeView(char ***lines, int *line_count) {
       continue;
     }
 
-    char *line = g_strdup_printf("%-10.10s %s %s\n", label ? label : "",
+    char *line = g_strdup_printf("%-10.10s %s %s", label ? label : "",
                                  op ? op : "", oper ? oper : "");
 
     g_free(label);

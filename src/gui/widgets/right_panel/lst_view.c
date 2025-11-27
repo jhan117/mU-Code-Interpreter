@@ -26,13 +26,15 @@ TextScrollInfo createLstView() {
 void updateLstView() {
   GuiContext *ctx = getGuiContext();
 
-  resetAllText(ctx->lst_view);
+  const char **lines = (const char **)ctx->io_ctx.lines;
+  int count = ctx->io_ctx.line_count;
 
-  // char **lst_lines = NULL;
-  // int lst_count = 0;
-  // if (makeLst(ctx->io_ctx.lines, ctx->io_ctx.line_count, &lst_lines,
-  //             &lst_count)) {
-  //   for (int i = 0; i < lst_count; i++)
-  //     insertAtEnd(ctx->lst_view, lst_lines[i]);
-  // }
+  char *lst = makeLstString(lines, count);
+  if (!lst)
+    return;
+
+  resetAllText(ctx->lst_view);
+  insertAtEnd(ctx->lst_view, lst);
+
+  free(lst);
 }

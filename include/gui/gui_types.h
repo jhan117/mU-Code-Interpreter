@@ -60,6 +60,7 @@ typedef struct {
   GtkListStore *symbols_store;
 
   GtkWidget *reg_view;
+  GtkWidget *status_box;
   GtkWidget *cpu_view;
   GtkWidget *memory_view;
   GtkWidget *labels_view;

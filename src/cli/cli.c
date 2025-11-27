@@ -48,6 +48,5 @@ void runAsCLI(const char *input_path, const char *output_path) {
     printf("%s 에 LST 파일이 생성되었습니다.\n", lst_path);
   }
 
-  freeUco(lines, line_count);
   freeVMContext();
 }
