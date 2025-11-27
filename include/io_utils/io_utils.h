@@ -8,7 +8,6 @@ void freeUco(char **lines, int line_count);
 
 char *makeLstString(const char **src_lines, int src_count);
 int saveLst(const char *path, const char **src_lines, int src_count);
-void freeLst(char **lines, int line_count);
 
 char *joinLines(char **lines, int line_count);
 
