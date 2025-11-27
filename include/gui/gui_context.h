@@ -6,8 +6,6 @@
 typedef struct {
   GtkWidget *main_window;
 
-  int is_run_done;
-
   // 왼쪽 패널
   FileContext file_ctx;
   CodeContext code_ctx;

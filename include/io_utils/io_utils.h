@@ -3,12 +3,15 @@
 #include <sys/types.h> // ssize_t
 
 int loadUco(const char *path, char ***lines, int *line_count);
+int saveUco(const char *path, char **lines, int line_count);
 void freeUco(char **lines, int line_count);
-int saveUco(const char *path, const char *content);
 
-int loadLst(const char *path, char ***lines, int *line_count);
-void freeLst(char **lines, int line_count);
+int makeLst(const char **src_lines, int src_count, char ***out_lines,
+            int *out_count);
 int saveLst(const char *path, char **lines, int line_count);
+void freeLst(char **lines, int line_count);
+
+char *joinLines(char **lines, int line_count);
 
 // wrapper.c
 int OpenFile(const char *pathname, int flags);

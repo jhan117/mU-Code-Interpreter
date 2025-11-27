@@ -32,7 +32,6 @@ GtkWidget *createLeftPanel() {
   ctx->file_ctx.file_chooser = chooserBtn;
   ctx->code_ctx.assemble_view = assemble_info;
   ctx->run_btn = run_btn;
-  ctx->is_run_done = 0;
 
   return box;
 }

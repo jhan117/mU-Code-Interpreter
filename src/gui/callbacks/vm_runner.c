@@ -8,8 +8,8 @@ void onRun(GtkButton *button) {
   GuiContext *ctx = getGuiContext();
   getVMContext()->run_mode = GUI;
   toggleWidgetsVisible(0);
-  ctx->is_run_done = 0;
-  ctx->io_ctx.input_queue = g_async_queue_new();
+  IOContext *io_ctx = &ctx->io_ctx;
+  io_ctx->input_queue = g_async_queue_new();
 
   char **lines = NULL;
   int line_count = 0;
@@ -26,6 +26,11 @@ void onRun(GtkButton *button) {
 
   wd->lines = lines;
   wd->line_count = line_count;
+
+  io_ctx->line_count = wd->line_count;
+  io_ctx->lines = malloc(sizeof(char *) * wd->line_count);
+  for (int i = 0; i < wd->line_count; i++)
+    io_ctx->lines[i] = g_strdup(wd->lines[i]);
 
   startWorker(wd);
 }

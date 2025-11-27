@@ -15,7 +15,6 @@ void onFileChosen(GtkFileChooserButton *chooser);
 void onOpenUco();
 void onSaveUco();
 void onSaveAsUco();
-void onOpenLst();
 void onSaveLst();
 
 // ucode editor.c
@@ -57,7 +56,6 @@ void onToggleCPU(GtkWidget *widget, gpointer user_data);
 void onToggleMemory(GtkWidget *widget, gpointer user_data);
 void onToggleLabels(GtkWidget *widget, gpointer user_data);
 void onToggleSymbols(GtkWidget *widget, gpointer user_data);
-void onToggleStatistics(GtkWidget *widget, gpointer user_data);
 
 // io.c
 void onInsertText(GtkTextBuffer *buffer, GtkTextIter *location, gchar *text,

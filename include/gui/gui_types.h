@@ -59,16 +59,11 @@ typedef struct {
   GtkListStore *labels_store;
   GtkListStore *symbols_store;
 
-  GtkWidget *status_box;
   GtkWidget *reg_view;
   GtkWidget *cpu_view;
   GtkWidget *memory_view;
   GtkWidget *labels_view;
   GtkWidget *symbols_view;
-
-  GtkWidget *sep1;
-  GtkWidget *sep2;
-  GtkWidget *sep3;
 } StatusContext;
 
 typedef struct {
@@ -80,4 +75,8 @@ typedef struct {
 typedef struct {
   GtkWidget *io_view;
   GAsyncQueue *input_queue;
+
+  // 실행 완료 된 원본 저장
+  char **lines;
+  int line_count;
 } IOContext;

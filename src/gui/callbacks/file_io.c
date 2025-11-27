@@ -22,48 +22,22 @@ void onFileChosen(GtkFileChooserButton *chooser) {
   g_free(filename);
 }
 
-char *joinLines(char **lines, int line_count) {
-  if (line_count == 0 || !lines)
-    return NULL;
-
-  // 전체 길이 계산
-  size_t total_len = 0;
-  for (int i = 0; i < line_count; i++) {
-    if (lines[i]) {
-      total_len += strlen(lines[i]) + 1; // 문자열 길이 + '\n'
-    }
+static char *makeUcoFilename(const char *filename) {
+  const char *ext = strrchr(filename, '.');
+  if (!ext) {
+    // 확장자가 없으면 .uco 붙임
+    return g_strdup_printf("%s.uco", filename);
   }
-
-  // 마지막 '\0' 포함
-  char *result = malloc(total_len + 1);
-  if (!result)
-    return NULL;
-
-  result[0] = '\0'; // 초기화
-
-  // 문자열 합치기
-  for (int i = 0; i < line_count; i++) {
-    if (lines[i]) {
-      strcat(result, lines[i]);
-      strcat(result, "\n");
-    }
-  }
-
-  return result;
-}
-
-static void loadLstToTextView(const char *filename) {
-  // .lst 파일을 읽어서 GtkTextView에 표시
+  return g_strdup(filename); // 이미 확장자가 있으면 그대로
 }
 
 // 메뉴바의 "Open .uco" 메뉴 선택 시 호출되는 콜백
 void onOpenUco() {
   GuiContext *ctx = getGuiContext();
-  GtkWindow *parent = GTK_WINDOW(ctx->main_window);
 
   GtkWidget *dialog = gtk_file_chooser_dialog_new(
-      "Open .uco File", parent, GTK_FILE_CHOOSER_ACTION_OPEN, "_Cancel",
-      GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
+      "Open .uco File", ctx->main_window, GTK_FILE_CHOOSER_ACTION_OPEN,
+      "_Cancel", GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
 
   GtkFileFilter *filter = gtk_file_filter_new();
   gtk_file_filter_add_pattern(filter, "*.uco");
@@ -75,39 +49,15 @@ void onOpenUco() {
     if (filename) {
       char **lines = NULL;
       int line_count = 0;
-      loadUco(filename, &lines, &line_count);
-      updateUcodeView(&lines, &line_count);
 
-      g_free(ctx->file_ctx.uco_filename);
-      ctx->file_ctx.uco_filename = g_strdup(filename);
-      g_free(filename);
-      ctx->step_ctx.current_step = 0;
-    }
-  }
+      if (loadUco(filename, &lines, &line_count)) {
+        updateUcodeView(&lines, &line_count);
 
-  gtk_widget_destroy(dialog);
-}
+        g_free(ctx->file_ctx.uco_filename);
+        ctx->file_ctx.uco_filename = g_strdup(filename);
+        ctx->step_ctx.current_step = 0;
+      }
 
-// 메뉴바의 "Open .lst" 메뉴 선택 시 호출되는 콜백
-void onOpenLst() {
-  GuiContext *ctx = getGuiContext();
-
-  GtkTextView *lst_view = GTK_TEXT_VIEW(ctx->lst_view);
-  GtkWindow *parent = GTK_WINDOW(ctx->main_window);
-
-  GtkWidget *dialog = gtk_file_chooser_dialog_new(
-      "Open .lst File", parent, GTK_FILE_CHOOSER_ACTION_OPEN, "_Cancel",
-      GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
-
-  GtkFileFilter *filter = gtk_file_filter_new();
-  gtk_file_filter_add_pattern(filter, "*.lst");
-  gtk_file_filter_set_name(filter, "LST files (*.lst)");
-  gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
-
-  if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-    char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
-    if (filename) {
-      loadLstToTextView(filename);
       g_free(filename);
     }
   }
@@ -127,36 +77,19 @@ void onSaveUco() {
 
   char **lines = NULL;
   int line_count = 0;
-  char *content;
   if (getUcodeView(&lines, &line_count)) {
-    content = joinLines(lines, line_count);
-    for (int i = 0; i < line_count; i++) {
-      free(lines[i]);
+    if (!saveUco(file_name, lines, line_count)) {
+      g_warning("Failed to save .uco file: %s", file_name);
     }
-    free(lines);
   }
-  if (!saveUco(file_name, content)) {
-    g_warning("Failed to save .uco file: %s", file_name);
-  }
-  g_free(content);
-}
-
-static char *ensureUcoExtension(const char *filename) {
-  const char *ext = strrchr(filename, '.');
-  if (!ext) {
-    // 확장자가 없으면 .uco 붙임
-    return g_strdup_printf("%s.uco", filename);
-  }
-  return g_strdup(filename); // 이미 확장자가 있으면 그대로
 }
 
 void onSaveAsUco() {
   GuiContext *ctx = getGuiContext();
-  GtkWindow *parent = GTK_WINDOW(ctx->main_window);
 
   GtkWidget *dialog = gtk_file_chooser_dialog_new(
-      "Save .uco File", parent, GTK_FILE_CHOOSER_ACTION_SAVE, "_Cancel",
-      GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
+      "Save .uco File", ctx->main_window, GTK_FILE_CHOOSER_ACTION_SAVE,
+      "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
 
   GtkFileFilter *filter = gtk_file_filter_new();
   gtk_file_filter_add_pattern(filter, "*.uco");
@@ -166,25 +99,19 @@ void onSaveAsUco() {
   if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
     if (filename) {
-      char *final_name = ensureUcoExtension(filename);
-
+      char *final_name = makeUcoFilename(filename);
       char **lines = NULL;
       int line_count = 0;
-      char *content;
       if (getUcodeView(&lines, &line_count)) {
-        content = joinLines(lines, line_count);
-        for (int i = 0; i < line_count; i++) {
-          free(lines[i]);
+        if (!saveUco(final_name, lines, line_count)) {
+          g_warning("Failed to save .uco file: %s", final_name);
+        } else {
+          g_free(ctx->file_ctx.uco_filename);
+          ctx->file_ctx.uco_filename = g_strdup(final_name);
         }
-        free(lines);
       }
-      if (!saveUco(final_name, content)) {
-        g_warning("Failed to save .uco file: %s", final_name);
-      } else {
-        g_free(ctx->file_ctx.uco_filename);
-        ctx->file_ctx.uco_filename = g_strdup(final_name);
-      }
-      g_free(content);
+
+      g_free(final_name);
       g_free(filename);
     }
   }
@@ -192,25 +119,77 @@ void onSaveAsUco() {
   gtk_widget_destroy(dialog);
 }
 
+static char *makeLstFilename(const char *uco_filename,
+                             const char *lst_filename) {
+  if (lst_filename) {
+    return g_strdup(lst_filename);
+  }
+
+  if (uco_filename) {
+    char *base = g_path_get_basename(uco_filename); // ex4.uco
+    char *dot = strrchr(base, '.');                 // 마지막 '.' 찾기
+    char *result;
+
+    if (dot) {
+      *dot = '\0'; // 확장자 제거
+    }
+
+    result = g_strdup_printf("%s.lst", base);
+    g_free(base);
+    return result;
+  }
+
+  return NULL;
+}
+
 void onSaveLst() {
   GuiContext *ctx = getGuiContext();
-  GtkWindow *parent = GTK_WINDOW(ctx->main_window);
 
   GtkWidget *dialog = gtk_file_chooser_dialog_new(
-      "Save .lst File", parent, GTK_FILE_CHOOSER_ACTION_SAVE, "_Cancel",
-      GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
+      "Save .lst File", ctx->main_window, GTK_FILE_CHOOSER_ACTION_SAVE,
+      "_Cancel", GTK_RESPONSE_CANCEL, "_Save", GTK_RESPONSE_ACCEPT, NULL);
 
   GtkFileFilter *filter = gtk_file_filter_new();
   gtk_file_filter_add_pattern(filter, "*.lst");
   gtk_file_filter_set_name(filter, "LST files (*.lst)");
   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter);
 
+  char *default_name = NULL;
+  if (ctx->file_ctx.lst_filename) {
+    char *base = g_path_get_basename(ctx->file_ctx.lst_filename);
+    default_name = g_strdup(base);
+    g_free(base);
+  } else {
+    default_name = makeLstFilename(ctx->file_ctx.uco_filename, NULL);
+  }
+
+  if (default_name) {
+    gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(dialog), default_name);
+    g_free(default_name);
+  }
+
   if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
-    char *filename = ctx->file_ctx.lst_filename;
+    char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
     if (filename) {
-      // load 하기
-      // save 하기
-      // g_free(content);
+      char **out_lines = NULL;
+      int out_count = 0;
+
+      if (!makeLst(ctx->io_ctx.lines, ctx->io_ctx.line_count, &out_lines,
+                   &out_count)) {
+        g_warning("Failed to save LST file: %s", filename);
+        return 1;
+      }
+
+      if (!saveLst(filename, out_lines, out_count)) {
+        freeLst(out_lines, out_count);
+        g_warning("Failed to save LST file: %s", filename);
+        return 1;
+      } else {
+        g_message("LST file saved: %s", filename);
+
+        g_free(ctx->file_ctx.lst_filename);
+        ctx->file_ctx.lst_filename = g_strdup(filename);
+      }
       g_free(filename);
     }
   }

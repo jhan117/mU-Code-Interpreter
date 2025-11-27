@@ -27,9 +27,6 @@ void updateStep();
 // notebook_tab.c
 GtkWidget *createNotebookTab(NotebookPageInfo *pages, int page_count);
 
-// runner_dialog.c
-GtkWidget *createWorkerData(const char *title, const char *createial_text);
-
 // status_view.c (callback x)
 GtkWidget *createStatusView();
 void updateStatusView();
@@ -59,7 +56,11 @@ GtkWidget *createStatisticsView();
 void updateStatisticsView();
 
 // io_view.c
-GtkWidget *createIOView();
+TextScrollInfo createIOView();
+
+// lst_view.c
+TextScrollInfo createLstView();
+void updateLstView();
 
 // utils.c
 void toggleWidgetsVisible(int is_true);

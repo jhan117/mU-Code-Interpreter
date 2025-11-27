@@ -4,7 +4,7 @@
 #include <unistd.h>
 
 int OpenFile(const char *pathname, int flags) {
-  int fd = open(pathname, flags);
+  int fd = open(pathname, flags, 0644);
   if (fd < 0) {
     perror("open");
     exit(1);

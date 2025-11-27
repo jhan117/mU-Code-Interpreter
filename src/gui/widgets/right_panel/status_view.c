@@ -16,28 +16,16 @@ GtkWidget *createStatusView() {
   GtkWidget *labels = createLabelsView();
   GtkWidget *symbols = createSymbolsView();
 
-  // 구분 선
-  GtkWidget *sep1 = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
-  GtkWidget *sep2 = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
-  GtkWidget *sep3 = gtk_separator_new(GTK_ORIENTATION_VERTICAL);
-
   gtk_box_pack_start(GTK_BOX(status_box), cpu, TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(status_box), sep1, FALSE, FALSE, 4);
   gtk_box_pack_start(GTK_BOX(status_box), mem, TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(status_box), sep2, FALSE, FALSE, 4);
   gtk_box_pack_start(GTK_BOX(status_box), labels, TRUE, TRUE, 0);
-  gtk_box_pack_start(GTK_BOX(status_box), sep3, FALSE, FALSE, 4);
   gtk_box_pack_start(GTK_BOX(status_box), symbols, TRUE, TRUE, 0);
 
-  StatusContext status_ctx = getGuiContext()->status_ctx;
-  status_ctx.status_box = status_box;
-  status_ctx.cpu_view = cpu;
-  status_ctx.memory_view = mem;
-  status_ctx.labels_view = status_box;
-  status_ctx.symbols_view = symbols;
-  status_ctx.sep1 = sep1;
-  status_ctx.sep2 = sep2;
-  status_ctx.sep3 = sep3;
+  StatusContext *status_ctx = &getGuiContext()->status_ctx;
+  status_ctx->cpu_view = cpu;
+  status_ctx->memory_view = mem;
+  status_ctx->labels_view = labels;
+  status_ctx->symbols_view = symbols;
 
   return status_box;
 }

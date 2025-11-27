@@ -5,26 +5,26 @@
 
 static gboolean finish(gpointer data) {
   WorkerData *wd = (WorkerData *)data;
-  if (wd) {
-    free(wd);
-  }
+  IOContext *io_ctx = &getGuiContext()->io_ctx;
+
+  free(wd);
   toggleWidgetsVisible(1);
-  return FALSE;
+  return G_SOURCE_REMOVE;
 }
 
 static gboolean updateAssemble(gpointer data) {
   updateAssembleView();
-  return FALSE;
+  return G_SOURCE_REMOVE;
 }
 
 static gboolean markRunDone(gpointer data) {
   GuiContext *ctx = getGuiContext();
-  ctx->is_run_done = 1;
   ctx->step_ctx.current_step = 0;
   updateLabelsView();
   updateSymbolsView();
   updateStatisticsView();
   updateStatusView();
+  updateLstView();
   initStep();
 
   return G_SOURCE_REMOVE;
