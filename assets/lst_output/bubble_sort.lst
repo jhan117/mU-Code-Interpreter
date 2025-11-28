@@ -158,31 +158,31 @@
 [0157]            ret           0x04000000 1      0        
 
 ===========실행 결과=========
-2 5 7 9 10 
+1 2 3 4 5 
 
 ========명령어 사용 횟수======
-proc  =   1     ret   =   2     ldp   =   3    
-push  =   2     call  =   3     ujp   =   4    
-tjp   =   3     fjp   =   2     lod   =  22    
-lda   =   8     ldc   =  14     str   =  10    
-ldi   =   5     sti   =   2     gt    =   1    
-lt    =   1     ge    =   3     le    =   0    
-eq    =   0     ne    =   0     and   =   0    
-or    =   0     add   =   7     sub   =  11    
-mult  =   0     div   =   0     mod   =   0    
-not   =   0     neg   =   0     dup   =   0    
+proc  =   1      ret   =   2      ldp   =   3    
+push  =   2      call  =   3      ujp   =   4    
+tjp   =   3      fjp   =   2      lod   =  22    
+lda   =   8      ldc   =  14      str   =  10    
+ldi   =   5      sti   =   2      gt    =   1    
+lt    =   1      ge    =   3      le    =   0    
+eq    =   0      ne    =   0      and   =   0    
+or    =   0      add   =   7      sub   =  11    
+mult  =   0      div   =   0      mod   =   0    
+not   =   0      neg   =   0      dup   =   0    
 
 ======명령어 실행 횟수======
-proc  =   1     ret   =   2     ldp   =  11    
-push  =  10     call  =  11     ujp   =  24    
-tjp   =  25     fjp   =  16     lod   = 155    
-lda   =  50     ldc   =  71     str   =  37    
-ldi   =  35     sti   =  10     gt    =  10    
-lt    =   6     ge    =  25     le    =   0    
-eq    =   0     ne    =   0     and   =   0    
-or    =   0     add   =  44     sub   =  83    
-mult  =   0     div   =   0     mod   =   0    
-not   =   0     neg   =   0     dup   =   0    
+proc  =   1      ret   =   2      ldp   =  11    
+push  =  10      call  =  11      ujp   =  24    
+tjp   =  25      fjp   =  16      lod   = 130    
+lda   =  30      ldc   =  61      str   =  32    
+ldi   =  25      sti   =   0      gt    =  10    
+lt    =   6      ge    =  25      le    =   0    
+eq    =   0      ne    =   0      and   =   0    
+or    =   0      add   =  34      sub   =  63    
+mult  =   0      div   =   0      mod   =   0    
+not   =   0      neg   =   0      dup   =   0    
 
 ======기타 통계======
-메모리 접근 횟수 = 323
+메모리 접근 횟수 = 253
