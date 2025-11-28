@@ -31,11 +31,12 @@ GtkWidget *createStatusView() {
 }
 
 void updateStatusView() {
-  VMContext *ctx = getVMContext();
-  StepContext *step_ctx = &getGuiContext()->step_ctx;
+  VMContext *vm_ctx = getVMContext();
+  GuiContext *ctx = getGuiContext();
+  StepContext *step_ctx = &ctx->step_ctx;
 
   int target_step = gtk_adjustment_get_value(step_ctx->adj);
-  SnapshotList *snapshot_list = &ctx->snapshot_list;
+  SnapshotList *snapshot_list = &vm_ctx->snapshot_list;
 
   int snap_idx = target_step / SNAPSHOT_INTERVAL;
   int snapshot_count = snapshot_list->snapshot_count;
@@ -59,6 +60,7 @@ void updateStatusView() {
   updateCPUView();
   updateMemoryView();
 
-  highlightLine();
-  highlightRow();
+  highlightLine(ctx->code_ctx.ucode_view.text_view,
+                vm_ctx->source_map.line[vm_ctx->prev_pc]);
+  highlightLine(ctx->code_ctx.assemble_view.text_view, vm_ctx->prev_pc);
 }

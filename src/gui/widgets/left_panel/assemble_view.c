@@ -26,32 +26,7 @@ void updateAssembleView() {
   GtkWidget *text_view = getGuiContext()->code_ctx.assemble_view.text_view;
 
   resetAllText(text_view);
-  insertAtEnd(text_view, printAssembleRes());
-}
-
-void highlightLine() {
-  GuiContext *ctx = getGuiContext();
-  GtkWidget *text_view = ctx->code_ctx.assemble_view.text_view;
-  GtkTextBuffer *buffer = gtk_text_view_get_buffer(text_view);
-
-  GtkTextTagTable *table = gtk_text_buffer_get_tag_table(buffer);
-  GtkTextTag *tag = gtk_text_tag_table_lookup(table, "highlight");
-  if (!tag) {
-    tag = gtk_text_tag_new("highlight");
-    g_object_set(tag, "foreground", "red", NULL);
-    gtk_text_tag_table_add(table, tag);
-  }
-
-  // 전체 글에서 태그 제거
-  GtkTextIter start, end;
-  gtk_text_buffer_get_start_iter(buffer, &start);
-  gtk_text_buffer_get_end_iter(buffer, &end);
-  gtk_text_buffer_remove_tag(buffer, tag, &start, &end);
-
-  GtkTextIter iter;
-  gtk_text_buffer_get_iter_at_line(buffer, &iter, getVMContext()->prev_pc);
-
-  GtkTextIter line_end = iter;
-  gtk_text_iter_forward_to_line_end(&line_end);
-  gtk_text_buffer_apply_tag(buffer, tag, &iter, &line_end);
+  char *text = printAssembleRes();
+  insertAtEnd(text_view, text);
+  free(text);
 }

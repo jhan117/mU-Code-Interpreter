@@ -2,149 +2,79 @@
 
 #include "core/vm_context.h"
 
-GtkWidget *createUcodeView() {
-  GtkListStore *store = gtk_list_store_new(4, G_TYPE_STRING, G_TYPE_STRING,
-                                           G_TYPE_STRING, G_TYPE_STRING);
+TextScrollInfo createUcodeView() {
+  GtkWidget *text_view = gtk_text_view_new();
+  gtk_text_view_set_left_margin(GTK_TEXT_VIEW(text_view), 12);
+  gtk_text_view_set_right_margin(GTK_TEXT_VIEW(text_view), 12);
+  gtk_text_view_set_top_margin(GTK_TEXT_VIEW(text_view), 8);
+  gtk_text_view_set_bottom_margin(GTK_TEXT_VIEW(text_view), 8);
 
-  GtkWidget *tree_view = gtk_tree_view_new_with_model(store);
-  gtk_tree_view_set_grid_lines(tree_view, GTK_TREE_VIEW_GRID_LINES_BOTH);
+  GtkWidget *text_scroll = gtk_scrolled_window_new(NULL, NULL);
+  gtk_container_add(GTK_CONTAINER(text_scroll), text_view);
+  gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(text_scroll),
+                                 GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
-  GtkCellRenderer *renderer1 =
-      addColumn(tree_view, store, "Label", 0, onLabelEdited);
-  GtkCellRenderer *renderer2 =
-      addColumn(tree_view, store, "Operator", 1, onOperatorEdited);
-  GtkCellRenderer *renderer3 =
-      addColumn(tree_view, store, "Operand", 2, onOperandEdited);
-
-  GtkTreeIter iter;
-  gtk_list_store_append(store, &iter);
-  gtk_list_store_set(store, &iter, 0, "", 1, "", 2, "", -1);
-
-  GtkWidget *scrolled = gtk_scrolled_window_new(NULL, NULL);
-  gtk_container_add(GTK_CONTAINER(scrolled), tree_view);
-  gtk_scrolled_window_set_policy(scrolled, GTK_POLICY_AUTOMATIC,
-                                 GTK_POLICY_AUTOMATIC);
-
-  // 행 추가/삭제 키 입력 이벤트 (중간 삽입 가능하도록 나중에 추가하자...)
-  g_signal_connect(tree_view, "key-press-event", G_CALLBACK(onKeyPress), NULL);
-
-  TableInfo *ucode_table = &getGuiContext()->code_ctx.ucode_table;
-  ucode_table->tree_view = tree_view;
-  ucode_table->list_data = store;
-  ucode_table->renderer[0] = renderer1;
-  ucode_table->renderer[1] = renderer2;
-  ucode_table->renderer[2] = renderer3;
-
-  return scrolled;
+  TextScrollInfo info = {text_view, text_scroll};
+  return info;
 }
 
-void updateUcodeView(char ***lines, int *line_count) {
+void updateUcodeView(char *content) {
   GuiContext *ctx = getGuiContext();
+  GtkWidget *text_view = ctx->code_ctx.ucode_view.text_view;
 
-  GtkListStore *store = ctx->code_ctx.ucode_table.list_data;
-  gtk_list_store_clear(store);
+  resetAllText(text_view);
+  insertAtEnd(text_view, content);
 
-  for (int i = 0; i < *line_count; i++) {
-    char label[MAX_LABEL_LEN] = "";
-    char opcode[MAX_OP_LEN] = "";
-    char operands[LINE_BUFFER_LEN] = "";
-
-    if (!parseTable((*lines)[i], label, opcode, operands)) {
-      printf("gui parsing 오류!\n");
-      return;
-    }
-
-    GtkTreeIter iter;
-    gtk_list_store_append(store, &iter);
-    gtk_list_store_set(store, &iter, 0, label, 1, opcode, 2, operands, -1);
-  }
-
-  freeUco(*lines, *line_count);
+  free(content);
   ctx->step_ctx.current_step = 0;
 }
 
 int getUcodeView(char ***lines, int *line_count) {
-  GtkTreeModel *model =
-      GTK_TREE_MODEL(getGuiContext()->code_ctx.ucode_table.list_data);
+  GtkWidget *text_view = getGuiContext()->code_ctx.ucode_view.text_view;
 
-  GtkTreeIter iter;
-  if (!gtk_tree_model_get_iter_first(model, &iter))
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_view));
+
+  int total_lines = gtk_text_buffer_get_line_count(buffer);
+
+  *lines = malloc(sizeof(char *) * total_lines);
+  if (!*lines)
     return 0;
 
-  int capacity = INIT_LINE_CAPACITY;
-  char **result = malloc(sizeof(char *) * capacity);
-  if (!result)
-    return 0;
   *line_count = 0;
 
-  do {
-    char *label = NULL;
-    char *op = NULL;
-    char *oper = NULL;
-    gtk_tree_model_get(model, &iter, 0, &label, 1, &op, 2, &oper, -1);
+  GtkTextIter iter;
+  gtk_text_buffer_get_start_iter(buffer, &iter);
 
-    if ((!label || label[0] == '\0') && (!op || op[0] == '\0') &&
-        (!oper || oper[0] == '\0')) {
-      g_free(label);
-      g_free(op);
-      g_free(oper);
-      continue;
-    }
+  for (int i = 0; i < total_lines; i++) {
+    GtkTextIter line_end = iter;
+    gtk_text_iter_forward_to_line_end(&line_end);
 
-    char *line = g_strdup_printf("%-10.10s %s %s", label ? label : "",
-                                 op ? op : "", oper ? oper : "");
-
-    g_free(label);
-    g_free(op);
-    g_free(oper);
-
+    char *line = gtk_text_buffer_get_text(buffer, &iter, &line_end, FALSE);
     if (!line) {
-      for (int i = 0; i < *line_count; i++)
-        free(result[i]);
-      free(result);
+      for (int j = 0; j < *line_count; j++)
+        g_free((*lines)[j]);
+      free(*lines);
+      *lines = NULL;
+      *line_count = 0;
       return 0;
     }
 
-    if (*line_count >= capacity) {
-      capacity *= 2;
-      char **tmp = realloc(result, sizeof(char *) * capacity);
-      if (!tmp) {
-        free(line);
-        for (int i = 0; i < *line_count; i++)
-          free(result[i]);
-        free(result);
-        return 0;
-      }
-      result = tmp;
-    }
-
-    result[*line_count] = line;
+    (*lines)[*line_count] = line; // 위젯꺼니까 g_free로 나중에 해제
     (*line_count)++;
 
-  } while (gtk_tree_model_iter_next(model, &iter));
+    gtk_text_iter_forward_line(&iter);
+  }
 
-  *lines = result;
   return 1;
 }
 
-void highlightRow() {
-  GuiContext *ctx = getGuiContext();
-  GtkListStore *store = ctx->code_ctx.ucode_table.list_data;
-  int prev = ctx->code_ctx.uco_prev_line;
+// 메모리 해제
+void freeUcoView(char **lines, int line_count) {
+  if (!lines)
+    return;
 
-  VMContext *vm_ctx = getVMContext();
-  int cur_line = vm_ctx->source_map.line[vm_ctx->prev_pc];
-
-  GtkTreeIter iter;
-  if (prev >= 0 &&
-      gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(store), &iter, NULL, prev)) {
-    gtk_list_store_set(store, &iter, 3, NULL, -1);
+  for (int i = 0; i < line_count; i++) {
+    g_free(lines[i]);
   }
-
-  if (cur_line >= 0 && gtk_tree_model_iter_nth_child(GTK_TREE_MODEL(store),
-                                                     &iter, NULL, cur_line)) {
-    gtk_list_store_set(store, &iter, 3, "#ff0000", -1);
-  }
-
-  ctx->code_ctx.uco_prev_line = cur_line;
+  free(lines);
 }

@@ -8,11 +8,11 @@ GtkWidget *createLeftPanel() {
   g_signal_connect(chooserBtn, "file-set", G_CALLBACK(onFileChosen), NULL);
 
   // 탭: ucode 에디터 + 어셈블 뷰(편집 불가)
-  GtkWidget *ucode_scroll = createUcodeView();
+  TextScrollInfo ucode_info = createUcodeView();
   TextScrollInfo assemble_info = createAssembleView();
 
   NotebookPageInfo pages[] = {
-      {"uCode", ucode_scroll},
+      {"uCode", ucode_info.scroll},
       {"assemble 결과", assemble_info.scroll},
   };
 
@@ -30,6 +30,7 @@ GtkWidget *createLeftPanel() {
 
   GuiContext *ctx = getGuiContext();
   ctx->file_ctx.file_chooser = chooserBtn;
+  ctx->code_ctx.ucode_view = ucode_info;
   ctx->code_ctx.assemble_view = assemble_info;
   ctx->run_btn = run_btn;
 

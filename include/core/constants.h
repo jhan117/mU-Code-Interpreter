@@ -31,6 +31,7 @@
 #define HD_NUM_SP 6
 #define HD_NUM_BP 7
 #define HD_NUM_PREV_PC 8
+#define HD_NUM_CPU_TOP 9
 
 #define OPCODE_MAX 48
 #define TOTAL_OPCODE_GROUPS 5
