@@ -62,7 +62,7 @@ GtkWidget *createMenubar() {
   };
   const Menu help_child[] = {
       {"GUI 사용법", NULL, 0, onHelpUsage},
-      {"명령어 사용법", NULL, 0, onHelpInstruction},
+      {"명령어 설명", NULL, 0, onHelpInstruction},
       {"About Team", NULL, 0, onHelpAbout},
   };
   const Menu menus[] = {
