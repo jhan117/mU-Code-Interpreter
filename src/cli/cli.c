@@ -19,17 +19,15 @@ void runAsCLI(const char *input_path, const char *output_path) {
   }
 
   printf("====== 어셈블 시작 ======\n");
-  ErrorResult res = assemble(lines, line_count);
-  if (res.src != ERR_SRC_NONE) {
-    printf("[ERROR] Assemble exited with error\n");
+  AssembleError result = assemble(lines, line_count);
+  if (result != ASSEMBLE_ERR_NONE) {
     freeUco(lines, line_count);
     return;
   }
   printf("====== 어셈블 완료 ======\n");
 
   printf("====== 실행 시작 ======\n");
-  res = runner();
-  if (res.src != ERR_SRC_NONE) {
+  if (runner() != 0) {
     fprintf(stderr, "[ERROR] Runner exited with error\n");
     freeUco(lines, line_count);
     return;

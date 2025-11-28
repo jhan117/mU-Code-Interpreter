@@ -18,7 +18,7 @@ static const ErrorMsg assemble_error_table[] = {
 static const int assemble_error_table_count =
     sizeof(assemble_error_table) / sizeof(assemble_error_table[0]);
 
-char *formatAsmError(AssembleError code, int line) {
+AssembleError returnError(AssembleError code, int line) {
   const char *msg = "unknown error";
 
   for (int i = 0; i < assemble_error_table_count; i++) {
@@ -28,20 +28,6 @@ char *formatAsmError(AssembleError code, int line) {
     }
   }
 
-  int len = snprintf(NULL, 0, "[ERROR] ucode Line %d: %s", line, msg);
-  char *buf = malloc(len + 1);
-  if (!buf)
-    return NULL;
-
-  snprintf(buf, len + 1, "[ERROR] ucode Line %d: %s", line, msg);
-  return buf; // free 필수
-}
-
-void printAsmError(AssembleError code, int line) {
-  char *msg = formatAsmError(code, line);
-
-  if (msg) {
-    printf("%s\n", msg);
-    free(msg);
-  }
+  printf("[ERROR] ucode Line %d: %s\n", line, msg);
+  return code;
 }

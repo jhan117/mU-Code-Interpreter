@@ -131,9 +131,8 @@ void highlightRow() {
   GuiContext *ctx = getGuiContext();
   GtkListStore *store = ctx->code_ctx.ucode_table.list_data;
   int prev = ctx->code_ctx.uco_prev_line;
-
   VMContext *vm_ctx = getVMContext();
-  int cur_line = vm_ctx->source_map.line[vm_ctx->prev_pc];
+  int cur_line = vm_ctx->source_map.line[vm_ctx->pc];
 
   GtkTreeIter iter;
   if (prev >= 0 &&

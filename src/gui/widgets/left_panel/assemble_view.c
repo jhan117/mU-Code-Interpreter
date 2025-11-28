@@ -42,14 +42,13 @@ void highlightLine() {
     gtk_text_tag_table_add(table, tag);
   }
 
-  // 전체 글에서 태그 제거
   GtkTextIter start, end;
   gtk_text_buffer_get_start_iter(buffer, &start);
   gtk_text_buffer_get_end_iter(buffer, &end);
   gtk_text_buffer_remove_tag(buffer, tag, &start, &end);
 
   GtkTextIter iter;
-  gtk_text_buffer_get_iter_at_line(buffer, &iter, getVMContext()->prev_pc);
+  gtk_text_buffer_get_iter_at_line(buffer, &iter, getVMContext()->pc);
 
   GtkTextIter line_end = iter;
   gtk_text_iter_forward_to_line_end(&line_end);

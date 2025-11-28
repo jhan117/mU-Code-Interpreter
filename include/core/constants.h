@@ -30,7 +30,6 @@
 #define HD_NUM_SS 5
 #define HD_NUM_SP 6
 #define HD_NUM_BP 7
-#define HD_NUM_PREV_PC 8
 
 #define OPCODE_MAX 48
 #define TOTAL_OPCODE_GROUPS 5

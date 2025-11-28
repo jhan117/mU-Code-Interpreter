@@ -66,6 +66,3 @@ void updateLstView();
 void toggleWidgetsVisible(int is_true);
 void resetAllText(GtkWidget *text_view);
 void insertAtEnd(GtkWidget *text_view, const char *text);
-
-// message_diag.c
-void showMessage(GtkMessageType type, const char *message);

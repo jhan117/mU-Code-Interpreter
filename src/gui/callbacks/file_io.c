@@ -14,13 +14,11 @@ void onFileChosen(GtkFileChooserButton *chooser) {
 
   char **lines = NULL;
   int line_count = 0;
-  if (!loadUco(filename, &lines, &line_count)) {
-    showMessage(GTK_MESSAGE_ERROR, ".uco 파일을 불러 올 수 없습니다.");
-    g_free(filename);
+  if (!loadUco(filename, &lines, &line_count))
     return;
-  }
 
   updateUcodeView(&lines, &line_count);
+
   g_free(filename);
 }
 
@@ -51,16 +49,16 @@ void onOpenUco() {
     if (filename) {
       char **lines = NULL;
       int line_count = 0;
-      if (!loadUco(filename, &lines, &line_count)) {
-        showMessage(GTK_MESSAGE_ERROR, ".uco 파일을 불러 올 수 없습니다.");
-        g_free(filename);
-        return;
+
+      if (loadUco(filename, &lines, &line_count)) {
+        updateUcodeView(&lines, &line_count);
+
+        g_free(ctx->file_ctx.uco_filename);
+        ctx->file_ctx.uco_filename = g_strdup(filename);
+        ctx->step_ctx.current_step = 0;
       }
 
-      updateUcodeView(&lines, &line_count);
-      g_free(ctx->file_ctx.uco_filename);
-      ctx->file_ctx.uco_filename = g_strdup(filename);
-      ctx->step_ctx.current_step = 0;
+      g_free(filename);
     }
   }
 
@@ -81,9 +79,7 @@ void onSaveUco() {
   int line_count = 0;
   if (getUcodeView(&lines, &line_count)) {
     if (!saveUco(file_name, lines, line_count)) {
-      showMessage(GTK_MESSAGE_ERROR, ".uco 파일을 저장할 수 없습니다.");
-    } else {
-      showMessage(GTK_MESSAGE_INFO, ".uco 파일이 저장되었습니다.");
+      g_warning("Failed to save .uco file: %s", file_name);
     }
   }
 }
@@ -108,9 +104,8 @@ void onSaveAsUco() {
       int line_count = 0;
       if (getUcodeView(&lines, &line_count)) {
         if (!saveUco(final_name, lines, line_count)) {
-          showMessage(GTK_MESSAGE_ERROR, ".uco 파일을 저장할 수 없습니다.");
+          g_warning("Failed to save .uco file: %s", final_name);
         } else {
-          showMessage(GTK_MESSAGE_INFO, ".uco 파일이 저장되었습니다.");
           g_free(ctx->file_ctx.uco_filename);
           ctx->file_ctx.uco_filename = g_strdup(final_name);
         }
@@ -178,10 +173,10 @@ void onSaveLst() {
     if (filename) {
 
       if (!saveLst(filename, ctx->io_ctx.lines, ctx->io_ctx.line_count)) {
-        showMessage(GTK_MESSAGE_ERROR, ".lst 파일을 저장할 수 없습니다.");
-        return;
+        g_warning("Failed to save LST file: %s", filename);
+        return 1;
       } else {
-        showMessage(GTK_MESSAGE_INFO, ".lst 파일이 저장되었습니다.");
+        g_message("LST file saved: %s", filename);
 
         g_free(ctx->file_ctx.lst_filename);
         ctx->file_ctx.lst_filename = g_strdup(filename);

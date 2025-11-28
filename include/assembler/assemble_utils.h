@@ -18,7 +18,7 @@ int findLabel(const char *name);
 const char *findLabelByAddr(int addr);
 AssembleError addLabel(const char *name, int addr);
 AssembleError addPatch(int addr, int src_idx, const char *name);
-ErrorResult applyPatches();
+AssembleError applyPatches();
 
 // symbol.c
 #define SYMBOL_NOT_FOUND -9999
@@ -38,4 +38,4 @@ FuncInfo *findFuncByName(char *name);
 FuncInfo *findFuncProc();
 AssembleError addCallPatch(const char *name, int param_cnt);
 CallPatch *findCallPatchByName(char *name);
-void applyCallPatch();
+AssembleError applyCallPatch();

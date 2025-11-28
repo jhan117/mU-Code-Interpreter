@@ -2,35 +2,30 @@
 
 #include "assembler/assemble.h" // assemble()
 #include "io_utils/io_utils.h"  // freeUco()
-#include "runner/runner.h"      // runner()
 
 static gboolean finish(gpointer data) {
   WorkerData *wd = (WorkerData *)data;
+  IOContext *io_ctx = &getGuiContext()->io_ctx;
+
   free(wd);
   toggleWidgetsVisible(1);
   return G_SOURCE_REMOVE;
 }
 
-static gboolean updateUIAfterRun(gpointer data) {
+static gboolean updateAssemble(gpointer data) {
   updateAssembleView();
+  return G_SOURCE_REMOVE;
+}
+
+static gboolean markRunDone(gpointer data) {
+  GuiContext *ctx = getGuiContext();
+  ctx->step_ctx.current_step = 0;
   updateLabelsView();
   updateSymbolsView();
   updateStatisticsView();
   updateStatusView();
   updateLstView();
   initStep();
-  return G_SOURCE_REMOVE;
-}
-
-static gboolean showErrorMessage(gpointer data) {
-  ErrorResult *err = (ErrorResult *)data;
-
-  if (err->src == ERR_SRC_ASSEMBLE)
-    showMessage(GTK_MESSAGE_ERROR, formatAsmError(err->code, err->line));
-  else
-    showMessage(GTK_MESSAGE_ERROR, formatRunError(err->line));
-
-  g_free(err);
 
   return G_SOURCE_REMOVE;
 }
@@ -38,27 +33,28 @@ static gboolean showErrorMessage(gpointer data) {
 static gpointer runWorkerThread(gpointer arg) {
   WorkerData *wd = (WorkerData *)arg;
 
-  ErrorResult asm_res = assemble(wd->lines, wd->line_count);
+  if (wd->line_count <= 0) {
+    g_idle_add(finish, wd);
+    return NULL;
+  }
+
+  int asm_res = assemble(wd->lines, wd->line_count);
   freeUco(wd->lines, wd->line_count);
 
-  if (asm_res.code != 0) {
-    ErrorResult *err = g_new0(ErrorResult, 1);
-    *err = asm_res;
-    g_idle_add(showErrorMessage, err);
+  if (asm_res != ASSEMBLE_ERR_NONE) {
     g_idle_add(finish, wd);
     return NULL;
   }
 
-  ErrorResult run_res = runner();
-  if (run_res.code != 0) {
-    ErrorResult *err = g_new0(ErrorResult, 1);
-    *err = run_res;
-    g_idle_add(showErrorMessage, err);
+  g_idle_add(updateAssemble, NULL);
+
+  int run_res = runner();
+  if (run_res != 0) {
     g_idle_add(finish, wd);
     return NULL;
   }
 
-  g_idle_add(updateUIAfterRun, NULL);
+  g_idle_add(markRunDone, NULL);
   g_idle_add(finish, wd);
 
   return NULL;

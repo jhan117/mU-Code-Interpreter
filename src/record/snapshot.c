@@ -33,7 +33,6 @@ void makeSnapshot() {
   ctx->snapshot_list.snapshot_list[idx].sp = ctx->sp;
   ctx->snapshot_list.snapshot_list[idx].bp = ctx->bp;
   ctx->snapshot_list.snapshot_list[idx].flags = ctx->flags;
-  ctx->snapshot_list.snapshot_list[idx].prev_pc = ctx->prev_pc;
   ctx->snapshot_list.snapshot_count++;
 }
 
@@ -52,5 +51,4 @@ void restoreSnapshot(const Snapshot *snap) {
   ctx->sp = snap->sp;
   ctx->bp = snap->bp;
   ctx->flags = snap->flags;
-  ctx->prev_pc = snap->prev_pc;
 }
