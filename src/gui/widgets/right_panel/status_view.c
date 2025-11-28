@@ -58,4 +58,7 @@ void updateStatusView() {
   updateRegView();
   updateCPUView();
   updateMemoryView();
+
+  highlightLine();
+  highlightRow();
 }

@@ -75,7 +75,7 @@ CallPatch *findCallPatchByName(char *name) {
   return NULL;
 }
 
-AssembleError applyCallPatch() {
+void applyCallPatch() {
   CallPatchList *call_patch_list = &getVMContext()->call_patch_list;
 
   for (int i = 0; i < call_patch_list->count; i++) {
@@ -83,5 +83,4 @@ AssembleError applyCallPatch() {
     FuncInfo *func = findFuncByName(patch->func_name);
     func->param_cnt = patch->param_cnt;
   }
-  return ASSEMBLE_ERR_NONE;
 }
