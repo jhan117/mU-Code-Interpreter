@@ -1,6 +1,6 @@
 #include "core/vm_context.h"
 #include "runner/runner.h"
-#include "runner/u_code_instructions/u_code.h"
+#include "runner/u_code.h"
 #include <stdio.h>
 
 int checkError(VMContext *ctx, const int *addr, const int *pc, const int *bp,
