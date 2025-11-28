@@ -19,4 +19,10 @@ typedef struct {
   const char *msg;
 } ErrorMsg;
 
-AssembleError returnError(AssembleError code, int line);
+typedef struct {
+  AssembleError code;
+  int line;
+} AssembleResult;
+
+char *formatAsmError(AssembleError code, int line);
+void printAsmError(AssembleError code, int line);

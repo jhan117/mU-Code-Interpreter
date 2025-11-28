@@ -64,7 +64,7 @@ void testRunnerErrorExit(void) {
   ctx->flags = ERR_INVALID_PC;
   ctx->bp = 0;
 
-  assert(runner() == -1);
+  assert(runner().src != ERR_SRC_NONE);
 
   printf("test : runner() error exit pass\n");
 }

@@ -6,7 +6,8 @@
 // 명령어 그룹 초기화
 void initInstGroup();
 void step(void);
-int runner();
+char *formatRunError(int line);
+ErrorResult runner();
 
 void execInstGroup0(int inst);
 void execInstGroup1(int inst);

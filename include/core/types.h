@@ -94,6 +94,8 @@ typedef struct {
   int sp;
   int bp;
   int flags;
+
+  int prev_pc; // 현재 실행 중
 } Snapshot;
 
 typedef struct {
@@ -124,3 +126,16 @@ typedef struct {
   int top;
   int *items;
 } Stack;
+
+// 에러 전용
+typedef enum {
+  ERR_SRC_NONE,
+  ERR_SRC_ASSEMBLE,
+  ERR_SRC_RUNNER,
+} ErrorSource;
+
+typedef struct {
+  ErrorSource src; // 어디 오류인지
+  int code;        // 오류 코드
+  int line;        // 오류 라인 (없으면 -1)
+} ErrorResult;

@@ -23,7 +23,9 @@ static void pushSrcLine(int line) {
   source_map->line[source_map->len++] = line;
 }
 
-AssembleError assemble(char **lines, int line_count) {
+ErrorResult assemble(char **lines, int line_count) {
+  ErrorResult ok = {ERR_SRC_NONE, 0, -1};
+
   VMContext *ctx = getVMContext();
   int addr = 0;
   FuncInfo *current_func = NULL;
@@ -40,8 +42,10 @@ AssembleError assemble(char **lines, int line_count) {
       continue;
 
     // 메모리 경계 체크
-    if (addr < 0 || addr >= INIT_MEMORY_SIZE)
-      return returnError(ASSEMBLE_ERR_MEMORY, i + 1);
+    if (addr < 0 || addr >= INIT_MEMORY_SIZE) {
+      printAsmError(ASSEMBLE_ERR_MEMORY, i + 1);
+      return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_MEMORY, i + 1};
+    }
 
     // 코드 파싱
     char label[MAX_LABEL_LEN];
@@ -53,19 +57,22 @@ AssembleError assemble(char **lines, int line_count) {
         parseLine(line, label, opcode, operands, &operand_count);
     if (parse_res != ASSEMBLE_ERR_NONE) {
       freeOperands(operands, operand_count);
-      return returnError(parse_res, i + 1);
+      printAsmError(parse_res, i + 1);
+      return (ErrorResult){ERR_SRC_ASSEMBLE, parse_res, i + 1};
     }
 
     // 라벨 확인
     if (label[0]) {
       if (findLabel(label) != LABEL_NOT_FOUND) {
         freeOperands(operands, operand_count);
-        return returnError(ASSEMBLE_ERR_LABEL_DUP, i + 1);
+        printAsmError(ASSEMBLE_ERR_LABEL_DUP, i + 1);
+        return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_LABEL_DUP, i + 1};
       }
       AssembleError label_res = addLabel(label, addr);
       if (label_res != ASSEMBLE_ERR_NONE) {
         freeOperands(operands, operand_count);
-        return returnError(label_res, i + 1);
+        printAsmError(label_res, i + 1);
+        return (ErrorResult){ERR_SRC_ASSEMBLE, label_res, i + 1};
       }
     }
 
@@ -73,7 +80,9 @@ AssembleError assemble(char **lines, int line_count) {
     const OpInfo *info = findOpInfoByName(opcode);
     if (!info) {
       freeOperands(operands, operand_count);
-      return returnError(ASSEMBLE_ERR_INVALID_FORMAT, i + 1);
+      printAsmError(ASSEMBLE_ERR_INVALID_FORMAT, i + 1);
+      return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_INVALID_FORMAT,
+                           i + 1};
     }
 
     // 어셈블러 전용 opcode 처리
@@ -81,14 +90,16 @@ AssembleError assemble(char **lines, int line_count) {
       if (strcmp(info->name, "bgn") == 0) {
         if (!isNumber(operands[0])) {
           freeOperands(operands, operand_count);
-          return returnError(ASSEMBLE_ERR_ARG_TYPE, i + 1);
+          printAsmError(ASSEMBLE_ERR_ARG_TYPE, i + 1);
+          return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_ARG_TYPE, i + 1};
         }
         ctx->g_var_cnt = atoi(operands[0]);
         current_func = addFunc("global", addr);
 
         if (!current_func) {
           freeOperands(operands, operand_count);
-          return returnError(ASSEMBLE_ERR_MEMORY, i + 1);
+          printAsmError(ASSEMBLE_ERR_MEMORY, i + 1);
+          return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_MEMORY, i + 1};
         }
         current_func->func_block = 1;
         continue;
@@ -96,19 +107,22 @@ AssembleError assemble(char **lines, int line_count) {
         if (!isNumber(operands[0]) || !isNumber(operands[1]) ||
             !isNumber(operands[2])) {
           freeOperands(operands, operand_count);
-          return returnError(ASSEMBLE_ERR_ARG_TYPE, i + 1);
+          printAsmError(ASSEMBLE_ERR_ARG_TYPE, i + 1);
+          return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_ARG_TYPE, i + 1};
         }
         int block = atoi(operands[0]);
         int offset = atoi(operands[1]);
         int size = atoi(operands[2]);
         if (findSymbol(block, offset) != SYMBOL_NOT_FOUND) {
           freeOperands(operands, operand_count);
-          return returnError(ASSEMBLE_ERR_VAR_DUP, i + 1);
+          printAsmError(ASSEMBLE_ERR_VAR_DUP, i + 1);
+          return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_VAR_DUP, i + 1};
         }
         AssembleError symbol_res = addSymbol(block, offset, size);
         if (symbol_res != ASSEMBLE_ERR_NONE) {
           freeOperands(operands, operand_count);
-          return returnError(symbol_res, i + 1);
+          printAsmError(symbol_res, i + 1);
+          return (ErrorResult){ERR_SRC_ASSEMBLE, symbol_res, i + 1};
         }
         const char *name = findLabelByAddr(addr - 1);
         if (name) {
@@ -129,27 +143,31 @@ AssembleError assemble(char **lines, int line_count) {
         validOperands(info, operands, operand_count, &operand_val, addr, i + 1);
     if (valid_operand_res != ASSEMBLE_ERR_NONE) {
       freeOperands(operands, operand_count);
-      return returnError(valid_operand_res, i + 1);
+      printAsmError(valid_operand_res, i + 1);
+      return (ErrorResult){ERR_SRC_ASSEMBLE, valid_operand_res, i + 1};
     }
 
     // 매개변수 확인
     switch (info->opcode) {
     case OP_PROC: {
       if (current_func) {
-        return returnError(ASSEMBLE_ERR_RETURN, i + 1);
+        printAsmError(ASSEMBLE_ERR_RETURN, i + 1);
+        return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_RETURN, i + 1};
       }
 
       current_func = addFunc(label, addr);
       if (!current_func) {
         freeOperands(operands, operand_count);
-        return returnError(ASSEMBLE_ERR_MEMORY, i + 1);
+        printAsmError(ASSEMBLE_ERR_MEMORY, i + 1);
+        return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_MEMORY, i + 1};
       }
       break;
     }
     case OP_RET: {
       if (!current_func) {
         freeOperands(operands, operand_count);
-        return returnError(ASSEMBLE_ERR_PROC, i + 1);
+        printAsmError(ASSEMBLE_ERR_PROC, i + 1);
+        return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_PROC, i + 1};
       }
 
       current_func->end_addr = addr;
@@ -186,7 +204,8 @@ AssembleError assemble(char **lines, int line_count) {
         AssembleError patch_res = addCallPatch(operands[0], param_cnt);
         if (patch_res != ASSEMBLE_ERR_NONE) {
           freeOperands(operands, operand_count);
-          return returnError(patch_res, i + 1);
+          printAsmError(patch_res, i + 1);
+          return (ErrorResult){ERR_SRC_ASSEMBLE, patch_res, i + 1};
         }
       }
 
@@ -204,24 +223,21 @@ AssembleError assemble(char **lines, int line_count) {
   }
 
   if (current_func) {
-    return returnError(ASSEMBLE_ERR_RETURN, line_count);
+    printAsmError(ASSEMBLE_ERR_RETURN, line_count);
+    return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_RETURN, line_count};
   }
 
   ctx->code_len = addr;
 
-  AssembleError patch_res = applyPatches();
-  if (patch_res != ASSEMBLE_ERR_NONE) {
+  ErrorResult patch_res = applyPatches();
+  if (patch_res.src != ERR_SRC_NONE) {
     return patch_res;
   }
 
-  AssembleError call_patch_res = applyCallPatch();
-  if (call_patch_res != ASSEMBLE_ERR_NONE) {
-    return call_patch_res;
-  }
-
+  applyCallPatch();
   applySymbolOffset();
 
-  return ASSEMBLE_ERR_NONE;
+  return ok;
 }
 
 char *printAssembleRes() {

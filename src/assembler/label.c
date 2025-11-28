@@ -107,7 +107,9 @@ AssembleError addPatch(int addr, int src_idx, const char *name) {
   return ASSEMBLE_ERR_NONE;
 }
 
-AssembleError applyPatches() {
+ErrorResult applyPatches() {
+  ErrorResult ok = {ERR_SRC_NONE, 0, -1};
+
   VMContext *ctx = getVMContext();
   PatchList *patch_list = &ctx->patch_list;
   int *memory = ctx->memory;
@@ -116,9 +118,11 @@ AssembleError applyPatches() {
     Patch *patch = &patch_list->patches[i];
     int addr = findLabel(patch->label_name);
     if (addr == LABEL_NOT_FOUND) {
-      return returnError(ASSEMBLE_ERR_LABEL_UNDEF, patch->src_idx);
+      printAsmError(ASSEMBLE_ERR_LABEL_UNDEF, patch->src_idx);
+      return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_LABEL_UNDEF,
+                           patch->src_idx};
     }
     memory[patch->code_idx] = patchInst(memory[patch->code_idx], addr);
   }
-  return ASSEMBLE_ERR_NONE;
+  return ok;
 }

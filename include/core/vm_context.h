@@ -13,6 +13,7 @@ typedef struct {
 
   int code_len;  // 코드 영역 길이
   int g_var_cnt; // 전역변수 개수
+  int prev_pc;   // 현재 실행 중
 
   LabelList label_list;          // 라벨
   PatchList patch_list;          // 패치할 라벨
