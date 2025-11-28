@@ -5,105 +5,95 @@
 static void handleLineInput(IOContext *io_ctx, const gchar *line) {
   gchar *trimmed = g_strstrip((gchar *)line);
   if (isNumber(trimmed) && strlen(trimmed) > 0) {
-    int val = atoi(trimmed);
-    g_async_queue_push(io_ctx->input_queue, GINT_TO_POINTER(val));
-    g_print("숫자 입력됨: %d\n", val);
-  } else if (strlen(trimmed) > 0) {
-    g_print("숫자가 아님, 무시됨: %s\n", trimmed);
+    g_async_queue_push(io_ctx->input_queue, GINT_TO_POINTER(atoi(trimmed)));
   }
-}
-
-// 붙여넣기/입력 텍스트 처리
-static void processInput(IOContext *io_ctx, const gchar *text) {
-  gchar **lines = g_strsplit(text, "\n", 0);
-  for (int i = 0; lines[i] != NULL; i++) {
-    handleLineInput(io_ctx, lines[i]);
-  }
-  g_strfreev(lines);
 }
 
 void onInsertText(GtkTextBuffer *buffer, GtkTextIter *location, gchar *text,
                   gint len, gpointer user_data) {
-
-  IOContext *io_ctx = (IOContext *)user_data;
-  const gchar *prefix = ">> ";
-  GtkTextIter end_iter;
-  gtk_text_buffer_get_end_iter(buffer, &end_iter);
-
-  // 마지막 줄 시작
   int last_line = gtk_text_buffer_get_line_count(buffer) - 1;
-  GtkTextIter last_line_start;
-  gtk_text_buffer_get_iter_at_line(buffer, &last_line_start, last_line);
-
-  // 마지막 줄이 아니면 입력 차단
-  if (gtk_text_iter_compare(location, &last_line_start) < 0) {
+  if (gtk_text_iter_get_line(location) != last_line) {
     g_signal_stop_emission_by_name(buffer, "insert-text");
     return;
-  }
-
-  // Enter 또는 붙여넣기 처리
-  if (strchr(text, '\n') != NULL) {
-    g_signal_stop_emission_by_name(buffer, "insert-text");
-
-    // 프롬프트 제외 문자열만 가져오기
-    GtkTextIter line_start = last_line_start;
-    gtk_text_iter_forward_chars(&line_start, 3); // >> 길이만큼
-    gchar *line_text =
-        gtk_text_buffer_get_text(buffer, &line_start, &end_iter, FALSE);
-    if (line_text) {
-      processInput(io_ctx, line_text); // 숫자만 큐에 push
-      g_free(line_text);
-    }
-
-    // 새 줄 + 프롬프트
-    insertAtEnd(io_ctx, "\n>> ");
-    return;
-  }
-
-  // 커서 항상 마지막 위치
-  gtk_text_buffer_get_end_iter(buffer, &end_iter);
-  gtk_text_buffer_place_cursor(buffer, &end_iter);
-
-  if (gtk_text_iter_get_line_offset(location) == 0) {
-    gtk_text_buffer_insert(buffer, location, prefix, -1);
-  } else {
-    gtk_text_buffer_insert(buffer, location, text, len);
   }
 }
 
-void guiIoWrite(const char *user_data) {
-  IOContext *io_ctx = (IOContext *)user_data;
+gboolean onIOKeyPress(GtkWidget *widget, GdkEventKey *event,
+                      gpointer user_data) {
+  if (!gtk_text_view_get_editable(GTK_TEXT_VIEW(widget))) {
+    return TRUE;
+  }
 
-  GtkTextBuffer *buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(io_ctx->io_view));
+  IOContext *io_ctx = &getGuiContext()->io_ctx;
 
-  int last_line_num = gtk_text_buffer_get_line_count(buf) - 1;
-  if (last_line_num < 0)
-    last_line_num = 0;
+  GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(widget));
 
-  GtkTextIter last_line_start;
-  gtk_text_buffer_get_iter_at_line(buf, &last_line_start, last_line_num);
-  GtkTextIter end_iter;
-  gtk_text_buffer_get_end_iter(buf, &end_iter);
+  GtkTextIter iter;
+  gtk_text_buffer_get_iter_at_mark(buffer, &iter,
+                                   gtk_text_buffer_get_insert(buffer));
+  int line = gtk_text_iter_get_line(&iter);
 
-  // 마지막 줄 처음 3글자 확인
-  gchar *first3 =
-      gtk_text_buffer_get_text(buf, &last_line_start, &end_iter, FALSE);
-  gboolean last_is_input = (first3 && g_strcmp0(first3, ">> ") != 0);
-  if (first3)
-    g_free(first3);
+  int last_line = gtk_text_buffer_get_line_count(buffer) - 1;
+  // 이전 줄에서 입력 차단
+  if (line != last_line) {
+    return TRUE;
+  }
+
+  int column = gtk_text_iter_get_line_offset(&iter);
+  const int prompt_len = 3; // ">> " 길이
+  // 앞 삭제 금지
+  if ((event->keyval == GDK_KEY_BackSpace || event->keyval == GDK_KEY_Delete) &&
+      column <= prompt_len) {
+    return TRUE;
+  }
+
+  if (event->keyval == GDK_KEY_Return) {
+    GtkTextIter start, end;
+    gint line_count = gtk_text_buffer_get_line_count(buffer);
+
+    gtk_text_buffer_get_iter_at_line(buffer, &start, line_count - 1);
+    end = start;
+    gtk_text_iter_forward_to_line_end(&end);
+
+    gchar *line_text = gtk_text_buffer_get_text(buffer, &start, &end, FALSE);
+    const gchar *prefix = ">> ";
+    if (g_str_has_prefix(line_text, prefix)) {
+      gchar *user_input = g_strdup(line_text + strlen(prefix));
+      handleLineInput(io_ctx, user_input);
+      g_free(user_input);
+    }
+
+    g_free(line_text);
+
+    insertAtEnd(io_ctx->io_view, "\n>> ");
+    return TRUE;
+  }
+  return FALSE;
+}
+
+void guiIoWrite(const char *data) {
+  IOContext *io_ctx = &getGuiContext()->io_ctx;
 
   char tmp[128];
-  if (last_is_input)
-    snprintf(tmp, sizeof(tmp), "%s ", user_data); // 연속 출력 공백 이어붙이기
-  else
-    snprintf(tmp, sizeof(tmp), "\n<< %s ", user_data); // 새 줄 + << 표시
+  snprintf(tmp, sizeof(tmp), "%s ", data);
 
-  insertAtEnd(io_ctx, tmp);
+  insertAtEnd(io_ctx->io_view, tmp);
+  io_ctx->is_last_write = 1;
+}
+
+static gboolean addPromptIdle(gpointer data) {
+  IOContext *io_ctx = (IOContext *)data;
+  insertAtEnd(io_ctx->io_view, "\n>> ");
+  return FALSE;
 }
 
 int guiIoRead() {
   IOContext *io_ctx = &getGuiContext()->io_ctx;
+  if (io_ctx->is_last_write) {
+    g_idle_add(addPromptIdle, io_ctx);
+  }
 
+  io_ctx->is_last_write = 0;
   return GPOINTER_TO_INT(g_async_queue_pop(io_ctx->input_queue));
 }
 
