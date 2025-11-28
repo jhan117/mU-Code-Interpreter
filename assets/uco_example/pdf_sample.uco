@@ -50,11 +50,6 @@ $$1        nop
            lod 2 11
            push 
            call write
-           call read
-           ldc 3
-           call write
-           ldc 5
-           call write
            ret 
 sub        proc 3
            sym 3 0 1

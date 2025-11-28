@@ -1,0 +1,85 @@
+       ==== 원본 코드 ====       Encoded    Opcode Operand 
+[0001] % int gcd(int a, int b) {
+[0002] %   while (b != 0) {    
+[0003] %     int t = a % b;    
+[0004] %     a = b;            
+[0005] %     b = t;            
+[0006] %   }                   
+[0007] %   return a;           
+[0008] % }                     
+[0009] % 프로그램 시작   
+[0010]            bgn 0        
+[0011]            ldp           0x08000000 2      0        
+[0012]            call main     0x10000003 4      3        
+[0013]            end           0x04000000 1      0        
+[0014] % main                  
+[0015] main       proc 10       0x0000000A 0      10       
+[0016] % a, b, t               
+[0017]            sym 2 0 1    
+[0018]            sym 2 1 1    
+[0019]            sym 2 2 1    
+[0020] % read a                
+[0021]            ldp           0x08000000 2      0        
+[0022]            lda 2 0       0x44000000 21     0        
+[0023]            push          0x0C000000 3      0        
+[0024]            call read     0x13FFFFFF 4      -1       
+[0025] % read b                
+[0026]            ldp           0x08000000 2      0        
+[0027]            lda 2 1       0x44000001 21     1        
+[0028]            push          0x0C000000 3      0        
+[0029]            call read     0x13FFFFFF 4      -1       
+[0030] % while (b != 0)        
+[0031] $$LOOP     nop          
+[0032]            lod 2 1       0x40000001 20     1        
+[0033]            ldc 0         0x48000000 22     0        
+[0034]            eq            0x70000000 34     0        
+[0035]            tjp $$END     0x24000019 11     25       
+[0036] % t = a % b             
+[0037]            lod 2 0       0x40000000 20     0        
+[0038]            lod 2 1       0x40000001 20     1        
+[0039]            mod           0x90000000 44     0        
+[0040]            str 2 2       0x4C000002 23     2        
+[0041] % a = b                 
+[0042]            lod 2 1       0x40000001 20     1        
+[0043]            str 2 0       0x4C000000 23     0        
+[0044] % b = t                 
+[0045]            lod 2 2       0x40000002 20     2        
+[0046]            str 2 1       0x4C000001 23     1        
+[0047]            ujp $$LOOP    0x2000000C 10     12       
+[0048] % print a               
+[0049] $$END      nop          
+[0050]            ldp           0x08000000 2      0        
+[0051]            lod 2 0       0x40000000 20     0        
+[0052]            push          0x0C000000 3      0        
+[0053]            call write    0x13FFFFFE 4      -2       
+[0054]            ret           0x04000000 1      0        
+
+===========실행 결과=========
+1 
+
+========명령어 사용 횟수======
+proc  =   1     ret   =   2     ldp   =   4    
+push  =   3     call  =   4     ujp   =   1    
+tjp   =   1     fjp   =   0     lod   =   6    
+lda   =   2     ldc   =   1     str   =   3    
+ldi   =   0     sti   =   0     gt    =   0    
+lt    =   0     ge    =   0     le    =   0    
+eq    =   1     ne    =   0     and   =   0    
+or    =   0     add   =   0     sub   =   0    
+mult  =   0     div   =   0     mod   =   1    
+not   =   0     neg   =   0     dup   =   0    
+
+======명령어 실행 횟수======
+proc  =   1     ret   =   2     ldp   =   4    
+push  =   3     call  =   4     ujp   =  36    
+tjp   =  37     fjp   =   0     lod   = 182    
+lda   =   2     ldc   =  37     str   = 108    
+ldi   =   0     sti   =   0     gt    =   0    
+lt    =   0     ge    =   0     le    =   0    
+eq    =  37     ne    =   0     and   =   0    
+or    =   0     add   =   0     sub   =   0    
+mult  =   0     div   =   0     mod   =  36    
+not   =   0     neg   =   0     dup   =   0    
+
+======기타 통계======
+메모리 접근 횟수 = 307
