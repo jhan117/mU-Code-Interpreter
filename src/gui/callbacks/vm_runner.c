@@ -9,6 +9,9 @@ void onRun(GtkButton *button) {
   getVMContext()->run_mode = GUI;
   toggleWidgetsVisible(0);
   IOContext *io_ctx = &ctx->io_ctx;
+
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(io_ctx->io_view), TRUE);
+  io_ctx->is_last_write = 0;
   io_ctx->input_queue = g_async_queue_new();
 
   char **lines = NULL;
@@ -31,6 +34,9 @@ void onRun(GtkButton *button) {
   io_ctx->lines = malloc(sizeof(char *) * wd->line_count);
   for (int i = 0; i < wd->line_count; i++)
     io_ctx->lines[i] = g_strdup(wd->lines[i]);
+
+  insertAtEnd(io_ctx->io_view, "=== 프로그램 시작 ===\n");
+  insertAtEnd(io_ctx->io_view, ">> ");
 
   startWorker(wd);
 }

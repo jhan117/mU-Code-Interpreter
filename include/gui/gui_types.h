@@ -76,6 +76,7 @@ typedef struct {
 typedef struct {
   GtkWidget *io_view;
   GAsyncQueue *input_queue;
+  int is_last_write;
 
   // 실행 완료 된 원본 저장
   char **lines;

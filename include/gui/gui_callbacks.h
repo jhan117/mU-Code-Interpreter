@@ -60,6 +60,8 @@ void onToggleSymbols(GtkWidget *widget, gpointer user_data);
 // io.c
 void onInsertText(GtkTextBuffer *buffer, GtkTextIter *location, gchar *text,
                   gint len, gpointer user_data);
+gboolean onIOKeyPress(GtkWidget *widget, GdkEventKey *event,
+                      gpointer user_data);
 void guiIoWrite(const char *data);
 int guiIoRead();
 void guiIoLf();

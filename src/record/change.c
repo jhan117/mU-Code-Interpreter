@@ -83,6 +83,10 @@ void saveChanges() {
     start = 0;
   if (end < 0)
     end = 0;
+  if (state_snapshot.cpu_top != ctx->cpu_stack.top) {
+    addNewChange(HD_NUM_CPU_TOP, 0, ctx->cpu_stack.top);
+    state_snapshot.cpu_top = ctx->cpu_stack.top;
+  }
   for (int i = start; i <= end; i++) {
     if (state_snapshot.cpu_stack[i] != ctx->cpu_stack.items[i]) {
       addNewChange(HD_NUM_CPU_STACK, i, ctx->cpu_stack.items[i]);
@@ -149,6 +153,9 @@ void applyChanges(int start_step, int end_step) {
         break;
       case HD_NUM_PREV_PC:
         ctx->prev_pc = c->new_value;
+        break;
+      case HD_NUM_CPU_TOP:
+        ctx->cpu_stack.top = c->new_value;
         break;
       }
       c = c->next;

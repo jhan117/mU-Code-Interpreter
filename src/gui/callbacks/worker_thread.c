@@ -8,6 +8,9 @@ static gboolean finish(gpointer data) {
   WorkerData *wd = (WorkerData *)data;
   free(wd);
   toggleWidgetsVisible(1);
+  IOContext io_ctx = getGuiContext()->io_ctx;
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(io_ctx.io_view), FALSE);
+  insertAtEnd(io_ctx.io_view, "\n=== 프로그램 종료 ===\n");
   return G_SOURCE_REMOVE;
 }
 
