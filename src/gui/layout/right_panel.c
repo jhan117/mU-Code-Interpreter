@@ -9,8 +9,8 @@ GtkWidget *createRightPanel() {
   GtkWidget *reg = createRegView();
 
   TextScrollInfo io_info = createIOView();
-  TextScrollInfo lst_info = createLstView();
   GtkWidget *status_box = createStatusView();
+  TextScrollInfo lst_info = createLstView();
 
   // 탭: 현재 상태 + 결과 통계 (둘 다 편집 불가)
   NotebookPageInfo pages_mid[] = {
@@ -20,7 +20,7 @@ GtkWidget *createRightPanel() {
   };
 
   gtk_box_pack_start(GTK_BOX(box), reg, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(box), status_box, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(box), status_box, TRUE, TRUE, 8);
   gtk_box_pack_start(GTK_BOX(box), createNotebookTab(pages_mid, 3), TRUE, TRUE,
                      0);
 

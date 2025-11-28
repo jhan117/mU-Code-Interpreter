@@ -20,17 +20,19 @@ void onFileChosen(GtkFileChooserButton *chooser) {
     return;
   }
 
-  updateUcodeView(&lines, &line_count);
+  char *content = joinLines(lines, line_count);
+  updateUcodeView(content);
+  freeUco(lines, line_count);
   g_free(filename);
 }
 
-static char *makeUcoFilename(const char *filename) {
+static char *makeFilename(const char *filename, const char *extension) {
   const char *ext = strrchr(filename, '.');
   if (!ext) {
     // 확장자가 없으면 .uco 붙임
-    return g_strdup_printf("%s.uco", filename);
+    return g_strdup_printf("%s.%s", filename, extension);
   }
-  return g_strdup(filename); // 이미 확장자가 있으면 그대로
+  return g_strdup(filename);
 }
 
 // 메뉴바의 "Open .uco" 메뉴 선택 시 호출되는 콜백
@@ -57,7 +59,9 @@ void onOpenUco() {
         return;
       }
 
-      updateUcodeView(&lines, &line_count);
+      char *content = joinLines(lines, line_count);
+      updateUcodeView(content);
+      freeUco(lines, line_count);
       g_free(ctx->file_ctx.uco_filename);
       ctx->file_ctx.uco_filename = g_strdup(filename);
       ctx->step_ctx.current_step = 0;
@@ -103,7 +107,7 @@ void onSaveAsUco() {
   if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
     if (filename) {
-      char *final_name = makeUcoFilename(filename);
+      char *final_name = makeFilename(filename, "uco");
       char **lines = NULL;
       int line_count = 0;
       if (getUcodeView(&lines, &line_count)) {
@@ -176,16 +180,15 @@ void onSaveLst() {
   if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT) {
     char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog));
     if (filename) {
-
-      if (!saveLst(filename, ctx->io_ctx.lines, ctx->io_ctx.line_count)) {
+      char *final_name = makeFilename(filename, "lst");
+      if (!saveLst(final_name, ctx->io_ctx.lines, ctx->io_ctx.line_count)) {
         showMessage(GTK_MESSAGE_ERROR, ".lst 파일을 저장할 수 없습니다.");
-        return;
       } else {
         showMessage(GTK_MESSAGE_INFO, ".lst 파일이 저장되었습니다.");
-
         g_free(ctx->file_ctx.lst_filename);
-        ctx->file_ctx.lst_filename = g_strdup(filename);
+        ctx->file_ctx.lst_filename = g_strdup(final_name);
       }
+      g_free(final_name);
       g_free(filename);
     }
   }
