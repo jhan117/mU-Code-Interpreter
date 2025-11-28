@@ -1,4 +1,5 @@
-           bgn 0
+           bgn 55000
+           sym 1 0 55000
            ldp
            call main
            end
@@ -23,8 +24,9 @@ main       proc 1
            call write
            ret
            
-fib        proc 1
+fib        proc 501
            sym 3 0 1
+           sym 3 1 500
            lod 3 0
            ldc 1
            le
