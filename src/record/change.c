@@ -110,3 +110,40 @@ void saveChanges() {
 
   return;
 }
+
+void applyChanges(int start_step, int end_step) {
+  VMContext *ctx = getVMContext();
+
+  for (int s = start_step; s <= end_step; s++) {
+    Change *c = ctx->changes.change_list[s];
+    while (c) {
+      switch (c->hdware_num) {
+      case HD_NUM_MEMORY:
+        ctx->memory[c->addr] = c->new_value;
+        break;
+      case HD_NUM_CPU_STACK:
+        ctx->cpu_stack.items[c->addr] = c->new_value;
+        break;
+      case HD_NUM_CS:
+        ctx->cs = c->new_value;
+        break;
+      case HD_NUM_PC:
+        ctx->pc = c->new_value;
+        break;
+      case HD_NUM_DS:
+        ctx->ds = c->new_value;
+        break;
+      case HD_NUM_SS:
+        ctx->ss = c->new_value;
+        break;
+      case HD_NUM_SP:
+        ctx->sp = c->new_value;
+        break;
+      case HD_NUM_BP:
+        ctx->bp = c->new_value;
+        break;
+      }
+      c = c->next;
+    }
+  }
+}

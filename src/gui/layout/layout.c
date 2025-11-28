@@ -1,0 +1,26 @@
+#include "gui/gui.h"
+
+void onActivate(GtkApplication *app, gpointer user_data) {
+  GtkWidget *main_window = gtk_application_window_new(app);
+  gtk_window_set_title(GTK_WINDOW(main_window), "mU-Code interpreter");
+  gtk_window_set_default_size(GTK_WINDOW(main_window), 800, 600);
+
+  GtkWidget *main_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 24);
+
+  GtkWidget *content_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 32);
+  gtk_widget_set_margin_start(content_box, 16);
+  gtk_widget_set_margin_end(content_box, 16);
+  gtk_widget_set_margin_bottom(content_box, 24);
+
+  gtk_box_pack_start(GTK_BOX(content_box), createLeftPanel(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(content_box), createRightPanel(), TRUE, TRUE, 0);
+
+  gtk_box_pack_start(GTK_BOX(main_box), createMenubar(), FALSE, FALSE, 0);
+  gtk_box_pack_start(GTK_BOX(main_box), content_box, TRUE, TRUE, 0);
+
+  gtk_container_add(GTK_CONTAINER(main_window), main_box);
+
+  gtk_widget_show_all(main_window);
+
+  getGuiContext()->main_window = main_window;
+}
