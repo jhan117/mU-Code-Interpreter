@@ -17,13 +17,18 @@ void onRun(GtkButton *button) {
   char **lines = NULL;
   int line_count = 0;
   if (!getUcodeView(&lines, &line_count)) {
-    freeUco(lines, line_count);
+    freeUcoView(lines, line_count);
+    return;
+  }
+
+  if (line_count == 0) {
+    freeUcoView(lines, line_count);
     return;
   }
 
   WorkerData *wd = (WorkerData *)calloc(1, sizeof(WorkerData));
   if (!wd) {
-    freeUco(lines, line_count);
+    freeUcoView(lines, line_count);
     return;
   }
 

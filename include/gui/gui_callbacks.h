@@ -17,20 +17,6 @@ void onSaveUco();
 void onSaveAsUco();
 void onSaveLst();
 
-// ucode editor.c
-GtkCellRenderer *addColumn(GtkWidget *tree_view, GtkListStore *store,
-                           const char *title, int col_idx,
-                           void (*onEdited)(GtkCellRendererText *, gchar *path,
-                                            gchar *new_text,
-                                            gpointer user_data));
-void onLabelEdited(GtkCellRendererText *renderer, gchar *path_text,
-                   gchar *new_text, gpointer user_data);
-void onOperatorEdited(GtkCellRendererText *renderer, gchar *path_text,
-                      gchar *new_text, gpointer user_data);
-void onOperandEdited(GtkCellRendererText *renderer, gchar *path_text,
-                     gchar *new_text, gpointer user_data);
-gboolean onKeyPress(GtkWidget *widget, GdkEventKey *event); // 기능 수정 필요
-
 // step_control.c
 void onPlayToggled(GtkToggleButton *button);
 void onScaleChanged(GtkRange *range);

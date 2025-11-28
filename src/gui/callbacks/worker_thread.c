@@ -1,16 +1,19 @@
 #include "gui/gui_callbacks.h"
 
 #include "assembler/assemble.h" // assemble()
-#include "io_utils/io_utils.h"  // freeUco()
 #include "runner/runner.h"      // runner()
 
 static gboolean finish(gpointer data) {
   WorkerData *wd = (WorkerData *)data;
   free(wd);
+
   toggleWidgetsVisible(1);
+
   IOContext io_ctx = getGuiContext()->io_ctx;
   gtk_text_view_set_editable(GTK_TEXT_VIEW(io_ctx.io_view), FALSE);
+
   insertAtEnd(io_ctx.io_view, "\n=== 프로그램 종료 ===\n");
+
   return G_SOURCE_REMOVE;
 }
 
@@ -42,7 +45,7 @@ static gpointer runWorkerThread(gpointer arg) {
   WorkerData *wd = (WorkerData *)arg;
 
   ErrorResult asm_res = assemble(wd->lines, wd->line_count);
-  freeUco(wd->lines, wd->line_count);
+  freeUcoView(wd->lines, wd->line_count);
 
   if (asm_res.code != 0) {
     ErrorResult *err = g_new0(ErrorResult, 1);

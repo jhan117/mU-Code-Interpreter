@@ -8,7 +8,6 @@
 void strcopy(char *dst, const char *src, int size);
 AssembleError parseLine(const char *line, char *label, char *opcode,
                         char *operands[4], int *operand_count);
-int parseTable(const char *line, char *label, char *opcode, char *operands);
 
 // label.c
 #define LABEL_NOT_FOUND -9999
