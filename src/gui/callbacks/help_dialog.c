@@ -16,15 +16,14 @@ void onHelpUsage(GtkWidget *widget, gpointer user_data) {
       "▶ Save .lst: .lst 파일 저장\n"
       "▶ Run: 코드를 실행합니다.\n"
       "▶ View 메뉴: 각 패널을 보이기/숨기기 합니다.\n"
-      "▶ Help: gui 사용법과 명령어 사용법, 그리고 팀 소개를 "
+      "▶ Help: gui 사용법과 명령어 설명, 그리고 팀 소개를 "
       "확인할 수 있습니다.\n"
       "\n=== view 확인 ===\n"
       "▶ ucode: 원본 코드를 확인할 수 있습니다.\n"
-      "주석은 무시되며 편집할 수 있습니다. 양식을 덜 신경써보세요!\n"
-      "insert로 행을 쉽게 추가하고 delete로 쉽게 삭제하세요!\n"
+      "주석은 무시되며 편집할 수 있습니다.\n"
       "▶ assemble: 어셈블 코드를 확인할 수 있습니다.\n"
       "▶ 실행 라인 강조: 어셈블, 원본 코드에서 현재 어디 줄에서\n실행 "
-      "중인지 확인 할 수 있습니다.\n"
+      "중인지 확인 할 수 있습니다. 심지어 그 줄로 화면 이동까지!\n"
       "\n=== 특이 기능 ===\n"
       "▶ 파일 입력 버튼: 버튼을 눌러 편하게 uco 파일을 불러오세요!\n"
       "▶ 슬라이더와 이동 버튼: 원하는 변경점으로 이동합니다.\n"
@@ -35,9 +34,9 @@ void onHelpUsage(GtkWidget *widget, gpointer user_data) {
       "▶ Symbols: 심볼(변수) 할당을 확인합니다.\n"
       "\n=== 통계 ===\n"
       "▶ 입출력: 실행 중 발생하는 입력과 출력을 확인합니다.\n"
-      ">> 가 보이면 꼭 입력해주세요! 출력은 << 로 나옵니다.\n"
       "▶ 결과 통계: 실행 완료 후 통계를 확인합니다.\n"
-      "▶ lst 출력: 실행 완료 후 생성된 lst를 확인합니다. 저장되지 않습니다.\n");
+      "▶ lst 출력: 실행 완료 후 생성된 lst를 확인합니다. 자동으로 저장되지 "
+      "않습니다.\n");
 
   gtk_label_set_xalign(GTK_LABEL(label), 0.0);
   gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
@@ -110,8 +109,11 @@ void onHelpInstruction(GtkWidget *widget, gpointer user_data) {
 
   GtkWidget *grid = gtk_grid_new();
   gtk_grid_set_row_spacing(GTK_GRID(grid), 4);
-  gtk_grid_set_column_spacing(GTK_GRID(grid), 20);
-  gtk_container_add(GTK_CONTAINER(scroll), grid);
+  gtk_grid_set_column_spacing(GTK_GRID(grid), 6);
+  GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+  gtk_container_set_border_width(GTK_CONTAINER(box), 16);
+  gtk_box_pack_start(GTK_BOX(box), grid, TRUE, TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(scroll), box);
 
   int row = 0;
 
@@ -137,6 +139,8 @@ void onHelpInstruction(GtkWidget *widget, gpointer user_data) {
   add_row(
       GTK_GRID(grid), &row, "write(i)", "ldp\nlod 2 0\npush\ncall write",
       "스택 꼭대기의 값을 출력한다. 출력된 값의 뒤에 공백을 추가로 출력한다.");
+  add_row(GTK_GRID(grid), &row, "lf(i)", "ldp\ncall lf",
+          "줄바꿈 문자를 출력한다.");
 
   add_header_row(GTK_GRID(grid), &row, "[[ 함수 관련 명령 ]]");
   add_row(GTK_GRID(grid), &row, "명령어", "의미", "동작");
@@ -165,13 +169,13 @@ void onHelpInstruction(GtkWidget *widget, gpointer user_data) {
 
   add_header_row(GTK_GRID(grid), &row, "[[ 데이터 이동 연산자 ]]");
   add_row(GTK_GRID(grid), &row, "명령어", "의미", "동작");
-  add_row(GTK_GRID(grid), &row, "lob b n", "load",
+  add_row(GTK_GRID(grid), &row, "lod b n", "load",
           "b 블록 n 오프셋의 데이터를 스택에 넣는다. 즉, b와 n으로 계산되는 "
           "주소에 있는 변수의 값이 스택에 저장된다.");
   add_row(GTK_GRID(grid), &row, "lda b n", "load address",
           "b 블록 n 오프셋의 실제 메모리 번지를 스택에 넣는다. 즉, b와 n으로 "
           "계산되는 주소 자체가 스택에 저장되며, 배열 참조를 위해 활용된다.");
-  add_row(GTK_GRID(grid), &row, "ldc c", "load contant",
+  add_row(GTK_GRID(grid), &row, "ldc c", "load constant",
           "상수값 c가 스택에 저장된다.");
   add_row(GTK_GRID(grid), &row, "str b n", "store",
           "스택 꼭대기의 값을 pop하여 b와 n으로 계산되는 주소의 메모리에 "
@@ -214,7 +218,7 @@ void onHelpInstruction(GtkWidget *widget, gpointer user_data) {
   add_row(GTK_GRID(grid), &row, "or", "or",
           "stack[top-1] = stack[top-1] || stack[top]");
 
-  add_header_row(GTK_GRID(grid), &row, "[[ 이항 연산자 ]]");
+  add_header_row(GTK_GRID(grid), &row, "[[ 단항 연산자 ]]");
   add_row(GTK_GRID(grid), &row, "명령어", "의미", "동작");
   add_row(GTK_GRID(grid), &row, "not", "not", "stack[top-1] = !stack[top]");
   add_row(GTK_GRID(grid), &row, "neg", "negation",
