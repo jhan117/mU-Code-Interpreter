@@ -14,6 +14,31 @@ Software Project 수업의 step3 과제입니다.
 
 ## 빌드 및 실행 방법
 
+```sh
+# 빌드 및 빌드 후 gui 실행
+make build
+make run
+
+# 실행
+.build/ucode_interpreter [uco 파일 경로] [lst 파일 경로] # cli 실행
+.build/ucode_interpreter # gui 실행
+```
+
+GTK+3 개발 환경이 필요합니다.
+(ex: Ubuntu에서는 `sudo apt-get install libgtk-3-dev`)
+한글 폰트 설치가 필요합니다.
+(ex: Ubuntu에서는 `sudo apt install fonts-nanum`)
+
+```sh
+# 배포 버전 실행 (리눅스) => releases 확인
+
+# GUI 실행
+./mUCodeInterpreter-x86_64.AppImage
+
+# CLI 실행
+./mUCodeInterpreter-x86_64.AppImage [uco 파일] [lst 파일]
+```
+
 ## 개발 일지
 
 ## 참고자료
