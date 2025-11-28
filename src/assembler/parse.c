@@ -26,6 +26,12 @@ AssembleError parseLine(const char *line, char *label, char *opcode,
                         char *operands[4], int *operand_count) {
   char buf[LINE_BUFFER_LEN];
   strcopy(buf, line, LINE_BUFFER_LEN);
+
+  // 주석 무시
+  char *comment = strchr(buf, '%');
+  if (comment)
+    *comment = '\0';
+
   int line_len = strlen(buf);
 
   // 11열은 반드시 공백

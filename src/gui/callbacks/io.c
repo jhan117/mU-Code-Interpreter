@@ -71,20 +71,42 @@ gboolean onIOKeyPress(GtkWidget *widget, GdkEventKey *event,
   return FALSE;
 }
 
+// === 메인 스레드 래퍼 === //
+typedef struct {
+  GtkWidget *view;
+  char *text;
+} InsertReq;
+
+static gboolean ui_insert_at_end(gpointer data) {
+  InsertReq *req = data;
+  insertAtEnd(req->view, req->text);
+  g_free(req->text);
+  g_free(req);
+  return G_SOURCE_REMOVE;
+}
+
+static void safeInsertAtEnd(GtkWidget *view, const char *text) {
+  InsertReq *req = g_malloc(sizeof(InsertReq));
+  req->view = view;
+  req->text = g_strdup(text);
+  g_idle_add(ui_insert_at_end, req);
+}
+
+static gboolean addPromptIdle(gpointer data) {
+  IOContext *io_ctx = (IOContext *)data;
+  insertAtEnd(io_ctx->io_view, "\n>> ");
+  return G_SOURCE_REMOVE;
+}
+
+// === runner 스레드 === //
 void guiIoWrite(const char *data) {
   IOContext *io_ctx = &getGuiContext()->io_ctx;
 
   char tmp[128];
   snprintf(tmp, sizeof(tmp), "%s ", data);
 
-  insertAtEnd(io_ctx->io_view, tmp);
+  safeInsertAtEnd(io_ctx->io_view, tmp);
   io_ctx->is_last_write = 1;
-}
-
-static gboolean addPromptIdle(gpointer data) {
-  IOContext *io_ctx = (IOContext *)data;
-  insertAtEnd(io_ctx->io_view, "\n>> ");
-  return FALSE;
 }
 
 int guiIoRead() {
@@ -99,5 +121,5 @@ int guiIoRead() {
 
 void guiIoLf() {
   GtkWidget *io_view = getGuiContext()->io_ctx.io_view;
-  insertAtEnd(io_view, "\n");
+  safeInsertAtEnd(io_view, "\n");
 }

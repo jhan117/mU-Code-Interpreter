@@ -1,7 +1,8 @@
 #include "gui/gui_callbacks.h"
 
 #include "assembler/assemble.h" // assemble()
-#include "runner/runner.h"      // runner()
+#include "core/vm_context.h"
+#include "runner/runner.h" // runner()
 
 static gboolean finish(gpointer data) {
   WorkerData *wd = (WorkerData *)data;
@@ -9,10 +10,11 @@ static gboolean finish(gpointer data) {
 
   toggleWidgetsVisible(1);
 
-  IOContext io_ctx = getGuiContext()->io_ctx;
-  gtk_text_view_set_editable(GTK_TEXT_VIEW(io_ctx.io_view), FALSE);
+  GuiContext *ctx = getGuiContext();
+  ctx->is_run = 0;
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(ctx->io_ctx.io_view), FALSE);
 
-  insertAtEnd(io_ctx.io_view, "\n=== 프로그램 종료 ===\n");
+  insertAtEnd(ctx->io_ctx.io_view, "\n=== 프로그램 종료 ===\n");
 
   return G_SOURCE_REMOVE;
 }
@@ -30,12 +32,18 @@ static gboolean updateUIAfterRun(gpointer data) {
 
 static gboolean showErrorMessage(gpointer data) {
   ErrorResult *err = (ErrorResult *)data;
+  CodeContext code_ctx = getGuiContext()->code_ctx;
+  SourceMap source_map = getVMContext()->source_map;
 
-  if (err->src == ERR_SRC_ASSEMBLE)
+  if (err->src == ERR_SRC_ASSEMBLE) {
+    highlightLine(code_ctx.ucode_view.text_view, err->line - 1);
     showMessage(GTK_MESSAGE_ERROR, formatAsmError(err->code, err->line));
-  else
+  } else {
+    highlightLine(code_ctx.ucode_view.text_view,
+                  source_map.line[err->line] - 1);
+    highlightLine(code_ctx.assemble_view.text_view, err->line - 1);
     showMessage(GTK_MESSAGE_ERROR, formatRunError(err->line));
-
+  }
   g_free(err);
 
   return G_SOURCE_REMOVE;
