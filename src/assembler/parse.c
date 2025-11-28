@@ -26,6 +26,12 @@ AssembleError parseLine(const char *line, char *label, char *opcode,
                         char *operands[4], int *operand_count) {
   char buf[LINE_BUFFER_LEN];
   strcopy(buf, line, LINE_BUFFER_LEN);
+
+  // 주석 무시
+  char *comment = strchr(buf, '%');
+  if (comment)
+    *comment = '\0';
+
   int line_len = strlen(buf);
 
   // 11열은 반드시 공백
@@ -64,42 +70,4 @@ AssembleError parseLine(const char *line, char *label, char *opcode,
   }
 
   return ASSEMBLE_ERR_NONE;
-}
-
-// 주석 처리 안되어있음...
-int parseTable(const char *line, char *label, char *opcode, char *operands) {
-  char buf[LINE_BUFFER_LEN];
-  strcopy(buf, line, LINE_BUFFER_LEN);
-  int line_len = strlen(buf);
-
-  // 11열은 반드시 공백
-  if (line_len < MAX_LABEL_LEN || buf[MAX_LABEL_LEN - 1] != ' ')
-    return 0;
-
-  char *ptr = buf + MAX_LABEL_LEN;
-  while (isspace(*ptr))
-    ptr++;
-
-  // 1~10열: 라벨
-  strcopy(label, buf, MAX_LABEL_LEN);
-  strcopy(label, trim(label), MAX_LABEL_LEN);
-
-  // 끝 찾기
-  char *end = ptr;
-  while (*end && !isspace(*end))
-    end++;
-
-  // opcode
-  int op_len = end - ptr;
-  if (op_len >= MAX_OP_LEN)
-    op_len = MAX_OP_LEN - 1;
-
-  strcopy(opcode, trim(ptr), op_len + 1);
-
-  // operands
-  while (isspace(*end))
-    end++;
-  strcopy(operands, trim(end), LINE_BUFFER_LEN);
-
-  return 1;
 }

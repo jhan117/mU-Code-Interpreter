@@ -17,12 +17,6 @@ typedef struct {
 } NotebookPageInfo;
 
 typedef struct {
-  GtkWidget *tree_view;    // 트리 뷰 (테이블)
-  GtkListStore *list_data; // 트리 뷰에 저장된 리스트 데이터
-  GtkCellRenderer *renderer[3];
-} TableInfo;
-
-typedef struct {
   GtkWidget *text_view; // 텍스트 뷰
   GtkWidget *scroll;    // 감싸는 스크롤 위젯
 } TextScrollInfo;
@@ -34,8 +28,7 @@ typedef struct {
 } FileContext;
 
 typedef struct {
-  int uco_prev_line;
-  TableInfo ucode_table;
+  TextScrollInfo ucode_view;
   TextScrollInfo assemble_view;
 } CodeContext;
 
@@ -76,6 +69,7 @@ typedef struct {
 typedef struct {
   GtkWidget *io_view;
   GAsyncQueue *input_queue;
+  int is_last_write;
 
   // 실행 완료 된 원본 저장
   char **lines;

@@ -277,5 +277,5 @@ char *printAssembleRes() {
     strncat(result, line, buf_size - strlen(result) - 1);
   }
 
-  return result;
+  return result; // free 필요
 }

@@ -14,8 +14,12 @@ TextScrollInfo createIOView() {
   gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(text_scroll),
                                  GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(text_view), FALSE);
+
   // 입력 시 이벤트 조절
   g_signal_connect(buf, "insert-text", G_CALLBACK(onInsertText), NULL);
+  g_signal_connect(text_view, "key-press-event", G_CALLBACK(onIOKeyPress),
+                   NULL);
 
   TextScrollInfo info = {text_view, text_scroll};
   return info;

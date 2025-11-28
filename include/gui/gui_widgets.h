@@ -8,16 +8,15 @@
 // file_chooser.c
 GtkWidget *createFileChooser();
 
-// ucode_view.c
-GtkWidget *createUcodeView();
-void updateUcodeView(char ***lines, int *line_count);
+// ucode_view.c (callback x)
+TextScrollInfo createUcodeView();
+void updateUcodeView(char *content);
 int getUcodeView(char ***lines, int *line_count);
-void highlightRow();
+void freeUcoView(char **lines, int line_count);
 
 // assemble_view.c (callback x)
 TextScrollInfo createAssembleView();
 void updateAssembleView();
-void highlightLine();
 
 // step_control.c
 GtkWidget *createStepControl();
@@ -66,6 +65,7 @@ void updateLstView();
 void toggleWidgetsVisible(int is_true);
 void resetAllText(GtkWidget *text_view);
 void insertAtEnd(GtkWidget *text_view, const char *text);
+void highlightLine(GtkWidget *text_View, int line);
 
 // message_diag.c
 void showMessage(GtkMessageType type, const char *message);

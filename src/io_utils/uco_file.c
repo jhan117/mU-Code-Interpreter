@@ -113,7 +113,7 @@ char *joinLines(char **lines, int line_count) {
   }
   *p = '\0';
 
-  return result;
+  return result; // free 필요
 }
 
 // .uco 전체 덮어쓰기로 저장하기
