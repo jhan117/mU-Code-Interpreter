@@ -1,0 +1,51 @@
+           bgn 0
+           ldp
+           call main
+           end
+main       proc 1
+%n
+           sym 2 0 1
+%읽기
+           ldp
+           lda 2 0
+           push
+           call read
+
+%n을 인자로 fib 호출
+           ldp
+           lod 2 0
+           push
+           call fib
+%fib가 cpu 스택에 결과 적재
+
+           ldp
+           push
+           call write
+           ret
+           
+fib        proc 1
+           sym 3 0 1
+           lod 3 0
+           ldc 1
+           le
+           tjp $$LODR
+
+$$RECUR    nop
+           lod 3 0
+           ldc 1
+           sub
+           ldp
+           push
+           call fib
+           
+           lod 3 0
+           ldc 2
+           sub
+           ldp
+           push
+           call fib
+           add
+           ujp $$RET
+
+$$LODR     lod 3 0
+$$RET      ret

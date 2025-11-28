@@ -1,0 +1,148 @@
+           bgn 0
+           ldp
+           call main
+           end
+main       proc 20
+           sym 2 0 1
+           sym 2 1 1
+           sym 2 2 1
+           sym 2 3 1
+           sym 2 4 5
+           ldc 5
+           str 2 2
+
+           ldc 0
+           str 2 0
+
+%입력받기(5개)
+
+$$INPUT    nop
+           lod 2 0
+           lod 2 2
+           ge
+           tjp $$END_INP
+
+           lda 2 4
+           lod 2 0
+           sub
+           push
+           ldp
+           call read
+
+           lod 2 0
+           ldc 1
+           add
+           str 2 0
+           ujp $$INPUT
+$$END_INP  nop
+
+%정렬
+           ldc 0
+           str 2 0
+$$I        nop
+           lod 2 0
+           lod 2 2
+           ldc 1
+           sub
+           ge
+           tjp $$END_SORT
+
+           ldc 0
+           str 2 1
+
+$$J        nop
+           lod 2 1
+           lod 2 2
+           ldc 1
+           sub
+           lod 2 0
+           sub
+           ge
+           tjp $$NEXT_I
+
+           lda 2 4
+           lod 2 1
+           sub
+           ldi
+           lda 2 4
+           lod 2 1
+           ldc 1
+           add
+           sub
+           ldi
+           gt
+           fjp $$NO_SWAP
+
+%temp = a[j]
+           lda 2 4
+           lod 2 1
+           sub
+           ldi
+           str 2 3
+
+%a[j] = a[j+1]
+           lda 2 4
+           lod 2 1
+           sub
+           lda 2 4
+           lod 2 1
+           ldc 1
+           add
+           sub
+           ldi
+           sti
+
+%a[j+1] = temp 
+           lda 2 4
+           lod 2 1
+           ldc 1
+           add
+           sub
+           lod 2 3
+           sti
+
+$$NO_SWAP  nop
+           lod 2 1
+           ldc 1
+           add
+           str 2 1
+           ujp $$J
+
+$$NEXT_I   nop
+           lod 2 0
+           ldc 1
+           add
+           str 2 0
+           ujp $$I
+
+$$END_SORT nop
+
+% 결과 출력
+
+           ldc 0
+           str 2 0
+
+$$PRINT    nop
+           lod 2 0
+           lod 2 2
+           lt
+           fjp $$FINISH
+
+           ldp
+           lda 2 4
+           lod 2 0
+           sub
+           ldi
+           push
+           call write
+
+           lod 2 0
+           ldc 1
+           add
+           str 2 0
+           ujp $$PRINT
+
+$$FINISH   nop
+           ret
+
+
