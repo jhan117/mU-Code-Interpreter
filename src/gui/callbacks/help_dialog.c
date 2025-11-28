@@ -130,6 +130,14 @@ void onHelpInstruction(GtkWidget *widget, gpointer user_data) {
   add_row(GTK_GRID(grid), &row, "end", "end",
           "프로그램의 끝. 어셈블을 종료하는 역할. global frame의 ret 취급.");
 
+  add_header_row(GTK_GRID(grid), &row, "[[ 입출력 처리 ]]");
+  add_row(GTK_GRID(grid), &row, "시스템 함수", "사용 예", "동작");
+  add_row(GTK_GRID(grid), &row, "read(i)", "ldp\nlda 2 0\npush\ncall read",
+          "외부 입력값을 읽어 스택 꼭대기에 저장된 주소로 저장한다.");
+  add_row(
+      GTK_GRID(grid), &row, "write(i)", "ldp\nlod 2 0\npush\ncall write",
+      "스택 꼭대기의 값을 출력한다. 출력된 값의 뒤에 공백을 추가로 출력한다.");
+
   add_header_row(GTK_GRID(grid), &row, "[[ 함수 관련 명령 ]]");
   add_row(GTK_GRID(grid), &row, "명령어", "의미", "동작");
   add_row(GTK_GRID(grid), &row, "proc n", "procedure",
@@ -145,6 +153,72 @@ void onHelpInstruction(GtkWidget *widget, gpointer user_data) {
           "CPU 스택에 올려져 있는 실인자 값을 메모리 스택에 저장한다.");
   add_row(GTK_GRID(grid), &row, "call label", "call",
           "label로 지정된 함수를 호출");
+
+  add_header_row(GTK_GRID(grid), &row, "[[ 흐름 제어 ]]");
+  add_row(GTK_GRID(grid), &row, "명령어", "의미", "동작");
+  add_row(GTK_GRID(grid), &row, "ujp label", "unconditional jump",
+          "지정한 label로 무조건 이동");
+  add_row(GTK_GRID(grid), &row, "tjp label", "jump on true",
+          "stack[top]의 값이 참이면 label로 이동");
+  add_row(GTK_GRID(grid), &row, "fjp label", "jump on false",
+          "stack[top]의 값이 거짓이면 label로 이동");
+
+  add_header_row(GTK_GRID(grid), &row, "[[ 데이터 이동 연산자 ]]");
+  add_row(GTK_GRID(grid), &row, "명령어", "의미", "동작");
+  add_row(GTK_GRID(grid), &row, "lob b n", "load",
+          "b 블록 n 오프셋의 데이터를 스택에 넣는다. 즉, b와 n으로 계산되는 "
+          "주소에 있는 변수의 값이 스택에 저장된다.");
+  add_row(GTK_GRID(grid), &row, "lda b n", "load address",
+          "b 블록 n 오프셋의 실제 메모리 번지를 스택에 넣는다. 즉, b와 n으로 "
+          "계산되는 주소 자체가 스택에 저장되며, 배열 참조를 위해 활용된다.");
+  add_row(GTK_GRID(grid), &row, "ldc c", "load contant",
+          "상수값 c가 스택에 저장된다.");
+  add_row(GTK_GRID(grid), &row, "str b n", "store",
+          "스택 꼭대기의 값을 pop하여 b와 n으로 계산되는 주소의 메모리에 "
+          "저장한다.");
+  add_row(GTK_GRID(grid), &row, "ldi", "load indirect",
+          "간접 주소법을 이용해 메모리의 값을 스택에 가져 온다. 스택 꼭대기의 "
+          "값을 pop하여 주소값으로 사용하고, 데이터를 스택에 저장한다.");
+  add_row(GTK_GRID(grid), &row, "sti", "store indirect",
+          "간접 주소법을 이용해 스택 꼭대기의 값을 메모리에 저장한다. 저장할 "
+          "변수의 주소와 저장할 값, 두개가 스택에서 pop된다.");
+  add_row(GTK_GRID(grid), &row, "dup", "duplicate",
+          "스택 꼭대기의 값을 복사해 다시 스택 꼭대기에 저장한다.");
+
+  add_header_row(GTK_GRID(grid), &row, "[[ 이항 연산자 ]]");
+  add_row(GTK_GRID(grid), &row, "명령어", "의미", "동작");
+  add_row(GTK_GRID(grid), &row, "add", "add",
+          "stack[top-1] = stack[top-1] + stack[top]");
+  add_row(GTK_GRID(grid), &row, "sub", "subtract",
+          "stack[top-1] = stack[top-1] - stack[top]");
+  add_row(GTK_GRID(grid), &row, "mult", "multiply",
+          "stack[top-1] = stack[top-1] * stack[top]");
+  add_row(GTK_GRID(grid), &row, "div", "divide",
+          "stack[top-1] = stack[top-1] / stack[top]");
+  add_row(GTK_GRID(grid), &row, "mod", "modulo",
+          "stack[top-1] = stack[top-1] % stack[top]");
+  add_row(GTK_GRID(grid), &row, "gt", "greater than",
+          "stack[top-1] = stack[top-1] > stack[top]");
+  add_row(GTK_GRID(grid), &row, "lt", "less than",
+          "stack[top-1] = stack[top-1] < stack[top]");
+  add_row(GTK_GRID(grid), &row, "ge", "gt or equal",
+          "stack[top-1] = stack[top-1] >= stack[top]");
+  add_row(GTK_GRID(grid), &row, "le", "lt or equal",
+          "stack[top-1] = stack[top-1] <= stack[top]");
+  add_row(GTK_GRID(grid), &row, "eq", "equal",
+          "stack[top-1] = stack[top-1] == stack[top]");
+  add_row(GTK_GRID(grid), &row, "ne", "not equal",
+          "stack[top-1] = stack[top-1] != stack[top]");
+  add_row(GTK_GRID(grid), &row, "and", "and",
+          "stack[top-1] = stack[top-1] && stack[top]");
+  add_row(GTK_GRID(grid), &row, "or", "or",
+          "stack[top-1] = stack[top-1] || stack[top]");
+
+  add_header_row(GTK_GRID(grid), &row, "[[ 이항 연산자 ]]");
+  add_row(GTK_GRID(grid), &row, "명령어", "의미", "동작");
+  add_row(GTK_GRID(grid), &row, "not", "not", "stack[top-1] = !stack[top]");
+  add_row(GTK_GRID(grid), &row, "neg", "negation",
+          "stack[top-1] = -stack[top]");
 
   gtk_widget_show_all(dialog);
   gtk_dialog_run(GTK_DIALOG(dialog));
