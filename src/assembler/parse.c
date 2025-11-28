@@ -18,7 +18,7 @@ void strcopy(char *dst, const char *src, int size) {
   if (size == 0)
     return;
 
-  strncpy(dst, src, size - 1);
+  memmove(dst, src, size - 1);
   dst[size - 1] = '\0';
 }
 
