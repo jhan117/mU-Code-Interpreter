@@ -1,21 +1,55 @@
+% int main() {
+%   int a[5];
+%   int n = 5;
+%   int i = 0, j;
+%
+%   // input
+%   while (i < n) {
+%     read(&a[i]);
+%     i++;
+%   }
+%
+%   // bubble sort
+%   for (i = 0; i < n - 1; i++) {
+%     for (j = 0; j < n - 1 - i; j++) {
+%       if (a[j] > a[j+1]) {
+%         int temp = a[j];
+%         a[j] = a[j+1];
+%         a[j+1] = temp;
+%       }
+%     }
+%   }
+%
+%   // print
+%   for (i = 0; i < n; i++)
+%     write(a[i]);
+% }
+
+% 프로그램 시작
            bgn 0
            ldp
            call main
            end
+
+% main
 main       proc 20
+
+% i, j, n, temp, a[5]
            sym 2 0 1
            sym 2 1 1
            sym 2 2 1
            sym 2 3 1
            sym 2 4 5
+
+% n = 5
            ldc 5
            str 2 2
 
+% i = 0
            ldc 0
            str 2 0
 
-%입력받기(5개)
-
+% 입력 5개
 $$INPUT    nop
            lod 2 0
            lod 2 2
@@ -34,11 +68,13 @@ $$INPUT    nop
            add
            str 2 0
            ujp $$INPUT
+
 $$END_INP  nop
 
-%정렬
+% bubble sort
            ldc 0
            str 2 0
+
 $$I        nop
            lod 2 0
            lod 2 2
@@ -60,6 +96,7 @@ $$J        nop
            ge
            tjp $$NEXT_I
 
+% if (a[j] > a[j+1])
            lda 2 4
            lod 2 1
            sub
@@ -73,14 +110,14 @@ $$J        nop
            gt
            fjp $$NO_SWAP
 
-%temp = a[j]
+% temp = a[j]
            lda 2 4
            lod 2 1
            sub
            ldi
            str 2 3
 
-%a[j] = a[j+1]
+% a[j] = a[j+1]
            lda 2 4
            lod 2 1
            sub
@@ -92,7 +129,7 @@ $$J        nop
            ldi
            sti
 
-%a[j+1] = temp 
+% a[j+1] = temp
            lda 2 4
            lod 2 1
            ldc 1
@@ -117,8 +154,7 @@ $$NEXT_I   nop
 
 $$END_SORT nop
 
-% 결과 출력
-
+% 출력
            ldc 0
            str 2 0
 
@@ -144,5 +180,3 @@ $$PRINT    nop
 
 $$FINISH   nop
            ret
-
-
