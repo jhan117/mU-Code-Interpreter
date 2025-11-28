@@ -1,4 +1,5 @@
 #include "core/vm_context.h"
+#include "record/record.h"
 
 #include <stdlib.h>
 #include <string.h>

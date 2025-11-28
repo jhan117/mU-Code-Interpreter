@@ -1,0 +1,66 @@
+% int gcd(int a, int b) {
+%   while (b != 0) {
+%     int t = a % b;
+%     a = b;
+%     b = t;
+%   }
+%   return a;
+% }
+
+% 프로그램 시작
+           bgn 0
+           ldp
+           call main
+           end
+
+% main
+main       proc 10
+
+% a, b, t
+           sym 2 0 1
+           sym 2 1 1
+           sym 2 2 1
+
+% read a
+           ldp
+           lda 2 0
+           push
+           call read
+
+% read b
+           ldp
+           lda 2 1
+           push
+           call read
+
+% while (b != 0)
+$$LOOP     nop
+           lod 2 1
+           ldc 0
+           eq
+           tjp $$END
+
+% t = a % b
+           lod 2 0
+           lod 2 1
+           mod
+           str 2 2
+
+% a = b
+           lod 2 1
+           str 2 0
+
+% b = t
+           lod 2 2
+           str 2 1
+
+           ujp $$LOOP
+
+% print a
+$$END      nop
+           ldp
+           lod 2 0
+           push
+           call write
+
+           ret
