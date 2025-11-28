@@ -22,38 +22,64 @@ void step(void) {
   return;
 }
 
-void printError(int prev_pc) {
+char *formatRunError(int line) {
   VMContext *ctx = getVMContext();
-
   if (ctx->flags == 0)
     return;
 
-  if (ctx->flags & ERR_INVALID_ADDR)
-    printf("[ERROR] Invalid address access\n");
-  if (ctx->flags & ERR_INVALID_PC)
-    printf("[ERROR] Invalid program counter\n");
-  if (ctx->flags & ERR_INVALID_BP)
-    printf("[ERROR] Invalid base pointer\n");
-  if (ctx->flags & ERR_STACK_OVERFLOW)
-    printf("[ERROR] Stack overflow\n");
-  if (ctx->flags & ERR_STACK_UNDERFLOW)
-    printf("[ERROR] Stack underflow\n");
-  if (ctx->flags & ERR_CPU_STACK_OVERFLOW)
-    printf("[ERROR] CPU stack overflow\n");
-  if (ctx->flags & ERR_CPU_STACK_UNDERFLOW)
-    printf("[ERROR] CPU stack underflow\n");
+  const char *errors[7];
+  int count = 0;
 
-  if (prev_pc >= 0 && prev_pc < ctx->code_len) {
-    char inst[32];
-    int inst_val = ctx->memory[prev_pc];
-    int group;
-    int g_idx;
-    int operand;
-    decodeInst(inst_val, &group, &g_idx, &operand);
-    const char *opcode_name = findOpInfoByOpcode(group * 10 + g_idx)->name;
-    snprintf(inst, sizeof(inst), "%s %d", opcode_name, operand);
-    printf("[DEBUG] instruction : %s | pc : %d | bp : %d | sp : %d\n", inst,
-           ctx->pc, ctx->bp, ctx->sp);
+  if (ctx->flags & ERR_INVALID_ADDR)
+    errors[count++] = "Invalid address access";
+  if (ctx->flags & ERR_INVALID_PC)
+    errors[count++] = "Invalid program counter";
+  if (ctx->flags & ERR_INVALID_BP)
+    errors[count++] = "Invalid base pointer";
+  if (ctx->flags & ERR_STACK_OVERFLOW)
+    errors[count++] = "Stack overflow";
+  if (ctx->flags & ERR_STACK_UNDERFLOW)
+    errors[count++] = "Stack underflow";
+  if (ctx->flags & ERR_CPU_STACK_OVERFLOW)
+    errors[count++] = "CPU stack overflow";
+  if (ctx->flags & ERR_CPU_STACK_UNDERFLOW)
+    errors[count++] = "CPU stack underflow";
+
+  int total_len = 0;
+  for (int i = 0; i < count; i++) {
+    if (i == 0)
+      total_len +=
+          snprintf(NULL, 0, "[ERROR] ucode Line %d: %s\n", line, errors[i]);
+    else
+      total_len +=
+          snprintf(NULL, 0, "                             %s\n", errors[i]);
+  }
+
+  char *buf = malloc(total_len + 1);
+  if (!buf)
+    return NULL;
+  buf[0] = '\0';
+
+  for (int i = 0; i < count; i++) {
+    char tmp[256];
+    if (i == 0)
+      snprintf(tmp, sizeof(tmp), "[ERROR] ucode Line %d: %s\n", line,
+               errors[i]);
+    else
+      snprintf(tmp, sizeof(tmp), "                             %s\n",
+               errors[i]);
+    strncat(buf, tmp, total_len - strlen(buf));
+  }
+
+  return buf; // free 필수
+}
+
+void printRunError(int line) {
+  char *msg = formatRunError(line);
+
+  if (msg) {
+    printf("%s\n", msg);
+    free(msg);
   }
 }
 
@@ -71,22 +97,25 @@ void readyToRun() {
   ctx->memory[stack_top] = -1;
 }
 
-int runner() {
+ErrorResult runner() {
+  ErrorResult ok = {ERR_SRC_NONE, 0, -1};
+
   VMContext *ctx = getVMContext();
   readyToRun();
   initSnapshot();
 
-  int prev_pc = 0;
+  ctx->prev_pc = 0;
   while (1) {
     if (ctx->bp == -1) {
       printf("\n[INFO] runner stopped\n");
-      return 0;
+      return ok;
     }
     if (ctx->flags != 0) {
-      printError(prev_pc);
-      return -1;
+      printRunError(ctx->source_map.line[ctx->prev_pc]);
+      return (ErrorResult){ERR_SRC_RUNNER, ctx->flags,
+                           ctx->source_map.line[ctx->prev_pc]};
     }
-    prev_pc = ctx->pc;
+    ctx->prev_pc = ctx->pc;
     step();
     saveChanges();
   }

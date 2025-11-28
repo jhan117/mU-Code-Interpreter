@@ -68,6 +68,7 @@ GtkWidget *createStepControl() {
 void initStep() {
   VMContext *vm_ctx = getVMContext();
   StepContext *step_ctx = &getGuiContext()->step_ctx;
+  step_ctx->current_step = 0;
 
   gtk_adjustment_set_upper(step_ctx->adj, vm_ctx->changes.list_count - 1);
   gtk_adjustment_set_value(step_ctx->adj, 0);
@@ -75,9 +76,6 @@ void initStep() {
   char buf[64];
   sprintf(buf, "Step 01 of %02d", vm_ctx->changes.list_count);
   gtk_label_set_text(step_ctx->step_label, buf);
-
-  highlightLine();
-  highlightRow();
 }
 
 void updateStep() {
@@ -90,7 +88,4 @@ void updateStep() {
   gtk_label_set_text(step_ctx->step_label, buf);
 
   step_ctx->current_step = value;
-
-  highlightLine();
-  highlightRow();
 }

@@ -19,6 +19,7 @@ void initSnapshot() {
   state_snapshot.sp = ctx->sp;
   state_snapshot.bp = ctx->bp;
   state_snapshot.flags = ctx->flags;
+  state_snapshot.prev_pc = ctx->prev_pc;
 }
 
 void expandChangeList() {
@@ -102,6 +103,10 @@ void saveChanges() {
     addNewChange(HD_NUM_SP, 0, ctx->sp);
     state_snapshot.sp = ctx->sp;
   }
+  if (state_snapshot.prev_pc != ctx->prev_pc) {
+    addNewChange(HD_NUM_PREV_PC, 0, ctx->prev_pc);
+    state_snapshot.prev_pc = ctx->prev_pc;
+  }
   ctx->changes.list_count++;
 
   if (ctx->changes.list_count >= ctx->changes.list_size) {
@@ -141,6 +146,9 @@ void applyChanges(int start_step, int end_step) {
         break;
       case HD_NUM_BP:
         ctx->bp = c->new_value;
+        break;
+      case HD_NUM_PREV_PC:
+        ctx->prev_pc = c->new_value;
         break;
       }
       c = c->next;
