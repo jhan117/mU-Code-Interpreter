@@ -1,0 +1,8 @@
+.vscode
+build/
+build-test/
+
+# 빌드 전용
+*.AppImage
+*.AppDir
+*.tar.gz
