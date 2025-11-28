@@ -44,17 +44,7 @@ int testAssembleSuccess() {
   printf("[PASS] assemble() test passed\n");
 
   printf("\n========= Assembled memory =========\n");
-  for (int i = 0; i < ctx->code_len; i++) {
-    int inst = ctx->memory[i];
-    int op_group = (inst >> 29) & 0x7;
-    int op_group_idx = (inst >> 26) & 0x7;
-    int operand = inst & 0x03FFFFFF;
-
-    decodeInst(inst, &op_group, &op_group_idx, &operand);
-
-    printf("%04d: opcode=%d%d operand=%d\n", i, op_group, op_group_idx,
-           operand);
-  }
+  printf("%s", printAssembleRes());
 
   // code_len 확인
   if (ctx->memory[ctx->code_len])

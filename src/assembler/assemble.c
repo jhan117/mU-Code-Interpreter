@@ -244,11 +244,19 @@ char *printAssembleRes() {
 
     char line[LINE_BUFFER_LEN];
     const OpInfo *info = findOpInfoByOpcode(opcode);
-    if (info->operand_count == 0)
-      snprintf(line, LINE_BUFFER_LEN, "%04d: opcode=%d\n", i, opcode);
-    else
-      snprintf(line, LINE_BUFFER_LEN, "%04d: opcode=%d operand=%d\n", i, opcode,
-               operand);
+    if (info->operand_count == 0) {
+      if (i == ctx->code_len - 1)
+        snprintf(line, LINE_BUFFER_LEN, "%04d: opcode=%d", i, opcode);
+      else
+        snprintf(line, LINE_BUFFER_LEN, "%04d: opcode=%d\n", i, opcode);
+    } else {
+      if (i == ctx->code_len - 1)
+        snprintf(line, LINE_BUFFER_LEN, "%04d: opcode=%d operand=%d", i, opcode,
+                 operand);
+      else
+        snprintf(line, LINE_BUFFER_LEN, "%04d: opcode=%d operand=%d\n", i,
+                 opcode, operand);
+    }
 
     strncat(result, line, buf_size - strlen(result) - 1);
   }

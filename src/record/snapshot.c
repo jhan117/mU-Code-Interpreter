@@ -34,3 +34,20 @@ void makeSnapshot() {
   ctx->snapshot_list.snapshot_list[idx].flags = ctx->flags;
   ctx->snapshot_list.snapshot_count++;
 }
+
+void restoreSnapshot(const Snapshot *snap) {
+  VMContext *ctx = getVMContext();
+
+  memcpy(ctx->memory, snap->memory, sizeof(int) * INIT_MEMORY_SIZE);
+  memcpy(ctx->cpu_stack.items, snap->cpu_stack,
+         sizeof(int) * INIT_CPU_STACK_CAPACITY);
+
+  ctx->cpu_stack.top = snap->cpu_top;
+  ctx->cs = snap->cs;
+  ctx->pc = snap->pc;
+  ctx->ds = snap->ds;
+  ctx->ss = snap->ss;
+  ctx->sp = snap->sp;
+  ctx->bp = snap->bp;
+  ctx->flags = snap->flags;
+}
