@@ -1,0 +1,143 @@
+%void dfs(int tree[], int size, int index) {
+%  if (index > size)
+%    return;
+%
+%  dfs(tree, size, index * 2);
+%  dfs(tree, size, index * 2 + 1);
+%}
+%
+%int main() {
+%  int tree[10001];
+%  int size = 10001;
+%  int i = 1;
+%  while (i <= size) {
+%    tree[i] = i;
+%    i++;
+%  }
+%
+%  dfs(tree, size, 1);
+%
+%  return 0;
+%}
+
+
+
+% 프로그램 시작
+           bgn 0
+           ldp
+           call main
+           end
+
+% main 함수 시작
+main       proc 10003
+
+% i
+           sym 2 0 1
+% tree[]
+           sym 2 1 10001
+% size
+           sym 2 10002 1
+
+% size = 10001
+           ldc 10001
+           str 2 10002
+
+% i = 0
+           ldc 0
+           str 2 0
+
+% while 시작
+$$0        nop
+
+% 조건: i < size
+           lod 2 0
+           lod 2 10002
+           le
+           fjp $$1
+
+% tree[i] = i 
+           lda 2 1
+           lod 2 0
+           sub
+           lod 2 0
+           sti
+% i++
+           lod 2 0
+           ldc 1
+           add
+           str 2 0
+
+% 반복 점프
+           ujp $$0
+
+% while 종료
+$$1        nop
+
+% dfs(tree, size, 1) 호출 준비
+           ldp
+           lda 2 1
+           push
+           lod 2 10002
+           push
+           ldc 1
+           push
+           call dfs
+
+           ret
+
+
+% dfs 함수 시작
+dfs        proc 5
+
+% tree[]
+           sym 3 0 1
+% size
+           sym 3 1 1
+% index
+           sym 3 2 1
+% left
+           sym 3 3 1
+% right
+           sym 3 4 1
+
+% if (index > size) return;
+           lod 3 2
+           lod 3 1
+           gt
+           tjp $$RET
+
+% left = index * 2
+           lod 3 2
+           ldc 2
+           mult
+           str 3 3
+
+% right = index * 2 + 1
+           lod 3 2
+           ldc 2
+           mult
+           ldc 1
+           add
+           str 3 4
+
+% dfs(tree, size, left)
+           ldp
+           lod 3 0
+           push
+           lod 3 1
+           push
+           lod 3 3
+           push
+           call dfs
+
+% dfs(tree, size, right)
+           ldp
+           lod 3 0
+           push
+           lod 3 1
+           push
+           lod 3 4
+           push
+           call dfs
+
+$$RET      ret
