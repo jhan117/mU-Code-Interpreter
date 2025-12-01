@@ -11,6 +11,7 @@ Software Project 수업의 step3 과제입니다.
 - `assets/`: CSS 등 리소스 파일
 - `test/`: 테스트 코드
 - `docs/`: 회의록, 보고서 등 문서 파일
+- `benchmark/`: 벤치마크를 위한 C,Java,Python,U-Code와 쉘스크립트
 
 ## 빌드 및 실행 방법
 
@@ -21,6 +22,7 @@ make run
 
 # 실행
 .build/ucode_interpreter [uco 파일 경로] [lst 파일 경로] # cli 실행
+.build/ucode_interpreter --benchmark [uco 파일 경로] # 안내없이 소스코드만 실행, lst 생성하지 않음
 .build/ucode_interpreter # gui 실행
 ```
 

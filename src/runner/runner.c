@@ -120,3 +120,26 @@ ErrorResult runner() {
     saveChanges();
   }
 }
+
+ErrorResult benchRunner() {
+  ErrorResult ok = {ERR_SRC_NONE, 0, -1};
+
+  VMContext *ctx = getVMContext();
+  readyToRun();
+  initSnapshot();
+
+  ctx->prev_pc = 0;
+  while (1) {
+    if (ctx->bp == -1) {
+      printf("\n[INFO] runner stopped\n");
+      return ok;
+    }
+    if (ctx->flags != 0) {
+      printRunError(ctx->source_map.line[ctx->prev_pc]);
+      return (ErrorResult){ERR_SRC_RUNNER, ctx->flags,
+                           ctx->source_map.line[ctx->prev_pc]};
+    }
+    ctx->prev_pc = ctx->pc;
+    step();
+  }
+}
