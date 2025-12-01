@@ -46,10 +46,14 @@ int getUcodeView(char ***lines, int *line_count) {
   gtk_text_buffer_get_start_iter(buffer, &iter);
 
   for (int i = 0; i < total_lines; i++) {
+    GtkTextIter line_start = iter;
     GtkTextIter line_end = iter;
+
     gtk_text_iter_forward_to_line_end(&line_end);
 
-    char *line = gtk_text_buffer_get_text(buffer, &iter, &line_end, FALSE);
+    char *line =
+        gtk_text_buffer_get_text(buffer, &line_start, &line_end, FALSE);
+
     if (!line) {
       for (int j = 0; j < *line_count; j++)
         g_free((*lines)[j]);
@@ -57,6 +61,11 @@ int getUcodeView(char ***lines, int *line_count) {
       *lines = NULL;
       *line_count = 0;
       return 0;
+    }
+
+    if (line[0] == '\0' || line[0] == '\n') {
+      g_free(line);
+      line = g_strdup("");
     }
 
     (*lines)[*line_count] = line; // 위젯꺼니까 g_free로 나중에 해제
