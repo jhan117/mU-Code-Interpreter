@@ -22,8 +22,6 @@ static int ensureCapacity(char ***lines, int *capacity, int line_count) {
 
 static int appendLine(char ***lines, int *line_count, int *capacity,
                       const char *buffer, int len) {
-  if (len <= 0)
-    return 1;
 
   if (!ensureCapacity(lines, capacity, *line_count))
     return 0;
@@ -67,6 +65,7 @@ int loadUco(const char *path, char ***lines, int *line_count) {
         return 0;
       }
       pos = 0;
+      buffer[0] = '\0';
     } else if (c != '\r') { // CR 제거
       if (pos < sizeof(buffer) - 1)
         buffer[pos++] = c;
@@ -106,13 +105,13 @@ char *joinLines(char **lines, int line_count) {
   for (int i = 0; i < line_count; i++) {
     if (lines[i]) {
       int len = strlen(lines[i]);
-      memcpy(p, lines[i], len);
+      strcopy(p, lines[i], len + 1);
       p += len;
-      *p++ = '\n';
+      if (i != line_count - 1)
+        *p++ = '\n';
     }
   }
   *p = '\0';
-
   return result; // free 필요
 }
 

@@ -11,8 +11,9 @@ void toggleWidgetsVisible(int is_true) {
     gtk_widget_set_sensitive(ctx->step_ctx.btn_toggle, TRUE);
     gtk_widget_set_sensitive(ctx->run_btn, TRUE);
     gtk_text_view_set_editable(ctx->code_ctx.ucode_view.text_view, TRUE);
+    gtk_widget_set_sensitive(ctx->file_ctx.file_chooser, TRUE);
   } else {
-    // step 버튼 + run 버튼 비활성화 + ucode 뷰 비활성화
+    // step 버튼 + run 버튼 비활성화 + ucode 뷰 비활성화 + 파일 선택기 비활성화
     gtk_widget_set_sensitive(ctx->step_ctx.btn_first, FALSE);
     gtk_widget_set_sensitive(ctx->step_ctx.btn_prev, FALSE);
     gtk_widget_set_sensitive(ctx->step_ctx.btn_next, FALSE);
@@ -20,6 +21,7 @@ void toggleWidgetsVisible(int is_true) {
     gtk_widget_set_sensitive(ctx->step_ctx.btn_toggle, FALSE);
     gtk_widget_set_sensitive(ctx->run_btn, FALSE);
     gtk_text_view_set_editable(ctx->code_ctx.ucode_view.text_view, FALSE);
+    gtk_widget_set_sensitive(ctx->file_ctx.file_chooser, FALSE);
   }
 }
 
