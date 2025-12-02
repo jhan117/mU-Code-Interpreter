@@ -1,0 +1,19 @@
+           bgn 1
+           sym 1 0 1
+           ldc 10
+           str 1 0
+           ldp 
+           call main
+           end 
+main       proc 12
+           sym 2 0 1
+           sym 2 1 10
+           sym 2 11 1
+           ldc 0
+           dup 
+           str 2 11
+           str 2 0
+$$0        nop 
+           lod 2 0
+           lod 1 0
+% ret 없음....
