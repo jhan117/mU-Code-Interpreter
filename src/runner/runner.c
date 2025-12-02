@@ -121,7 +121,7 @@ ErrorResult runner() {
   }
 }
 
-ErrorResult benchRunner() {
+ErrorResult fastRunner() {
   ErrorResult ok = {ERR_SRC_NONE, 0, -1};
 
   VMContext *ctx = getVMContext();

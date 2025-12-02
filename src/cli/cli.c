@@ -35,10 +35,7 @@ void runAsCLI(const char *input_path, const char *output_path,
   if (!benchmark_mode)
     printf("====== 실행 시작 ======\n");
 
-  if (!benchmark_mode)
-    res = runner();
-  else
-    res = benchRunner();
+  res = fastRunner();
 
   if (res.src != ERR_SRC_NONE) {
     fprintf(stderr, "[ERROR] Runner exited with error\n");

@@ -161,6 +161,11 @@ ErrorResult assemble(char **lines, int line_count) {
         printAsmError(ASSEMBLE_ERR_MEMORY, i + 1);
         return (ErrorResult){ERR_SRC_ASSEMBLE, ASSEMBLE_ERR_MEMORY, i + 1};
       }
+
+      CallPatch *patch = findCallPatchByName(current_func->name);
+      if (patch) {
+        operand_val -= patch->param_cnt;
+      }
       break;
     }
     case OP_RET: {
