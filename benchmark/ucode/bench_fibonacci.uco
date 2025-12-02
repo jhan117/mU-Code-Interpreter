@@ -1,0 +1,64 @@
+% int fib(int n) {
+%   if (n <= 1) return n;
+%   return fib(n-1) + fib(n-2);
+% }
+%
+% int main() {
+%   int n;
+%   fib(30);
+%   return 0;
+% }
+
+% 프로그램 시작
+           bgn 0
+           ldp
+           call main
+           end
+
+% main
+main       proc 1
+% n
+           sym 2 0 1
+
+% fib(25)
+           ldp
+           ldc 30
+           push
+           call fib
+
+           ret
+
+% fib 함수
+fib        proc 1
+
+% n
+           sym 3 0 1
+
+% if (n <= 1) return n;
+           lod 3 0
+           ldc 1
+           le
+           tjp $$LODR
+
+% fib(n-1)
+$$RECUR    nop
+           lod 3 0
+           ldc 1
+           sub
+           ldp
+           push
+           call fib
+
+% fib(n-2)
+           lod 3 0
+           ldc 2
+           sub
+           ldp
+           push
+           call fib
+
+           add
+           ujp $$RET
+
+$$LODR     lod 3 0
+$$RET      ret

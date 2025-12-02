@@ -15,29 +15,36 @@ void onRun(GtkButton *button) {
   ctx->is_run = 1;
   IOContext *io_ctx = &ctx->io_ctx;
 
-  gtk_text_view_set_editable(GTK_TEXT_VIEW(io_ctx->io_view), TRUE);
   highlightLine(ctx->code_ctx.ucode_view.text_view, -1);
   highlightLine(ctx->code_ctx.assemble_view.text_view, -1);
-  io_ctx->is_last_write = 0;
-  io_ctx->input_queue = g_async_queue_new();
 
   char **lines = NULL;
   int line_count = 0;
   if (!getUcodeView(&lines, &line_count)) {
     freeUcoView(lines, line_count);
+    toggleWidgetsVisible(1);
+    ctx->is_run = 0;
     return;
   }
 
-  if (line_count == 0) {
+  if (line_count <= 1 && lines[0][0] == '\0') {
     freeUcoView(lines, line_count);
+    toggleWidgetsVisible(1);
+    ctx->is_run = 0;
     return;
   }
 
   WorkerData *wd = (WorkerData *)calloc(1, sizeof(WorkerData));
   if (!wd) {
     freeUcoView(lines, line_count);
+    toggleWidgetsVisible(1);
+    ctx->is_run = 0;
     return;
   }
+
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(io_ctx->io_view), TRUE);
+  io_ctx->is_last_write = 0;
+  io_ctx->input_queue = g_async_queue_new();
 
   wd->lines = lines;
   wd->line_count = line_count;

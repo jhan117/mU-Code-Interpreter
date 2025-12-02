@@ -39,6 +39,11 @@ static char *makeFilename(const char *filename, const char *extension) {
 void onOpenUco() {
   GuiContext *ctx = getGuiContext();
 
+  if (ctx->is_run) {
+    showMessage(GTK_MESSAGE_WARNING, "실행 중입니다. 나중에 시도하세요.");
+    return;
+  }
+
   GtkWidget *dialog = gtk_file_chooser_dialog_new(
       "Open .uco File", ctx->main_window, GTK_FILE_CHOOSER_ACTION_OPEN,
       "_Cancel", GTK_RESPONSE_CANCEL, "_Open", GTK_RESPONSE_ACCEPT, NULL);
@@ -73,6 +78,11 @@ void onOpenUco() {
 
 void onSaveUco() {
   GuiContext *ctx = getGuiContext();
+  if (ctx->is_run) {
+    showMessage(GTK_MESSAGE_WARNING, "실행 중입니다. 나중에 시도하세요.");
+    return;
+  }
+
   char *file_name = ctx->file_ctx.uco_filename;
 
   if (!file_name) {
@@ -94,6 +104,11 @@ void onSaveUco() {
 
 void onSaveAsUco() {
   GuiContext *ctx = getGuiContext();
+
+  if (ctx->is_run) {
+    showMessage(GTK_MESSAGE_WARNING, "실행 중입니다. 나중에 시도하세요.");
+    return;
+  }
 
   GtkWidget *dialog = gtk_file_chooser_dialog_new(
       "Save .uco File", ctx->main_window, GTK_FILE_CHOOSER_ACTION_SAVE,
@@ -153,6 +168,11 @@ static char *makeLstFilename(const char *uco_filename,
 
 void onSaveLst() {
   GuiContext *ctx = getGuiContext();
+
+  if (ctx->is_run) {
+    showMessage(GTK_MESSAGE_WARNING, "실행 중입니다. 나중에 시도하세요.");
+    return;
+  }
 
   GtkWidget *dialog = gtk_file_chooser_dialog_new(
       "Save .lst File", ctx->main_window, GTK_FILE_CHOOSER_ACTION_SAVE,
