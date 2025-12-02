@@ -8,7 +8,7 @@ void initInstGroup();
 void step(void);
 char *formatRunError(int line);
 ErrorResult runner();
-ErrorResult benchRunner();
+ErrorResult fastRunner();
 
 void execInstGroup0(int inst);
 void execInstGroup1(int inst);
