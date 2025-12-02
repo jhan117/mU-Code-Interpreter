@@ -5,7 +5,9 @@
 static void handleLineInput(IOContext *io_ctx, const gchar *line) {
   gchar *trimmed = g_strstrip((gchar *)line);
   if (isNumber(trimmed) && strlen(trimmed) > 0) {
-    g_async_queue_push(io_ctx->input_queue, GINT_TO_POINTER(atoi(trimmed)));
+    int *ptr = g_new(int, 1);
+    *ptr = atoi(trimmed);
+    g_async_queue_push(io_ctx->input_queue, ptr);
   }
 }
 
@@ -98,15 +100,24 @@ static gboolean addPromptIdle(gpointer data) {
   return G_SOURCE_REMOVE;
 }
 
+static gboolean uiSetEditable(gpointer data) {
+  IOContext io_ctx = getGuiContext()->io_ctx;
+  gtk_text_view_set_editable(GTK_TEXT_VIEW(io_ctx.io_view), (gboolean)data);
+  return G_SOURCE_REMOVE;
+}
+
 // === runner 스레드 === //
 void guiIoWrite(const char *data) {
   IOContext *io_ctx = &getGuiContext()->io_ctx;
+
+  g_idle_add(uiSetEditable, TRUE);
 
   char tmp[128];
   snprintf(tmp, sizeof(tmp), "%s ", data);
 
   safeInsertAtEnd(io_ctx->io_view, tmp);
   io_ctx->is_last_write = 1;
+  g_idle_add(uiSetEditable, FALSE);
 }
 
 int guiIoRead() {
@@ -116,7 +127,12 @@ int guiIoRead() {
   }
 
   io_ctx->is_last_write = 0;
-  return GPOINTER_TO_INT(g_async_queue_pop(io_ctx->input_queue));
+  int *ptr = g_async_queue_pop(io_ctx->input_queue);
+
+  int value = *ptr;
+  g_free(ptr);
+
+  return value;
 }
 
 void guiIoLf() {
